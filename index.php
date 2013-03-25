@@ -9,13 +9,13 @@
 #   http://jeunes-science.org/kiwi/
 
 #   Variables de configuration
-$titre_du_journal = 'Titre du journal';
-$url_du_journal = 'http://exemple.tld/';
-$auteur = 'auteur@courriel.tld'
-$description = 'Un journal web généré par kiwi, le générateur endémique.';
-$langue = 'fr'; #   Langue du journal.
-$feuille_de_style = 'style.css'; #   URL de la feuille de style.
-$favicon = 'favicon.png'; # URL de la favicon ; PNG uniquement.
+define('TITRE_DU_JOURNAL', 'Le colibri libre');
+define('URL_DU_JOURNAL', 'http://localhost:8042/');
+define('AUTEUR', 'dhoko@cyaneus.org');
+define('DESCRIPTION', 'Un journal web généré par kiwi, le générateur endémique.');
+define('LANGUE', 'fr'); #   Langue du journal.
+define('FEUILLE_DE_STYLE', 'style.css'); #   URL de la feuille de style.
+define('FAVICON', 'favicon.png'); # URL de la favicon ; PNG uniquement.
 
 #   Fonctions
 function transforme($texte) {
@@ -31,69 +31,42 @@ function transforme($texte) {
     return $texte;
 }
 
-function lecture($article) {
+function lecture($url) {
     #   Cette fonction lit le fichier d'un article.
     #   Les étapes sont les suivantes :
     #   1. L'on reconstruit l'URL du fichier.
     #   2. L'on extraie le fichier dans une chaîne.
     #   3. L'on transforme le texte en xHTML.
-    
-    $url = './'.$article.'.blog.markdown';
-    
-    $article = file_get_contents($url);
-    
-    $article = transforme($article);
-    
-    return $article;
+    return transforme(file_get_contents($url));
 }
 
 function titre($article) {
     # Cette fonction extraie le titre d'un article.
-    
-    $titre = preg_replace('#^([0-9]{4}-){2}(.*)$#', "$2", $article);
-    
+       
     return $titre;
 }
 
-function date_pub($article, $format = "d.m.Y") {
-    #   Cette fonction retourne la date de publication d'un article.
-    #   Les étapes sont les suivantes :
-    #   1. L'on extraie la date du nom de l'article.
-    #   2. L'on isole l'année, le mois et le jour.
-    #   3. L'on construit le timestamp.
-    #   4. L'on applique le format.
-    
-    $date = preg_replace('#^([0-9]{4}-[0-9]{4})-.*#', "$1", $article);
-    
-    $annee = preg_replace('#^([0-9]{4})-.*#', "$1", $date);
-    $mois = preg_replace('#^[0-9]{4}-([0-9]{2}).*#', "$1", $date);
-    $jour = preg_replace('#^[0-9]{4}-[0-9]{2}([0-9]{2}).*#', "$1", $date);
-    $annee = (int) $annee; $mois = (int) $mois; $jour = (int) $jour; 
-    
-    $timestamp = mktime(0, 0, 0, $mois, $jour, $annee);
-    
-    $date = date($format, $timestamp);
-    
-    return $date;
-}
+
 
 function lien($article) {
     #   Cette fonction retourne le lien relatif d'un article.
     
-    $lien = './index.php?article=' . $article;
+    $lien = 'articles/' . $article;
     
     return $lien;
 }
 
-function publication($article) {
-    #   Cette fonction décide si l'on peut publier un article.
-    
-    if ((int) date_pub($article, "Ymd") <= (int) date("Ymd")) :
-        return true;
-    else :
-        return false;
-    endif;
+
+
+function url($path) {
+    $url = str_replace('&', '-and-', $path);
+    $url = trim(preg_replace('/[^\w\d_ -]/si', '', $url));//remove all illegal chars
+    $url = str_replace(' ', '-', $url);
+    $url = str_replace('--', '-', $url);
+    return strtolower($url);
 }
+
+
 
 function liste_articles() {
     #   Cette fonction liste les articles publiables dans un tableau.
@@ -103,37 +76,81 @@ function liste_articles() {
     #   3. L'on vérifie qu'ils soient publiables.
     #   4. L'on inverse l'ordre du tableau
     #      (l'on les veut dans l'ordre antéchronologique, non ?)
-    
-    $fichiers = scandir('./');
-    $articles = array();
-    
-    $regex = '#^([0-9]{4}-[0-9]{4}-[a-zA-Z0-9].*)\.blog\.markdown$#';
-    #   Le format recherché est le suivant :
-    #   AAAA-MMJJ-titre de l'article.blog.markdown
-    
-    foreach ($fichiers as $fichier) :
-        if (is_file($fichier)) :
-            if (preg_match($regex, $fichier)) :
-                if (publication($fichier) == true) :
-                    $fichier = preg_replace($regex, "$1", $fichier);
-                    $articles[] = $fichier;
-                endif;
-            endif;
-        endif;
-    endforeach;
-    
-    $articles = array_reverse($articles);
-    
-    return $articles;
+
+    $files = array();
+    $iterator = new DirectoryIterator(dirname(__FILE__).DIRECTORY_SEPARATOR.'draft'.DIRECTORY_SEPARATOR);
+
+
+    foreach ($iterator as $file) {
+        if($file->isFile()) {
+            $name = explode('.',$file->getfilename());
+
+            $content = lecture($file->getPath().DIRECTORY_SEPARATOR.$file->getfilename());
+            $files[] = array(
+                'bdate' => $file->getCTime(),
+                'date'  => date("d/m/Y",$file->getCTime()),
+                'url'   => url($name[0]).'.html',
+                'title'   => $name[0],
+                'html' => toHtml(url($name[0]),$content,$name[0])
+            );
+            
+        }
+    }
+    // echo "<pre>";
+    // print_r($files);
+    // echo "</pre>";
+
+    return array_reverse($files);
+}
+
+
+
+function head($title = '') {
+    $title = (empty($title)) ? TITRE_DU_JOURNAL : $title.' - '.TITRE_DU_JOURNAL;
+    return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="'.LANGUE.'">
+<head>
+    <title>'.$title.'</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="alternate" type="application/rss+xml" href="'.URL_DU_JOURNAL.'?rss" />
+    <link rel="stylesheet" type="text/css" href="'.URL_DU_JOURNAL.FEUILLE_DE_STYLE.'" />
+    <link rel="shortcut icon" type="image/png" href="'.FAVICON.'" />
+</head><body>';
+}
+
+function footer() {
+    return '<p class="skip"><a href="#haut">Retourner en haut</a></p><p class="colophon">©'.TITRE_DU_JOURNAL.',certains droits réservés…<br />Réagissez ! Écrivez-moi : '.AUTEUR.'
+<a href="http://jeunes-science.org/kiwi/" title="kiwi, le générateur endémique"><img src="http://jeunes-science.org/kiwi/colophon.png" alt="kiwi"></a></p>
+ </body>
+</html>';
+}
+
+function toHtml($file,$content,$title) {
+    $path = 'articles'.DIRECTORY_SEPARATOR;
+    $content = head($title).menu().$content.footer();
+    if(!file_exists($path.$file.'.html')) {
+        return file_put_contents($path.$file.'.html',$content);
+    }
+    return false;
 }
 
 function affichage($article) {
     #   Cette fonction retourne un article avec toutes ses méta-données.
     
     return '
-    <h2>'.titre($article).'</h2>
+    <h2>'.$article['title'].'</h2>
     '.lecture($article).'
-    <p class="skip">Publié le '.date_pub($article).'. <a href="'.lien($article).'" title="Accès permanent à « '.titre($article).' »">Lien permanent</a>. <a href="#haut">Retourner en haut</a>.</p>';
+    <p class="skip">Publié le '.$article['date'].'. <a href="'.$article['url'].'" title="Accès permanent à « '.$article["title"].' »">Lien permanent</a>. <a href="#haut">Retourner en haut</a>.</p>';
+}
+
+function menu() {
+    return '<p id="haut" class="skip"><a href="#menu">Aller au menu</a>. <a href="#contenu">Aller au contenu</a>.</p>
+    <h1>'.TITRE_DU_JOURNAL.'</h1>
+    <ul id="menu" class="menu">
+        <li><a href="'.URL_DU_JOURNAL.'?journal">Journal</a></li>
+        <li><a href="'.URL_DU_JOURNAL.'?archives">Archives</a></li>
+        <li><a href="'.URL_DU_JOURNAL.'?rss">RSS</a></li>
+    </ul>';
 }
 
 function affichage_liste($elements = 'titres') {
@@ -143,10 +160,10 @@ function affichage_liste($elements = 'titres') {
     
     foreach (liste_articles() as $article) :
         if ($elements == 'articles') :
-            echo affichage($article);
+            echo affichage($article['title']);
         else :
             echo '
-        <li>'.date_pub($article).' : <a href="'.lien($article).'">'.titre($article).'</a></li>';
+        <li>'.$article['date'].' : <a href="'.lien($article['url']).'">'.$article['title'].'</a></li>';
         endif;
     endforeach;
 }
@@ -166,18 +183,18 @@ if (isset($_GET['rss'])) :
     echo '
 <rss version="2.0">
 <channel>
-    <title>'.$titre_du_journal.'</title>
-    <link>'.$url_du_journal.'</link>
-    <description>'.$description.'</description>
-    <language>'.$langue.'</language>
+    <title>'.TITRE_DU_JOURNAL.'</title>
+    <link>'.URL_DU_JOURNAL.'</link>
+    <description>'.DESCRIPTION.'</description>
+    <language>'.LANGUE.'</language>
     <generator>kiwi 0.0 http://jeunes-science.org/kiwi/</generator>
 </channel>';
     foreach (liste_articles() as $article) :
         echo '
 <item>
-    <title>'.titre($article).'</title>
-    <link>'.lien($article).'</link>
-    <pubDate>'.date_pub($article, DATE_RSS).'</pubDate>
+    <title>'.$article['title'].'</title>
+    <link>'.URL_DU_JOURNAL.lien($article['url']).'</link>
+    <pubDate>'.date('D, j M Y H:i:s \G\M\T',$article['bdate']).'</pubDate>
     <description>
         '.htmlspecialchars(lecture($article)).'
     </description>
@@ -188,24 +205,7 @@ if (isset($_GET['rss'])) :
 else :
     #   On en a fini avec le RSS, on factorise le xHTML.
     
-    echo '
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="'.$langue.'">
-<head>
-    <title>'.$titre_du_journal.'</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="alternate" type="application/rss+xml" href="?rss" />
-    <link rel="stylesheet" type="text/css" href="'.$feuille_de_style.'" />
-    <link rel="shortcut icon" type="image/png" href="'.$favicon.'" />
-</head>
-<body>
-    <p id="haut" class="skip"><a href="#menu">Aller au menu</a>. <a href="#contenu">Aller au contenu</a>.</p>
-    <h1>'.$titre_du_journal.'</h1>
-    <ul id="menu" class="menu">
-        <li><a href="?journal">Journal</a></li>
-        <li><a href="?archives">Archives</a></li>
-        <li><a href="?rss">RSS</a></li>
-    </ul>';
+    echo head().menu();
     #   Puis dans l'ordre : article, archives, 42, journal.
     
     if (isset($_GET['article'])) :
@@ -223,15 +223,9 @@ else :
     <ul id="contenu" class="journal">';
         affichage_liste('titres');
         echo '
-    </ul>
-    <p class="skip"><a href="#haut">Retourner en haut</a></p>';
-    endif;
-    echo '
-    <p class="colophon">©'.$titre_du_journal.',certains droits réservés…<br />
-    Réagissez ! Écrivez-moi : '.$auteur.'
-    <a href="http://jeunes-science.org/kiwi/" title="kiwi, le générateur endémique"><img src="http://jeunes-science.org/kiwi/colophon.png" alt="kiwi"></a></p>
-</body>
-</html>';
+    </ul>';
+     endif;
+    echo footer();
 endif;
 
 #   En cas de question(s) quant à ce code, n'hésitez pas à me contacter :
