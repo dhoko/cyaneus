@@ -87,11 +87,12 @@ function liste_articles() {
 
             $content = lecture($file->getPath().DIRECTORY_SEPARATOR.$file->getfilename());
             $files[] = array(
-                'bdate' => $file->getCTime(),
-                'date'  => date("d/m/Y",$file->getCTime()),
-                'url'   => url($name[0]).'.html',
+                'bdate'   => $file->getCTime(),
+                'date'    => date("d/m/Y",$file->getCTime()),
+                'url'     => url($name[0]).'.html',
                 'title'   => $name[0],
-                'html' => toHtml(url($name[0]),$content,$name[0])
+                'content' => $content,
+                'html'    => toHtml(url($name[0]),$content,$name[0])
             );
             
         }
@@ -140,7 +141,7 @@ function affichage($article) {
     return '
     <h2>'.$article['title'].'</h2>
     '.lecture($article).'
-    <p class="skip">Publié le '.$article['date'].'. <a href="'.$article['url'].'" title="Accès permanent à « '.$article["title"].' »">Lien permanent</a>. <a href="#haut">Retourner en haut</a>.</p>';
+    <p class="skip">Publié le '.$article['date'].'. <a href="'.lien($article['url']).'" title="Accès permanent à « '.$article["title"].' »">Lien permanent</a>. <a href="#haut">Retourner en haut</a>.</p>';
 }
 
 function menu() {
@@ -160,7 +161,7 @@ function affichage_liste($elements = 'titres') {
     
     foreach (liste_articles() as $article) :
         if ($elements == 'articles') :
-            echo affichage($article['title']);
+            echo affichage($article);
         else :
             echo '
         <li>'.$article['date'].' : <a href="'.lien($article['url']).'">'.$article['title'].'</a></li>';
@@ -195,9 +196,8 @@ if (isset($_GET['rss'])) :
     <title>'.$article['title'].'</title>
     <link>'.URL_DU_JOURNAL.lien($article['url']).'</link>
     <pubDate>'.date('D, j M Y H:i:s \G\M\T',$article['bdate']).'</pubDate>
-    <description>
-        '.htmlspecialchars(lecture($article)).'
-    </description>
+    <description><![CDATA['.$article['content'].']]></description>
+
 </item>';
     endforeach;
     echo '
