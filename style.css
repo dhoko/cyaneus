@@ -1,0 +1,160 @@
+/*-----
+    ©2012 JSI & al.jes, certains droits réservés…
+    http://jeunes-science.org
+    http://aljes.me
+    Copyleft: cette oeuvre est libre, vous pouvez la copier, la diffuser et la modifier selon les termes de la Licence Art Libre :
+    http://www.artlibre.org
+    Pour plus d'information, visitez la documentation en ligne :
+    http://jeunes-science.org/kiwi/
+-----*/
+
+/* 0. Préliminaires */
+
+/* Cette partie provient du travail de Benjamin Pierre, qui s'est lui-même inspiré de celui d'E. Meyer. */
+
+html, body, div, h1, h2, h3, h4, h5, h6, p, ul, ol, li, a, span, blockquote, label, input, textarea, form, fieldset {
+    border: 0;
+    font: inherit;
+    font-size: 100%;
+    line-height: 1.5!important;
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline;
+}
+
+input{
+    vertical-align: middle;
+}
+
+textarea{
+    width: 100%;
+    max-width: 100%!important;
+}
+
+img {
+    border: none;
+}
+
+/* 1. Général */
+
+/*-----
+    hauteur des glyphes : 20px
+    largeur de la colonne : 24rem
+    
+    couleur de fond : #ededed
+    couleur du texte : #0f0f0f
+    
+    cascade des fontes : Helvetica, Arial, sans-serif
+-----*/
+
+html {
+    background-color: #ededed;
+    color: #0f0f0f;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 20px;
+    -epub-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    padding: 1rem;
+    text-align: justify;
+}
+
+body    {max-width: 24rem;}
+
+em      {font-style:italic;}
+strong  {font-weight:bold;}
+
+p, ul, ol           {margin-bottom: 1rem;}
+ul, ol, blockquote  {margin-left: 1rem;}
+
+blockquote p::before{content: "— ";}
+
+a {
+    border-bottom: 1px solid #0f0f0f;
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover, a:focus {
+    background-color: #0f0f0f;
+    border: 1px solid #ededed;
+    color: #ededed;
+}
+
+abbr, acronym   {border-bottom: 1px dashed #0f0f0f;}
+
+hr {
+    border: 0;
+    height: 1.5rem;
+    margin: 1rem auto;
+    width: 0;
+}
+
+hr::after {
+    content: "❡";
+    font-size: 1rem;
+}
+
+/* 2. Titres */
+
+h1  {font-size: 2rem;}
+h2  {font-size: 1.75rem;}
+h3  {font-size: 1.5rem;}
+h4  {font-size: 1.25rem;}
+h5  {font-size: 1rem;}
+h6  {font-size: 0.75rem;}
+
+h1, h2, h3, h4, h5, h6 {
+    font-variant: small-caps;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+h1 {text-transform: uppercase;}
+h2 {font-weight: bold;}
+h3 {font-style: italic;}
+
+/* 3. Autres particularités */
+
+.skip {
+    font-size: 0.75rem;
+    text-align: right;
+}
+
+.skip p {margin: 0;}
+.skip a {margin-left: 0.5rem;}
+
+.skip a {display: inline-block;}
+
+ul.menu {
+    border-bottom: solid 1px #0f0f0f;
+    border-top: solid 1px #0f0f0f;
+    text-align: center;
+    margin: 0;
+    margin-bottom: 1rem;
+}
+
+.menu li {
+    display: inline-block;
+    list-style-type: none;
+    margin: 0 1rem;
+}
+
+.menu a {border: 0;}
+
+ul.journal {
+    list-style-type: none;
+    margin: auto;
+}
+
+.colophon {
+    font-size: 0.75rem;
+    font-style: italic;
+    text-align: center;
+}
+
+.colophon a, .colophon img  {border: 0;}
+.colophon img {
+    margin: 0.5rem auto;
+    width: 10%;
+}
