@@ -11,7 +11,7 @@
 #   Variables de configuration
 define('TITRE_DU_JOURNAL', 'Le colibri libre');
 define('URL_DU_JOURNAL', 'http://localhost:8042/');
-define('AUTEUR', 'dhoko@cyaneus.org');
+define('AUTEUR', 'dhoko');
 define('DESCRIPTION', 'Un journal web généré par kiwi, le générateur endémique.');
 define('LANGUE', 'fr'); #   Langue du journal.
 define('FEUILLE_DE_STYLE', 'style.css'); #   URL de la feuille de style.
