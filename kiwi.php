@@ -108,11 +108,8 @@ function draftsToHtml() {
 		$info['content'] = SmartyPants(Markdown($article));
 		// Rebuild some informations
 		if(empty($info['url'])) $info['url'] = url($info['title']);
-		if(empty($info['date'])) $info['date'] = date('d/m/Y',$d['build']);
 		$info['timestamp'] = $d['build'];
-
 		checkPostToUpdate($info);
-		createPageHtml($info);
 		$rss .= rssPost($info);
 		$index_list .= index($info);
 		$archives_list .= archives($info);
@@ -131,17 +128,23 @@ function draftsToHtml() {
  */
 function checkPostToUpdate($info) {
 	$config = $GLOBALS['archives'];
+
 	if(!isset($config[$info['url']])) {
 		$config[$info['url']] = array(
 			'added_time' => $info['timestamp'],
-			'update' => $info['timestamp']
+			'update'     => $info['timestamp']
 			);
 		file_put_contents(USERDATA.'articles.json',base64_encode(json_encode($config)));
 		$GLOBALS['archives'] = $config;
+		if(empty($info['date'])) $info['date'] = date('d/m/Y',$info['timestamp']);
+		createPageHtml($info);
+
 	}elseif ($config[$info['url']]['update'] !== $info['timestamp']) {
 		$config[$info['url']]['update'] = $info['timestamp'];
 		file_put_contents(USERDATA.'articles.json',base64_encode(json_encode($config)));
 		$GLOBALS['archives'] = $config;
+		if(empty($info['date'])) $info['date'] = date('d/m/Y',$$config[$info['url']]['added_time']);
+		createPageHtml($info);
 	}
 }
 
