@@ -138,12 +138,14 @@ function checkPostToUpdate($info) {
 		$GLOBALS['archives'] = $config;
 		if(empty($info['date'])) $info['date'] = date('d/m/Y',$info['timestamp']);
 		createPageHtml($info);
+		return true;
+	}
 
-	}elseif ($config[$info['url']]['update'] !== $info['timestamp']) {
-		$config[$info['url']]['update'] = $info['timestamp'];
+	if ($config[$info['url']] !== $info['timestamp']) {
+		$config[$info['url']] = $info['timestamp'];
 		file_put_contents(USERDATA.'articles.json',base64_encode(json_encode($config)));
 		$GLOBALS['archives'] = $config;
-		if(empty($info['date'])) $info['date'] = date('d/m/Y',$$config[$info['url']]['added_time']);
+		if(empty($info['date'])) $info['date'] = date('d/m/Y',$config[$info['url']]['added_time']);
 		createPageHtml($info);
 	}
 }
@@ -337,3 +339,7 @@ function cleanFiles() {
 
 init();
 draftsToHtml();
+
+if(isset($_POST)) {
+	file_put_contents(dirname(__FILE__).DIRECTORY_SEPARATOR.'log.txt', var_export($_POST));
+}
