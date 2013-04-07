@@ -11,7 +11,9 @@ define('LANGUAGE', 'fr'); #   Langue du journal.
 define('DRAFT', 'draft'); #   Langue du journal.
 define('ARTICLES', 'articles'); #   Langue du journal.
 define('TAGS','title,url,date,tags,description,author');
-
+define('EMAIL_GIT', "value");
+define('NAME_GIT', "value");
+define('URL_GIT', "value");
 include_once ('./markdown.php');
 include_once ('./smartypants.php');
 
@@ -340,6 +342,60 @@ function cleanFiles() {
 init();
 draftsToHtml();
 
-if(isset($_POST)) {
-	file_put_contents(dirname(__FILE__).DIRECTORY_SEPARATOR.'log.txt', var_export($_POST));
+
+if(isset($_GET['github'])) {
+	if(!empty($_POST['payload'])) {
+		file_put_contents(USERDATA.'log_server.txt',"\n".date('Y-m-d H:i:s')."\n".var_export($_SERVER,true),FILE_APPEND);
+
+		file_put_contents(USERDATA.'log.txt',date('Y-m-d H:i:s').' '.$_SERVER['REMOTE_ADDR'].' Connected',FILE_APPEND);
+		
+		$_ip = array(
+			'204.232.175.75',
+			'207.97.227.253',
+			'50.57.128.197',
+			'108.171.174.178',
+			'50.57.231.61',
+			'204.232.175.64',
+			'192.30.252.0'
+			);
+		$_base = 'https://raw.github.com/dhoko/blog/master/';
+
+		try {
+			$json = json_decode($_POST['payload']);
+			if(isset($json->pusher->email) && $json->pusher->email !== EMAIL_GIT) 
+				throw new Exception('Wrong email pusher');
+			if(isset($json->pusher->name) && $json->pusher->name !== NAME_GIT) 
+				throw new Exception('Wrong name pusher');
+			if(isset($json->repository->url) && $json->repository->url !== URL_GIT) 
+				throw new Exception('Wrong repository url');
+			
+			if(strstr($_SERVER['HTTP_USER_AGENT'],"GitHub") && strstr($_SERVER['HTTP_USER_AGENT'],"Hookshot")) 
+				throw new Exception('ERROR - Request does not come from github');
+
+			if(in_array($_SERVER['REMOTE_ADDR'], $_ip))
+				throw new Exception('ERROR - Request does not come from github wrong ip: '.$_SERVER['REMOTE_ADDR']);
+
+			$files = array();
+
+			foreach ($json->head_commit->added as $file) {
+
+				$folder = explode('/', $file);
+				$files[] = array(
+					'path'    => $file,
+					'folder'  => $folder[0],
+					'content' => file_get_contents($_base.$file)
+					);
+			}
+
+			foreach ($files as $e) {
+				mkdir(DRAFT.DIRECTORY_SEPARATOR.$e['folder']);
+				file_put_contents(DRAFT.DIRECTORY_SEPARATOR.$e['path'],$e['content'] );
+			}
+
+			draftsToHtml();
+		} catch (Exception $e) {
+			file_put_contents(USERDATA.'log_error.txt',date('Y-m-d H:i:s').' '.$e->getMessage(),FILE_APPEND);
+			
+		}
+	}
 }

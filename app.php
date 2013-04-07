@@ -1,5 +1,11 @@
 <?php
 
+
+echo "<pre>";
+
+print_r($_SERVER);
+
+exit;
 #   ©2012 JSI & al.jes, certains droits réservés…
 #   http://jeunes-science.org
 #   http://aljes.me
