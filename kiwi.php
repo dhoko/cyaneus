@@ -2,21 +2,34 @@
 /**
  * Main config
  */
-define('TITLE_SITE', 'Le colibri libre');
-define('URL', 'http://'.$_SERVER['HTTP_HOST'].'/');
-define('AUTHOR', 'dhoko');
+define('TITLE_SITE', 'XXX');
+define('URL', 'http://XXX');
+define('AUTHOR', 'XXX');
 define('GENERATOR', 'kiwi 0.0 http://jeunes-science.org/kiwi/');
 define('DESCRIPTION', 'Un journal web généré par kiwi, le générateur endémique.');
 define('LANGUAGE', 'fr'); #   Langue du journal.
 define('DRAFT', 'draft'); #   Langue du journal.
 define('ARTICLES', 'articles'); #   Langue du journal.
 define('TAGS','title,url,date,tags,description,author');
-define('EMAIL_GIT', "value");
-define('NAME_GIT', "value");
-define('URL_GIT', "value");
+define('EMAIL_GIT', "XXX");
+define('NAME_GIT', "XXX");
+define('URL_GIT', "XXX");
 include_once ('./markdown.php');
 include_once ('./smartypants.php');
 
+/**
+ * Log each step of the generation
+ * USERDATA
+ * 		- log.txt Step by step informations
+ * 		- log_server.txt $_SERVER dump
+ * 		- log_error.txt error
+ */
+function klog($msg,$type="") {
+	$name = 'log';
+	if($type === "error") $name = 'log_error';
+	if($type === "server") $name = 'log_server';
+	file_put_contents(USERDATA.$name.'.txt',date('Y-m-d H:i:s').' '.$msg."\n",FILE_APPEND);
+}
 /**
  * Init Kiwi - It will create user's config folder with some usefull files such as list of each articles etc...
  */
@@ -30,6 +43,7 @@ function init() {
 	// Store an empty string base 64
 	if(!file_exists($list_article)) file_put_contents($list_article,base64_encode(json_encode(array())));
 	$GLOBALS['archives'] = json_decode(base64_decode(file_get_contents($list_article)),true);
+	klog('INIT - Kiwi loaded');
 }
 /**
  * Find tags from a post from its header.
@@ -66,6 +80,7 @@ function getDrafts() {
 	$draftPath      = dirname(__FILE__).DIRECTORY_SEPARATOR.DRAFT.DIRECTORY_SEPARATOR;
 	$iterator       = new RecursiveDirectoryIterator($draftPath,RecursiveIteratorIterator::CHILD_FIRST);
 
+	klog('Looking for drafts');
 	foreach(new RecursiveIteratorIterator($iterator) as $file) {
 		if($file->isFile() && in_array($file->getExtension(), $readable_draft)) {
 			$files[] = array(
@@ -93,6 +108,7 @@ function getTags($post) {
 
 /**
  * Build a page from each article. And regenerate configuration for articles and rss/archives/index
+ * @todo order by date DESC
   */
 function draftsToHtml() {
 	$rss           = "";
@@ -101,6 +117,8 @@ function draftsToHtml() {
 	$drafts        = getDrafts();
 
 	foreach ($drafts as $d) {
+		klog('New draft found : '.$d['file']);
+
 		// We extract headers from the draft
 		$config = strstr(file_get_contents($d['path']),'==POST==', true );
 		// Remove headers from the draft to keep the content
@@ -117,10 +135,12 @@ function draftsToHtml() {
 		$archives_list .= archives($info);
 
 	}
+	klog('SUCCESS - Posts creation');
 	// Create default pages
 	buildRss($rss);
 	buildPage($index_list);
 	buildPage($archives_list,'archives');
+	klog('SUCCESS - Pages and posts creation');
 }
 
 /**
@@ -137,6 +157,7 @@ function checkPostToUpdate($info) {
 			'update'     => $info['timestamp']
 			);
 		file_put_contents(USERDATA.'articles.json',base64_encode(json_encode($config)));
+		klog('Updated archives configuration in '.USERDATA);
 		$GLOBALS['archives'] = $config;
 		if(empty($info['date'])) $info['date'] = date('d/m/Y',$info['timestamp']);
 		createPageHtml($info);
@@ -292,6 +313,7 @@ function rssHead() {
  * @return Bool
  */
 function buildRss($rss) {
+	klog('Build Rss file');
 	$str = rssHead().$rss.'</rss>';
 	$path = '.'.DIRECTORY_SEPARATOR;
     return file_put_contents($path.'rss.xml',$str);
@@ -303,6 +325,8 @@ function buildRss($rss) {
  * @return Bool
  */
 function buildPage($content,$page='index') {
+
+	klog('Build page '.$page);
 	$title = ($page !== 'index') ? $page : '';
 	$str = head(array('title'=>$title)).menu().$content.footer();
 	$path = '.'.DIRECTORY_SEPARATOR;
@@ -314,6 +338,8 @@ function buildPage($content,$page='index') {
  * @return Bool
  */
 function createPageHtml($info) {
+
+	klog('Create a page : '.$info['url']);
 	$html = head($info).menu().content($info).footer();
 	$file = dirname(__FILE__).DIRECTORY_SEPARATOR.ARTICLES.DIRECTORY_SEPARATOR.$info['url'].'.html';
 	return file_put_contents($file, $html);
@@ -342,12 +368,13 @@ function cleanFiles() {
 init();
 draftsToHtml();
 
-
+/**
+ * Github Hook page. url?github
+ */
 if(isset($_GET['github'])) {
 	if(!empty($_POST['payload'])) {
-		file_put_contents(USERDATA.'log_server.txt',"\n".date('Y-m-d H:i:s')."\n".var_export($_SERVER,true),FILE_APPEND);
-
-		file_put_contents(USERDATA.'log.txt',date('Y-m-d H:i:s').' '.$_SERVER['REMOTE_ADDR'].' Connected',FILE_APPEND);
+		klog(var_export($_SERVER,true),'server');
+		klog($_SERVER['REMOTE_ADDR'].' Connected');
 		
 		$_ip = array(
 			'204.232.175.75',
@@ -358,7 +385,12 @@ if(isset($_GET['github'])) {
 			'204.232.175.64',
 			'192.30.252.0'
 			);
-		$_base = 'https://raw.github.com/dhoko/blog/master/';
+		/**
+		 * URL to grab raw data such as
+		 * https://raw.github.com/dhoko/blog/master/
+		 * For repository: blog by me (dhoko) on branch master
+		 */
+		$_base = 'XXX';
 
 		try {
 			$json = json_decode($_POST['payload']);
@@ -369,16 +401,13 @@ if(isset($_GET['github'])) {
 			if(isset($json->repository->url) && $json->repository->url !== URL_GIT) 
 				throw new Exception('Wrong repository url');
 			
-			if(strstr($_SERVER['HTTP_USER_AGENT'],"GitHub") && strstr($_SERVER['HTTP_USER_AGENT'],"Hookshot")) 
-				throw new Exception('ERROR - Request does not come from github');
-
-			if(in_array($_SERVER['REMOTE_ADDR'], $_ip))
+			if(!in_array($_SERVER['REMOTE_ADDR'], $_ip))
 				throw new Exception('ERROR - Request does not come from github wrong ip: '.$_SERVER['REMOTE_ADDR']);
 
 			$files = array();
 
 			foreach ($json->head_commit->added as $file) {
-
+				klog('GITHUB Try to get content from : '.$_base.$file);
 				$folder = explode('/', $file);
 				$files[] = array(
 					'path'    => $file,
@@ -394,7 +423,7 @@ if(isset($_GET['github'])) {
 
 			draftsToHtml();
 		} catch (Exception $e) {
-			file_put_contents(USERDATA.'log_error.txt',date('Y-m-d H:i:s').' '.$e->getMessage(),FILE_APPEND);
+			klog($e->getMessage(),"error");
 			
 		}
 	}
