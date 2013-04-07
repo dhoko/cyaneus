@@ -25,15 +25,27 @@ function init() {
 	define('USERDATA', $data_folder);
 
 	if(!file_exists($data_folder)) mkdir($data_folder,0705);
-	if(!file_exists($list_article)) file_put_contents($list_article,'{}');
-	$GLOBALS['archives'] = json_decode(file_get_contents($list_article),true);
+	// Store an empty string base 64
+	if(!file_exists($list_article)) file_put_contents($list_article,base64_encode(json_encode(array())));
+	$GLOBALS['archives'] = json_decode(base64_decode(file_get_contents($list_article)),true);
 }
-
+/**
+ * Find tags from a post from its header.
+ * info('author="dhoko"','author') => dhoko
+ * @param string Header of a post
+ * @param string Tag tag to find cf TAGS
+ * @return string tag value
+ */
 function info($data,$tag) {
 	preg_match('/"([^"]+)"/',strstr($data,$tag),$match);
 	return (isset($match[1])) ? $match[1] : '';
 }
-
+/**
+ * Build a valid url from a title
+ * New Firefox OS app : XBMC remote -> new-firefox-os-app-xbmc-remote
+ * @param string 
+ * @return string
+ */
 function url($path) {
     $url = str_replace('&', '-and-', $path);
     $url = trim(preg_replace('/[^\w\d_ -]/si', '', $url));//remove all illegal chars
@@ -41,7 +53,11 @@ function url($path) {
     $url = str_replace('--', '-', $url);
     return strtolower($url);
 }
-
+/**
+ * Will find each drafts from DRAFT. 
+ * File must have these extensions : md|markdown
+ * @return Array array of ['build':timestamp,file,path]
+ */
 function getDrafts() {
 	$files          = array(); 
 	$readable_draft = array('md','markdown');
@@ -50,10 +66,8 @@ function getDrafts() {
 
 	foreach(new RecursiveIteratorIterator($iterator) as $file) {
 		if($file->isFile() && in_array($file->getExtension(), $readable_draft)) {
-			$name = explode('.',$file->getfilename());
 			$files[] = array(
 				'build' => $file->getMTime(),
-				'title' => $name[0],
 				'file'  => $file->getfilename(),
 				'path'  => $file->getPath().DIRECTORY_SEPARATOR.$file->getfilename()
 			);
@@ -61,7 +75,11 @@ function getDrafts() {
 	}
 	return $files;
 }
-
+/**
+ * Loop on each TAGS in order to build an array [tag:value]
+ * @param string Header from a post
+ * @return Array [tag:value]
+ */
 function getTags($post) {
 	$info = array();
 	$kiwi_tags = explode(',', TAGS);
@@ -71,10 +89,9 @@ function getTags($post) {
 	return $info;
 }
 
-function markdownToHtml($txt) {
-    return SmartyPants(Markdown($txt));
-}
-
+/**
+ * Build a page from each article. And regenerate configuration for articles and rss/archives/index
+  */
 function draftsToHtml() {
 	$rss           = "";
 	$index_list    = "";
@@ -82,39 +99,57 @@ function draftsToHtml() {
 	$drafts        = getDrafts();
 
 	foreach ($drafts as $d) {
-
+		// We extract headers from the draft
 		$config = strstr(file_get_contents($d['path']),'==POST==', true );
+		// Remove headers from the draft to keep the content
 		$article = str_replace('==POST==','',strstr(file_get_contents($d['path']),'==POST=='));
 
-		$info = getTags($config);
-		$info['content'] = markdownToHtml($article);
-
+		$info = getTags($config); // Build TAGS array
+		$info['content'] = SmartyPants(Markdown($article));
+		// Rebuild some informations
 		if(empty($info['url'])) $info['url'] = url($info['title']);
 		if(empty($info['date'])) $info['date'] = date('d/m/Y',$d['build']);
 		$info['timestamp'] = $d['build'];
 
+		checkPostToUpdate($info);
 		createPageHtml($info);
 		$rss .= rssPost($info);
 		$index_list .= index($info);
 		$archives_list .= archives($info);
 
-		checkPostToUpdate($info);
 	}
+	// Create default pages
 	buildRss($rss);
 	buildPage($index_list);
 	buildPage($archives_list,'archives');
 }
 
+/**
+ * Build a configuration JSON store in USERDATA.articles.json
+ * We create an index of each artciles, to prevent rebuild each time we have a new one
+ * @param Array Information about a post.
+ */
 function checkPostToUpdate($info) {
 	$config = $GLOBALS['archives'];
-	if(!isset($config[$info['url']]) && $config[$info['url']]!== $info['timestamp']) {
-		$config[$info['url']] = $info['timestamp'];
-
+	if(!isset($config[$info['url']])) {
+		$config[$info['url']] = array(
+			'added_time' => $info['timestamp'],
+			'update' => $info['timestamp']
+			);
+		file_put_contents(USERDATA.'articles.json',base64_encode(json_encode($config)));
+		$GLOBALS['archives'] = $config;
+	}elseif ($config[$info['url']]['update'] !== $info['timestamp']) {
+		$config[$info['url']]['update'] = $info['timestamp'];
 		file_put_contents(USERDATA.'articles.json',base64_encode(json_encode($config)));
 		$GLOBALS['archives'] = $config;
 	}
 }
 
+/**
+ * Create header HTML
+ * @param Array information about an article (title&co...)
+ * @return string
+ */
 function head($info) {
     $title = (empty($info['title'])) ? TITLE_SITE : $info['title'].' - '.TITLE_SITE;
     $description = (empty($info['description'])) ? DESCRIPTION : $info['description'];
@@ -136,7 +171,10 @@ function head($info) {
 
 	return sprintf($str,LANGUAGE,$title,$description,AUTHOR,$rss,$css);
 }
-
+/**
+ * Create menu HTML
+ * @return string
+ */
 function menu() {
 	$str = '<nav class="navigation">'."\n";
 	$str .= "\t".'<ul>'."\n";
@@ -147,7 +185,11 @@ function menu() {
 	$str .= '</nav>'."\n";
 	return $str;
 }
-
+/**
+ * Create content for a post
+ * @param Array information about an article (title&co...)
+ * @return string
+ */
 function content($html) {
 
 	$str = '<article class="post">'."\n";
@@ -162,14 +204,21 @@ function content($html) {
 	$str .= '</article>'."\n";
 	return sprintf($str,$html['title'],$html['date'],$html['content'],$html['author']);
 }
-
+/**
+ * Create footer HTML
+ * @return string
+ */
 function footer() {
 	$str = '<p class="skip"><a href="#haut">Retourner en haut</a></p>';
 	$str .= "\n".'</body>';
 	$str .= "\n".'</html>';
     return $str;
 }
-
+/**
+ * Create index content HTML
+ * @param Array information about an article (title&co...)
+ * @return string
+ */
 function index($info) {
 
 	$url = ARTICLES.DIRECTORY_SEPARATOR.$info['url'].".html";
@@ -184,10 +233,20 @@ function index($info) {
 	return sprintf($str,$url,$info['title'],$info['title'],$info['date']);
 }
 
+/**
+ * Create Archives content HTML
+ * @param Array information about an article (title&co...)
+ * @return string
+ */
 function archives($info) {
 	return index($info);
 }
 
+/**
+ * Create header HTML
+ * @param Array information about an article (title&co...)
+ * @return string
+ */
 function rssPost($info) {
 
 	$url  = URL.ARTICLES.DIRECTORY_SEPARATOR.$info['url'].'.html';
@@ -197,11 +256,16 @@ function rssPost($info) {
 	$rss .= '<title>%s</title>';
 	$rss .= '<link>%s</link>';
 	$rss .= '<pubDate>%s</pubDate>';
-	$rss .= ' <description><![CDATA[%s]]></description>';
+	$rss .= '<description><![CDATA[%s]]></description>';
 	$rss .= '</item>';
 	return sprintf($rss,$info['title'],$url,$date,$info['content']);
 }
 
+/**
+ * Create RSS header
+ * @param Array information about an article (title&co...)
+ * @return string
+ */
 function rssHead() {
 	$rss ='<?xml version="1.0" encoding="UTF-8"?>';
     $rss .= '<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">';
@@ -215,35 +279,48 @@ function rssHead() {
     return $rss;
 }
 
+/**
+ * Build the rss file -> ./rss.xml
+ * @param string Rss stringify
+ * @return Bool
+ */
 function buildRss($rss) {
 	$str = rssHead().$rss.'</rss>';
 	$path = '.'.DIRECTORY_SEPARATOR;
     return file_put_contents($path.'rss.xml',$str);
 }
-
+/**
+ * Build a page for the site
+ * @param string content html stringify
+ * @param string page to build
+ * @return Bool
+ */
 function buildPage($content,$page='index') {
 	$title = ($page !== 'index') ? $page : '';
 	$str = head(array('title'=>$title)).menu().$content.footer();
 	$path = '.'.DIRECTORY_SEPARATOR;
     return file_put_contents($path.$page.'.html',$str);
 }
-
+/**
+ * Build the post
+ * @param string content html stringify
+ * @return Bool
+ */
 function createPageHtml($info) {
 	$html = head($info).menu().content($info).footer();
 	$file = dirname(__FILE__).DIRECTORY_SEPARATOR.ARTICLES.DIRECTORY_SEPARATOR.$info['url'].'.html';
-	file_put_contents($file, $html);
+	return file_put_contents($file, $html);
 }
 
-init();
-draftsToHtml();
-echo "ok";
-debug(getDrafts());
+/**
+ * Erase all files store in ARTICLES and rss&archives&index.html
+ */
 function cleanFiles() {
     $current = dirname(__FILE__).DIRECTORY_SEPARATOR;
     $_noDelete = $current.ARTICLES.DIRECTORY_SEPARATOR.'index.html';
     $_noDelete2 = $current.DRAFT.DIRECTORY_SEPARATOR.'index.html';
     $iterator = new RecursiveDirectoryIterator($current,RecursiveIteratorIterator::CHILD_FIRST);
-    
+
     foreach(new RecursiveIteratorIterator($iterator) as $file) {
         if($file->isFile()) {
 
@@ -255,14 +332,5 @@ function cleanFiles() {
     }
 }
 
-if(isset($_GET['clean'])) cleanFiles();
-function debug($var,$title="") {
-	echo "<div>";
-		if(!empty($title)) echo "<h2>{$title}</h2>";
-		echo "<pre>";
-			print_r($var);
-		echo "</pre>";
-	echo "</div>";
-}
-
-debug(dirname(__FILE__));
+init();
+draftsToHtml();
