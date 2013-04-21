@@ -3,7 +3,7 @@
  * Main config
  */
 define('TITLE_SITE', 'XXX');
-define('URL', 'http://localhost:8042/'); // You must add / at the end -> http://localhost:8042/
+define('URL', 'XXXX'); // You must add / at the end -> http://localhost:8042/
 define('AUTHOR', 'XXX');
 define('GENERATOR', 'XXX 1.0 http://jeunes-science.org/kiwi/');
 define('DESCRIPTION', 'Un journal web généré par kiwi, le générateur endémique.');
@@ -11,11 +11,15 @@ define('LANGUAGE', 'fr'); #   Langue du journal.
 define('DRAFT', 'draft'); #   Langue du journal.
 define('ARTICLES', 'articles'); #   Langue du journal.
 define('TAGS','title,url,date,tags,description,author');
+
+define('THUMB_W', 600);
+
 define('EMAIL_GIT', "XXX");
 define('NAME_GIT', "XXX");
 define('URL_GIT', "XXX");
-include_once ('./markdown.php');
-include_once ('./smartypants.php');
+include_once ('lib'.DIRECTORY_SEPARATOR.'markdown.php');
+include_once ('lib'.DIRECTORY_SEPARATOR.'smartypants.php');
+include_once ('lib'.DIRECTORY_SEPARATOR.'ImageWorkshop.php');
 
 /**
  * Log each step of the generation
@@ -104,6 +108,30 @@ function getDrafts() {
 	}
 	return $files;
 }
+
+/**
+ * Build attachement picture for a post
+ * @param Array $config Configuration for an image
+ * @return bool
+ */
+function generatePict(Array $config) {
+
+	// [0] => w ---- [1] => h
+	$_info = getimagesize($config['path']);
+	$image = new PHPImageWorkshop\ImageWorkshop(array(
+		    'imageFromPath' => $config['path'],
+	));
+	if (THUMB_W < $_info[0]) {
+		$image->resizeInPixel(THUMB_W, null, true);
+	}else{
+		$image->resizeInPixel($_info[0], null, true);
+	}
+
+	 //backgroundColor transparent, only for PNG (otherwise it will be white if set null)
+	// (file_path,file_name,create_folder,background_color,quality)
+	$image->save(ARTICLES.DIRECTORY_SEPARATOR, $config['file'], true, null, 85);
+}
+
 /**
  * Loop on each TAGS in order to build an array [tag:value]
  * @param string Header from a post
@@ -137,14 +165,19 @@ function draftsToHtml() {
 
 		$info = getTags($config); // Build TAGS array
 		$info['content'] = SmartyPants(Markdown($article));
+
 		// Rebuild some informations
 		if(empty($info['url'])) $info['url'] = url($info['title']);
 		$info['timestamp'] = $d['draft']['build'];
 		checkPostToUpdate($info);
+
+		// Build required elements
 		$rss .= rssPost($info);
 		$index_list .= index($info);
 		$archives_list .= archives($info);
 
+		// Attach pictures
+		if (!empty($d['pict'])) generatePict($d['pict']);
 	}
 	klog('SUCCESS - Posts creation');
 	// Create default pages
