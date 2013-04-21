@@ -3,7 +3,7 @@
  * Main config
  */
 define('TITLE_SITE', 'XXX');
-define('URL', 'XXXX'); // You must add / at the end -> http://localhost:8042/
+define('URL', 'http://localhost:8042/'); // You must add / at the end -> http://localhost:8042/
 define('AUTHOR', 'XXX');
 define('GENERATOR', 'XXX 1.0 http://jeunes-science.org/kiwi/');
 define('DESCRIPTION', 'Un journal web généré par kiwi, le générateur endémique.');
@@ -13,6 +13,7 @@ define('ARTICLES', 'articles'); #   Langue du journal.
 define('TAGS','title,url,date,tags,description,author');
 
 define('THUMB_W', 600);
+define('REBUILD_KEY', 'regenerate');
 
 define('EMAIL_GIT', "XXX");
 define('NAME_GIT', "XXX");
@@ -116,6 +117,7 @@ function getDrafts() {
  */
 function generatePict(Array $config) {
 
+	klog('Find an image attach to the current post');
 	// [0] => w ---- [1] => h
 	$_info = getimagesize($config['path']);
 	$image = new PHPImageWorkshop\ImageWorkshop(array(
@@ -126,10 +128,9 @@ function generatePict(Array $config) {
 	}else{
 		$image->resizeInPixel($_info[0], null, true);
 	}
-
 	 //backgroundColor transparent, only for PNG (otherwise it will be white if set null)
 	// (file_path,file_name,create_folder,background_color,quality)
-	$image->save(ARTICLES.DIRECTORY_SEPARATOR, $config['file'], true, null, 85);
+	return $image->save(ARTICLES.DIRECTORY_SEPARATOR, $config['file'], true, null, 85);
 }
 
 /**
@@ -405,18 +406,35 @@ function cleanFiles() {
             if(in_array($file->getExtension(), array('xml','html')) ) {
                 unlink($file->getPath().DIRECTORY_SEPARATOR.$file->getFilename());
             }
+            if('articles.json' === $file->getFilename()) 
+            	unlink($file->getPath().DIRECTORY_SEPARATOR.$file->getFilename());
         }
     }
 }
 
+function formRebuild() {
+	$str = head(array('title'=> 'Rebuild')).menu().$content.footer();
+	echo '<form method="GET" action="'.URL.'kiwi.php">';
+	echo '<input type="password" name="rebuild" id="rebuild" />';
+	echo '<button type="submit">Rebuild</button>';
+	echo '</form>';
+
+}
+
 init();
-echo "<h2> Le debug de config</h2>";
-echo "<pre>";
-var_dump(getDrafts());
-echo "</pre>";
-echo "<h2> Le debug de html</h2>";
-echo "<pre>";
 draftsToHtml();
+
+if ($_GET['rebuild'] && (empty($_GET['rebuild']) || trim($_GET['rebuild']) !== REBUILD_KEY)) {
+	klog('WARNING '.$_SERVER['REMOTE_ADDR'].' Access to rebuild Failed');
+	formRebuild();
+}else{
+	klog('WARNING '.$_SERVER['REMOTE_ADDR'].' Access to rebuild success');
+	klog('CLEAN - clean directory');
+	cleanFiles();
+
+	klog('REBUILD - Rebuild the website');
+	draftsToHtml();
+}
 
 /**
  * Github Hook page. url?github
