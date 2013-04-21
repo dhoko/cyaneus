@@ -47,7 +47,7 @@ img {
     cascade des fontes : Helvetica, Arial, sans-serif
 -----*/
 
-html {
+body {
     background-color: #ededed;
     color: #0f0f0f;
     font-family: Helvetica, Arial, sans-serif;
@@ -55,11 +55,13 @@ html {
     -epub-hyphens: auto;
     -moz-hyphens: auto;
     -webkit-hyphens: auto;
-    padding: 1rem;
     text-align: justify;
 }
 
-body    {max-width: 24rem;}
+#main  {
+    max-width: 600px;
+    margin: 10px auto
+}
 
 em      {font-style:italic;}
 strong  {font-weight:bold;}
@@ -126,7 +128,7 @@ h3 {font-style: italic;}
 
 .skip a {display: inline-block;}
 
-ul.menu {
+.navigation ul {
     border-bottom: solid 1px #0f0f0f;
     border-top: solid 1px #0f0f0f;
     text-align: center;
@@ -134,13 +136,13 @@ ul.menu {
     margin-bottom: 1rem;
 }
 
-.menu li {
+.navigation li {
     display: inline-block;
     list-style-type: none;
     margin: 0 1rem;
 }
 
-.menu a {border: 0;}
+.navigation a {border: 0;}
 
 ul.journal {
     list-style-type: none;

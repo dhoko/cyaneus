@@ -3,11 +3,11 @@
  * Main config
  */
 define('TITLE_SITE', 'XXX');
-define('URL', 'XXX'); // You must add / at the end -> http://localhost:8042/
+define('URL', 'http://localhost:8042/'); // You must add / at the end -> http://localhost:8042/
 define('AUTHOR', 'XXX');
 define('GENERATOR', 'Cyaneus');
 define('DESCRIPTION', 'XXX');
-define('LANGUAGE', 'fr'); .
+define('LANGUAGE', 'fr'); 
 define('DRAFT', 'draft'); 
 define('ARTICLES', 'articles'); 
 define('TAGS','title,url,date,tags,description,author');
@@ -48,7 +48,7 @@ function init() {
 	// Store an empty string base 64
 	if(!file_exists($list_article)) file_put_contents($list_article,base64_encode(json_encode(array())));
 	$GLOBALS['archives'] = json_decode(base64_decode(file_get_contents($list_article)),true);
-	klog('INIT - Kiwi loaded');
+	klog('INIT - Cyaneus loaded');
 }
 /**
  * Find tags from a post from its header.
@@ -241,6 +241,10 @@ function head($info) {
 	$str .= "\t\t".'<link rel="shortcut icon" type="image/png" href="favicon.png" />'."\n";
 	$str .= "\t".'</head>'."\n";
 	$str .= '<body>'."\n";
+	$str .= '<section id="main">'."\n";
+	$str .= "\t".'<header>'."\n";
+	$str .= "\t\t".'<h1><a href="'.URL.'" title="'.DESCRIPTION.'">'.TITLE_SITE.'</a></h1>'."\n";
+	$str .= "\t".'</header>'."\n";
 
 	return sprintf($str,LANGUAGE,$title,$description,AUTHOR,$rss,$css);
 }
@@ -283,6 +287,7 @@ function content($html) {
  */
 function footer() {
 	$str = '<p class="skip"><a href="#haut">Retourner en haut</a></p>';
+	$str .= "\n".'</section>';
 	$str .= "\n".'</body>';
 	$str .= "\n".'</html>';
     return $str;
@@ -384,7 +389,7 @@ function buildPage($content,$page='index') {
  */
 function createPageHtml($info) {
 
-	klog('Create a page : '.$info['url']);
+	klog('CREATION : Create a page : '.$info['url']);
 	$html = head($info).menu().content($info).footer();
 	$file = dirname(__FILE__).DIRECTORY_SEPARATOR.ARTICLES.DIRECTORY_SEPARATOR.$info['url'].'.html';
 	return file_put_contents($file, $html);
@@ -414,7 +419,7 @@ function cleanFiles() {
 
 function formRebuild() {
 	$str = head(array('title'=> 'Rebuild')).menu().$content.footer();
-	echo '<form method="GET" action="'.URL.'kiwi.php">';
+	echo '<form method="GET" action="'.URL.'cyaneus.php">';
 	echo '<input type="password" name="rebuild" id="rebuild" />';
 	echo '<button type="submit">Rebuild</button>';
 	echo '</form>';
@@ -422,17 +427,20 @@ function formRebuild() {
 }
 
 init();
-draftsToHtml();
 
-if ($_GET['rebuild'] && (empty($_GET['rebuild']) || trim($_GET['rebuild']) !== REBUILD_KEY)) {
-	klog('WARNING '.$_SERVER['REMOTE_ADDR'].' Access to rebuild Failed');
-	formRebuild();
+if (isset($_GET['rebuild'])){
+	if(empty($_GET['rebuild']) || trim($_GET['rebuild']) !== REBUILD_KEY) {
+		klog('WARNING '.$_SERVER['REMOTE_ADDR'].' Access to rebuild Failed');
+		formRebuild();
+	}else{
+		klog('WARNING '.$_SERVER['REMOTE_ADDR'].' Access to rebuild success');
+		klog('CLEAN - clean directory');
+		cleanFiles();
+
+		klog('REBUILD - Rebuild the website');
+		draftsToHtml();
+	}
 }else{
-	klog('WARNING '.$_SERVER['REMOTE_ADDR'].' Access to rebuild success');
-	klog('CLEAN - clean directory');
-	cleanFiles();
-
-	klog('REBUILD - Rebuild the website');
 	draftsToHtml();
 }
 

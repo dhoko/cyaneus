@@ -9,7 +9,6 @@ A static PHP blog generator
 3. Change the default configuration in **index.php**
 4. Done
 
-
 ### Configuration 
 
 
@@ -89,6 +88,29 @@ Your Github name
 #### URL_GIT
 
 URL of github repository where you commit your posts
+
+## Write a post
+
+You can write a post with the Markdown syntax. 
+
+### Basic draft for cyaneus
+
+```
+title="This is the end"
+tags="css3,demosthène,lui"
+author="dhoko"
+description="To be or not to be ?"
+
+==POST==
+
+
+Put here your post content
+
+```
+
+> title="XXX"&cie are custom elements from TAGS. You must specify at least title='XXX'.
+
+> ==POST== You must write this between the header conf and your content,
 
 ## Informations
 
