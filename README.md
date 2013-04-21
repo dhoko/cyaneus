@@ -6,7 +6,7 @@ A static PHP blog generator
 
 1. Download Cyaneus : [zipfile](https://github.com/dhoko/cyaneus/archive/master.zip)
 2. Upload Cyaneus
-3. Change the default configuration in **index.php***
+3. Change the default configuration in **index.php**
 4. Done
 
 
