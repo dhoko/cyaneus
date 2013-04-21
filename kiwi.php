@@ -3,9 +3,9 @@
  * Main config
  */
 define('TITLE_SITE', 'XXX');
-define('URL', 'http://XXX');
+define('URL', 'http://localhost:8042/'); // You must add / at the end -> http://localhost:8042/
 define('AUTHOR', 'XXX');
-define('GENERATOR', 'kiwi 0.0 http://jeunes-science.org/kiwi/');
+define('GENERATOR', 'XXX 1.0 http://jeunes-science.org/kiwi/');
 define('DESCRIPTION', 'Un journal web généré par kiwi, le générateur endémique.');
 define('LANGUAGE', 'fr'); #   Langue du journal.
 define('DRAFT', 'draft'); #   Langue du journal.
@@ -82,12 +82,24 @@ function getDrafts() {
 
 	klog('Looking for drafts');
 	foreach(new RecursiveIteratorIterator($iterator) as $file) {
-		if($file->isFile() && in_array($file->getExtension(), $readable_draft)) {
-			$files[] = array(
-				'build' => $file->getMTime(),
-				'file'  => $file->getfilename(),
-				'path'  => $file->getPath().DIRECTORY_SEPARATOR.$file->getfilename()
-			);
+		if($file->isFile()) {
+			$md5 = md5($file->getPath());
+			if (in_array($file->getExtension(), $readable_draft)) {
+				$files[$md5]['draft'] = array(
+					'build' => $file->getMTime(),
+					'file'  => $file->getfilename(),
+					'path'  => $file->getPath().DIRECTORY_SEPARATOR.$file->getfilename()
+				);
+			}
+			if( in_array($file->getExtension(), array("jpg",'png','gif','jpeg')) ) {
+				$files[$md5]['pict'] = array(
+					'build' => $file->getMTime(),
+					'file'  => $file->getfilename(),
+					'path'  => $file->getPath().DIRECTORY_SEPARATOR.$file->getfilename()
+				);
+			}
+
+			if(empty($files[$md5]['draft'])) unset($files[$md5]);
 		} 
 	}
 	return $files;
@@ -117,18 +129,17 @@ function draftsToHtml() {
 	$drafts        = getDrafts();
 
 	foreach ($drafts as $d) {
-		klog('New draft found : '.$d['file']);
-
+		klog('New draft found : '.$d['draft']['file']);
 		// We extract headers from the draft
-		$config = strstr(file_get_contents($d['path']),'==POST==', true );
+		$config = strstr(file_get_contents($d['draft']['path']),'==POST==', true );
 		// Remove headers from the draft to keep the content
-		$article = str_replace('==POST==','',strstr(file_get_contents($d['path']),'==POST=='));
+		$article = str_replace('==POST==','',strstr(file_get_contents($d['draft']['path']),'==POST=='));
 
 		$info = getTags($config); // Build TAGS array
 		$info['content'] = SmartyPants(Markdown($article));
 		// Rebuild some informations
 		if(empty($info['url'])) $info['url'] = url($info['title']);
-		$info['timestamp'] = $d['build'];
+		$info['timestamp'] = $d['draft']['build'];
 		checkPostToUpdate($info);
 		$rss .= rssPost($info);
 		$index_list .= index($info);
@@ -366,6 +377,12 @@ function cleanFiles() {
 }
 
 init();
+echo "<h2> Le debug de config</h2>";
+echo "<pre>";
+var_dump(getDrafts());
+echo "</pre>";
+echo "<h2> Le debug de html</h2>";
+echo "<pre>";
 draftsToHtml();
 
 /**
