@@ -90,6 +90,13 @@ Your Github name
 
 URL of github repository where you commit your posts
 
+## Informations
+
+Cyaneus logs some informations in **data/**
+- log.txt 
+- log_error.txt 
+- log_server.txt 
+
 Fork from **Kiwi** : [Kiwi](http://jeunes-science.org/kiwi/) - [Repository](http://darcsden.com/aljes/kiwi-0)
 
 Thanks [@aljes](https://twitter.com/aljes)
