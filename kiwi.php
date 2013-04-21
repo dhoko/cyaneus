@@ -5,7 +5,7 @@
 define('TITLE_SITE', 'XXX');
 define('URL', 'http://localhost:8042/'); // You must add / at the end -> http://localhost:8042/
 define('AUTHOR', 'XXX');
-define('GENERATOR', 'XXX 1.0 http://jeunes-science.org/kiwi/');
+define('GENERATOR', 'Cyaneus');
 define('DESCRIPTION', 'Un journal web généré par kiwi, le générateur endémique.');
 define('LANGUAGE', 'fr'); #   Langue du journal.
 define('DRAFT', 'draft'); #   Langue du journal.
