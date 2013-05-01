@@ -2,22 +2,7 @@
 /**
  * Main config
  */
-define('TITLE_SITE', 'XXX');
-define('URL', 'http://localhost:8042/'); // You must add / at the end -> http://localhost:8042/
-define('AUTHOR', 'XXX');
-define('GENERATOR', 'Cyaneus');
-define('DESCRIPTION', 'XXX');
-define('LANGUAGE', 'fr'); 
-define('DRAFT', 'draft'); 
-define('ARTICLES', 'articles'); 
-define('TAGS','title,url,date,tags,description,author');
-
-define('THUMB_W', 600);
-define('REBUILD_KEY', 'regenerate');
-
-define('EMAIL_GIT', "XXX");
-define('NAME_GIT', "XXX");
-define('URL_GIT', "XXX");
+include_once ('lib'.DIRECTORY_SEPARATOR.'template.php');
 include_once ('lib'.DIRECTORY_SEPARATOR.'markdown.php');
 include_once ('lib'.DIRECTORY_SEPARATOR.'smartypants.php');
 include_once ('lib'.DIRECTORY_SEPARATOR.'ImageWorkshop.php');
@@ -39,16 +24,45 @@ function klog($msg,$type="") {
  * Init Kiwi - It will create user's config folder with some usefull files such as list of each articles etc...
  */
 function init() {
+	// Load configuration file
+	require 'config.php';
+	$cyaneus['rss'] = $cyaneus['url'].'rss.xml';
+	$cyaneus['css'] = $cyaneus['url'].'style.css';
+	$GLOBALS['cyaneus'] = $cyaneus;
+
+
+	// Define template path
+	define('TEMPLATEPATH', $cyaneus['template'].DIRECTORY_SEPARATOR.$cyaneus['template_name'].DIRECTORY_SEPARATOR);
+
 	$data_folder = dirname(__FILE__).DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR;
 	$list_article = $data_folder.'articles.json';
 
 	define('USERDATA', $data_folder);
+	mkdirStoreDir($cyaneus);
+
+	define('ARTICLES', $GLOBALS['cyaneus']['articles'].DIRECTORY_SEPARATOR);
+	define('STORE', $GLOBALS['cyaneus']['folder_main_path'].DIRECTORY_SEPARATOR);
+
 
 	if(!file_exists($data_folder)) mkdir($data_folder,0705);
 	// Store an empty string base 64
 	if(!file_exists($list_article)) file_put_contents($list_article,base64_encode(json_encode(array())));
 	$GLOBALS['archives'] = json_decode(base64_decode(file_get_contents($list_article)),true);
+
+	if(!file_exists(trim($cyaneus['folder_main_path']).DIRECTORY_SEPARATOR.'style.css')) {
+		klog('Moving CSS file to defautl path');
+		copy(TEMPLATEPATH.'style.css',trim($cyaneus['folder_main_path']).DIRECTORY_SEPARATOR.'style.css');
+	}
 	klog('INIT - Cyaneus loaded');
+}
+
+function mkdirStoreDir($config) {
+	$f = array(
+			$config['folder_main_path'],
+			$config['folder_main_path'].DIRECTORY_SEPARATOR.$config['articles'].DIRECTORY_SEPARATOR
+		);
+
+	foreach ($f as $key) { if(!file_exists($key)) mkdir($key,0755);}
 }
 /**
  * Find tags from a post from its header.
@@ -82,7 +96,7 @@ function url($path) {
 function getDrafts() {
 	$files          = array(); 
 	$readable_draft = array('md','markdown');
-	$draftPath      = dirname(__FILE__).DIRECTORY_SEPARATOR.DRAFT.DIRECTORY_SEPARATOR;
+	$draftPath      = dirname(__FILE__).DIRECTORY_SEPARATOR.$GLOBALS['cyaneus']['draft'].DIRECTORY_SEPARATOR;
 	$iterator       = new RecursiveDirectoryIterator($draftPath,RecursiveIteratorIterator::CHILD_FIRST);
 
 	klog('Looking for drafts');
@@ -123,14 +137,14 @@ function generatePict(Array $config) {
 	$image = new PHPImageWorkshop\ImageWorkshop(array(
 		    'imageFromPath' => $config['path'],
 	));
-	if (THUMB_W < $_info[0]) {
-		$image->resizeInPixel(THUMB_W, null, true);
+	if ($GLOBALS['cyaneus']['thumb_w'] < $_info[0]) {
+		$image->resizeInPixel($GLOBALS['cyaneus']['thumb_w'], null, true);
 	}else{
 		$image->resizeInPixel($_info[0], null, true);
 	}
 	 //backgroundColor transparent, only for PNG (otherwise it will be white if set null)
 	// (file_path,file_name,create_folder,background_color,quality)
-	return $image->save(ARTICLES.DIRECTORY_SEPARATOR, $config['file'], true, null, 85);
+	return $image->save(STORE.ARTICLES, $config['file'], true, null, 85);
 }
 
 /**
@@ -140,7 +154,7 @@ function generatePict(Array $config) {
  */
 function getTags($post) {
 	$info = array();
-	$kiwi_tags = explode(',', TAGS);
+	$kiwi_tags = explode(',', $GLOBALS['cyaneus']['tags']);
 	foreach ($kiwi_tags as $tag) {
 		$info[$tag] = info($post,$tag);
 	}
@@ -153,7 +167,7 @@ function getTags($post) {
   */
 function draftsToHtml() {
 	$rss           = "";
-	$index_list    = "";
+	$index_list    = array();
 	$archives_list = "";
 	$drafts        = getDrafts();
 
@@ -169,23 +183,33 @@ function draftsToHtml() {
 
 		// Rebuild some informations
 		if(empty($info['url'])) $info['url'] = url($info['title']);
-		$info['timestamp'] = $d['draft']['build'];
-		checkPostToUpdate($info);
 
-		// Build required elements
-		$rss .= rssPost($info);
-		$index_list .= index($info);
-		$archives_list .= archives($info);
+		$info['date'] = date($GLOBALS['cyaneus']['date_format'],$d['draft']['build']);
+		// Build an array of each key we need to build templates
+		$index_list[] = array(
+			'post_url' => ARTICLES.$info['url'].".html",
+			'post_title' => $info['title'],
+			'post_date' => $info['date'],
+			'post_date_rss' => date('D, j M Y H:i:s \G\M\T',$d['draft']['build']),
+			'post_description' => $info['description'],
+			'post_content' =>  $info['content'],
+			'post_author' =>  $info['author'],
+			'post_tags' =>  $info['tags'],
+			'timestamp' => $d['draft']['build'],
+		);
 
 		// Attach pictures
 		if (!empty($d['pict'])) generatePict($d['pict']);
 	}
+
+	buildPost($index_list);
 	klog('SUCCESS - Posts creation');
 	// Create default pages
-	buildRss($rss);
+	buildRss($index_list);
 	buildPage($index_list);
-	buildPage($archives_list,'archives');
+	buildPage($index_list,'archives');
 	klog('SUCCESS - Pages and posts creation');
+	echo "SUCCESS";
 }
 
 /**
@@ -196,203 +220,75 @@ function draftsToHtml() {
 function checkPostToUpdate($info) {
 	$config = $GLOBALS['archives'];
 
-	if(!isset($config[$info['url']])) {
-		$config[$info['url']] = array(
+	if(!isset($config[$info['post_url']])) {
+		$config[$info['post_url']] = array(
 			'added_time' => $info['timestamp'],
 			'update'     => $info['timestamp']
 			);
 		file_put_contents(USERDATA.'articles.json',base64_encode(json_encode($config)));
 		klog('Updated archives configuration in '.USERDATA);
 		$GLOBALS['archives'] = $config;
-		if(empty($info['date'])) $info['date'] = date('d/m/Y',$info['timestamp']);
+		$info['post_date'] = date($GLOBALS['cyaneus']['date_format'],$info['timestamp']);
 		createPageHtml($info);
 		return true;
 	}
 
-	if ($config[$info['url']] !== $info['timestamp']) {
-		$config[$info['url']] = $info['timestamp'];
+	if ($config[$info['post_url']] !== $info['timestamp']) {
+		$config[$info['post_url']] = $info['timestamp'];
 		file_put_contents(USERDATA.'articles.json',base64_encode(json_encode($config)));
 		$GLOBALS['archives'] = $config;
-		if(empty($info['date'])) $info['date'] = date('d/m/Y',$config[$info['url']]['added_time']);
+		$info['post_date'] = date($GLOBALS['cyaneus']['date_format'],$config[$info['post_url']]['added_time']);
 		createPageHtml($info);
+	}
+
+}
+
+/**
+ * Build each post from our configuration array
+ * @param Array $posts 
+ */
+function buildPost(Array $posts) {
+	foreach ($posts as $post) {
+		klog('POST : build post for - '.$post['post_title']);
+		checkPostToUpdate($post);
 	}
 }
 
 /**
- * Create header HTML
- * @param Array information about an article (title&co...)
- * @return string
- */
-function head($info) {
-    $title = (empty($info['title'])) ? TITLE_SITE : $info['title'].' - '.TITLE_SITE;
-    $description = (empty($info['description'])) ? DESCRIPTION : $info['description'];
-    $rss = URL.'rss.xml';
-    $css = URL.'style.css';
-
-	$str = '<!doctype html>'."\n";
-	$str .= '<html lang="%s">'."\n";
-	$str .= "\t".'<head>'."\n";
-	$str .= "\t\t".'<meta charset="UTF-8">'."\n";
-	$str .= "\t\t".'<title>%s</title>'."\n";
-	$str .= "\t\t".'<meta name="description" content="%s"/>'."\n";
-	$str .= "\t\t".'<meta name="author" content="%s">'."\n";
-	$str .= "\t\t".'<link rel="alternate" type="application/rss+xml" href="%s" />'."\n";
-	$str .= "\t\t".'<link rel="stylesheet" type="text/css" href="%s" />'."\n";
-	$str .= "\t\t".'<link rel="shortcut icon" type="image/png" href="favicon.png" />'."\n";
-	$str .= "\t".'</head>'."\n";
-	$str .= '<body>'."\n";
-	$str .= '<section id="main">'."\n";
-	$str .= "\t".'<header>'."\n";
-	$str .= "\t\t".'<h1><a href="'.URL.'" title="'.DESCRIPTION.'">'.TITLE_SITE.'</a></h1>'."\n";
-	$str .= "\t".'</header>'."\n";
-
-	return sprintf($str,LANGUAGE,$title,$description,AUTHOR,$rss,$css);
-}
-/**
- * Create menu HTML
- * @return string
- */
-function menu() {
-	$str = '<nav class="navigation">'."\n";
-	$str .= "\t".'<ul>'."\n";
-	$str .= "\t\t".'<li><a href="'.URL.'">Home</a></li>'."\n";
-	$str .= "\t\t".'<li><a href="'.URL.'archives.html">Archives</a></li>'."\n";
-	$str .= "\t\t".'<li><a href="'.URL.'rss.xml">RSS</a></li>'."\n";
-	$str .= "\t".'</ul>'."\n";
-	$str .= '</nav>'."\n";
-	return $str;
-}
-/**
- * Create content for a post
- * @param Array information about an article (title&co...)
- * @return string
- */
-function content($html) {
-
-	$str = '<article class="post">'."\n";
-	$str .= "\t".'<header>'."\n";
-	$str .= "\t\t".'<h1 class="post-title">%s</h1>'."\n";
-	$str .= "\t\t".'<time class="post-date">%s</time>'."\n";
-	$str .= "\t".'</header>'."\n";
-	$str .= "\t".'%s'."\n";
-	$str .= "\t".'<footer>'."\n";
-	$str .= "\t\t".'By <strong>%s</strong>'."\n";
-	$str .= "\t".'</footer>'."\n";
-	$str .= '</article>'."\n";
-	return sprintf($str,$html['title'],$html['date'],$html['content'],$html['author']);
-}
-/**
- * Create footer HTML
- * @return string
- */
-function footer() {
-	$str = '<p class="skip"><a href="#haut">Retourner en haut</a></p>';
-	$str .= "\n".'</section>';
-	$str .= "\n".'</body>';
-	$str .= "\n".'</html>';
-    return $str;
-}
-/**
- * Create index content HTML
- * @param Array information about an article (title&co...)
- * @return string
- */
-function index($info) {
-
-	$url = ARTICLES.DIRECTORY_SEPARATOR.$info['url'].".html";
-	$str = '<article class="post post-index">'."\n";
-	$str .= "\t".'<header>'."\n";
-	$str .= "\t\t".'<h1 class="post-title">'."\n";
-	$str .= "\t\t\t".'<a href="%s" title="%s">%s</a>'."\n";
-	$str .= "\t\t".'</h1>'."\n";
-	$str .= "\t\t".'<time class="post-date">%s</time>'."\n";
-	$str .= "\t".'</header>'."\n";
-	$str .= '</article>'."\n";
-	return sprintf($str,$url,$info['title'],$info['title'],$info['date']);
-}
-
-/**
- * Create Archives content HTML
- * @param Array information about an article (title&co...)
- * @return string
- */
-function archives($info) {
-	return index($info);
-}
-
-/**
- * Create header HTML
- * @param Array information about an article (title&co...)
- * @return string
- */
-function rssPost($info) {
-
-	$url  = URL.ARTICLES.DIRECTORY_SEPARATOR.$info['url'].'.html';
-	$date = date('D, j M Y H:i:s \G\M\T',$info['timestamp']);
-
-	$rss = '<item>';
-	$rss .= '<title>%s</title>';
-	$rss .= '<link>%s</link>';
-	$rss .= '<pubDate>%s</pubDate>';
-	$rss .= '<description><![CDATA[%s]]></description>';
-	$rss .= '</item>';
-	return sprintf($rss,$info['title'],$url,$date,$info['content']);
-}
-
-/**
- * Create RSS header
- * @param Array information about an article (title&co...)
- * @return string
- */
-function rssHead() {
-	$rss ='<?xml version="1.0" encoding="UTF-8"?>';
-    $rss .= '<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">';
-    $rss .= '<channel>';
-    $rss .= '<title>'.TITLE_SITE.'</title>';
-    $rss .= '<link>'.URL.'</link>';
-    $rss .= '<description>'.DESCRIPTION.'</description>';
-    $rss .= '<language>'.LANGUAGE.'</language>';
-    $rss .= '<generator>'.GENERATOR.'</generator>';
-    $rss .= '</channel>';
-    return $rss;
-}
-
-/**
  * Build the rss file -> ./rss.xml
- * @param string Rss stringify
+ * @param Array $content config array of each post
  * @return Bool
  */
-function buildRss($rss) {
+function buildRss(Array $content) {
 	klog('Build Rss file');
-	$str = rssHead().$rss.'</rss>';
-	$path = '.'.DIRECTORY_SEPARATOR;
-    return file_put_contents($path.'rss.xml',$str);
+	$template = new Template($GLOBALS['cyaneus']);
+	$str = $template->page('rss',array('content' => $content));
+    return file_put_contents(STORE.'rss.xml',$str);
 }
 /**
  * Build a page for the site
- * @param string content html stringify
+ * @param Array $content config array of each post
  * @param string page to build
  * @return Bool
  */
-function buildPage($content,$page='index') {
+function buildPage(Array $content,$page='index') {
 
-	klog('Build page '.$page);
-	$title = ($page !== 'index') ? $page : '';
-	$str = head(array('title'=>$title)).menu().$content.footer();
-	$path = '.'.DIRECTORY_SEPARATOR;
-    return file_put_contents($path.$page.'.html',$str);
+	$template = new Template($GLOBALS['cyaneus']);
+	$str = $template->page($page,array('content' => $content));
+    return file_put_contents(STORE.$page.'.html',$str);
 }
 /**
  * Build the post
- * @param string content html stringify
+ * @param Array $content config array of a post
  * @return Bool
  */
-function createPageHtml($info) {
+function createPageHtml(Array $content) {
 
-	klog('CREATION : Create a page : '.$info['url']);
-	$html = head($info).menu().content($info).footer();
-	$file = dirname(__FILE__).DIRECTORY_SEPARATOR.ARTICLES.DIRECTORY_SEPARATOR.$info['url'].'.html';
-	return file_put_contents($file, $html);
+	klog('CREATION : Create a page : '.$content['post_url']);
+	$template = new Template($GLOBALS['cyaneus']);
+	$str = $template->post($content);
+	$path = STORE.$content['post_url'];
+	return file_put_contents($path, $str);
 }
 
 /**
@@ -419,13 +315,12 @@ function cleanFiles() {
 
 function formRebuild() {
 	$str = head(array('title'=> 'Rebuild')).menu().$content.footer();
-	echo '<form method="GET" action="'.URL.'cyaneus.php">';
+	echo '<form method="GET" action="'.$GLOBALS['url'].'cya.php">';
 	echo '<input type="password" name="rebuild" id="rebuild" />';
 	echo '<button type="submit">Rebuild</button>';
 	echo '</form>';
 
 }
-
 init();
 
 if (isset($_GET['rebuild'])){
@@ -470,11 +365,11 @@ if(isset($_GET['github'])) {
 
 		try {
 			$json = json_decode($_POST['payload']);
-			if(isset($json->pusher->email) && $json->pusher->email !== EMAIL_GIT) 
+			if(isset($json->pusher->email) && $json->pusher->email !== $GLOBALS['cyaneus']['email_git']) 
 				throw new Exception('Wrong email pusher');
-			if(isset($json->pusher->name) && $json->pusher->name !== NAME_GIT) 
+			if(isset($json->pusher->name) && $json->pusher->name !== $GLOBALS['cyaneus']['name_git']) 
 				throw new Exception('Wrong name pusher');
-			if(isset($json->repository->url) && $json->repository->url !== URL_GIT) 
+			if(isset($json->repository->url) && $json->repository->url !== $GLOBALS['cyaneus']['url_git']) 
 				throw new Exception('Wrong repository url');
 			
 			if(!in_array($_SERVER['REMOTE_ADDR'], $_ip))
@@ -493,8 +388,8 @@ if(isset($_GET['github'])) {
 			}
 
 			foreach ($files as $e) {
-				mkdir(DRAFT.DIRECTORY_SEPARATOR.$e['folder']);
-				file_put_contents(DRAFT.DIRECTORY_SEPARATOR.$e['path'],$e['content'] );
+				mkdir($GLOBALS['cyaneus']['draft'].DIRECTORY_SEPARATOR.$e['folder']);
+				file_put_contents($GLOBALS['cyaneus']['draft'].DIRECTORY_SEPARATOR.$e['path'],$e['content'] );
 			}
 
 			draftsToHtml();
