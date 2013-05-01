@@ -24,11 +24,14 @@ function klog($msg,$type="") {
  * Init Kiwi - It will create user's config folder with some usefull files such as list of each articles etc...
  */
 function init() {
+
+	// Load configuration file
 	require 'config.php';
 	$cyaneus['rss'] = $cyaneus['url'].'rss.xml';
 	$cyaneus['css'] = $cyaneus['url'].'style.css';
 	$GLOBALS['cyaneus'] = $cyaneus;
 
+	// Define template path
 	define('TEMPLATEPATH', $cyaneus['template'].DIRECTORY_SEPARATOR.$cyaneus['template_name'].DIRECTORY_SEPARATOR);
 
 	$data_folder = dirname(__FILE__).DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR;
@@ -163,6 +166,7 @@ function draftsToHtml() {
 		if(empty($info['url'])) $info['url'] = url($info['title']);
 
 		$info['date'] = date($GLOBALS['cyaneus']['date_format'],$d['draft']['build']);
+		// Build an array of each key we need to build templates
 		$index_list[] = array(
 			'post_url' => $GLOBALS['cyaneus']['articles'].DIRECTORY_SEPARATOR.$info['url'].".html",
 			'post_title' => $info['title'],
@@ -220,7 +224,11 @@ function checkPostToUpdate($info) {
 
 }
 
-function buildPost($posts) {
+/**
+ * Build each post from our configuration array
+ * @param Array $posts 
+ */
+function buildPost(Array $posts) {
 	foreach ($posts as $post) {
 		klog('POST : build post for - '.$post['post_title']);
 		checkPostToUpdate($post);
@@ -229,10 +237,10 @@ function buildPost($posts) {
 
 /**
  * Build the rss file -> ./rss.xml
- * @param string Rss stringify
+ * @param Array $content config array of each post
  * @return Bool
  */
-function buildRss($content) {
+function buildRss(Array $content) {
 	klog('Build Rss file');
 	$template = new Template($GLOBALS['cyaneus']);
 	$str = $template->page('rss',array('content' => $content));
@@ -241,11 +249,11 @@ function buildRss($content) {
 }
 /**
  * Build a page for the site
- * @param string content html stringify
+ * @param Array $content config array of each post
  * @param string page to build
  * @return Bool
  */
-function buildPage($content,$page='index') {
+function buildPage(Array $content,$page='index') {
 
 	$template = new Template($GLOBALS['cyaneus']);
 	$str = $template->page($page,array('content' => $content));
@@ -254,10 +262,10 @@ function buildPage($content,$page='index') {
 }
 /**
  * Build the post
- * @param string content html stringify
+ * @param Array $content config array of a post
  * @return Bool
  */
-function createPageHtml($content) {
+function createPageHtml(Array $content) {
 
 	klog('CREATION : Create a page : '.$content['post_url']);
 	$template = new Template($GLOBALS['cyaneus']);

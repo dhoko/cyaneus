@@ -1,12 +1,16 @@
 <?php 
 /**
-* 
+* Main class to build generate pages from templates
 */
 class Template {
 
 	private $template = array();
 	private $config = array();
 
+	/**
+	 * Build our basic configuration for a template, such as default config var and template string 
+	 * @param Array $config Cyaneus COnfig
+	 */
 	public function __construct(Array $config) {
 		$this->config = $config;
 		$this->template = array(
@@ -31,7 +35,14 @@ class Template {
 
 	}
 
-	private function replace($opt, $string) {
+	/**
+	 * Replace var in a template from an array [key=>value]
+	 * @param Array $opt Options of data to bind
+	 * @param String $string Template string
+	 * @return String Template with datas
+	 */
+	private function replace(Array $opt, $string) {
+		if(empty($string)) throw new Exception("Cannot fill an empty string");
 		$_data = array();
 		foreach ($opt as $key => $value) {
 			$_data['{{'.$key.'}}'] = $value;
@@ -39,25 +50,18 @@ class Template {
 		return strtr($string,$_data);
 	}
 
-	private function fill($content,$data = array()) {
-		if(empty($content)) throw new Exception("Cannot fill an empty string");
-		return $this->replace($data,$content);
-
-		if(!empty($data)){
-			foreach ($data as $key => $value) {
-				if(!is_array($value)) $render = $this->replace($key,$value,$render);
-				klog('[TEMPLATE] : build {{'.$key.'}} to '.$value);
-			}
-		}
-		return $render;
-	}
-
+	/**
+	 * Build loop element such as content on a home page
+	 * @param String $context Template to build
+	 * @param Array  $data Options of data to bind
+	 * @return String Template with datas
+	 */
 	public function loop($context,Array $data) {
 		$data    = $this->config($data);
 		$content = $this->template[$context]['content'];
 		if($content){
 			try {
-				return $this->fill($content,$data);
+				return $this->replace($data,$content);
 			} catch (Exception $e) {
 				klog($e->getMessage(),"error");
 			}
@@ -65,9 +69,15 @@ class Template {
 	}
 
 	public function navigation() {
-		return $this->fill($this->template['navigation'],$this->config(array()));
+		return $this->replace($this->config(array()), $this->template['navigation']);
 	}
 
+	/**
+	 * Build a page
+	 * @param String $context Template to build
+	 * @param Array  $data Options of data to bind
+	 * @return String Template with datas
+	 */
 	public function page($context,Array $data){
 		$_content = '';
 		$content = $this->template[$context]['main'];
@@ -79,30 +89,38 @@ class Template {
 		$data = $this->config($data);
 		if($content){
 			try {
-				return $this->fill($content,$data);
+				return $this->replace($data,$content);
 			} catch (Exception $e) {
 				klog($e->getMessage(),"error");
 			}
 		}
 	}
 
+	/**
+	 * Build a post
+	 * @param String $context Template to build
+	 * @param Array  $data Options of data to bind
+	 * @return String Template with datas
+	 */
 	public function post(Array $data){
 		$_content = '';
 		$content = $this->template['post']['main'];
-		$_content = $this->loop('post',$data);
-
-		$data['content'] = $_content;
 		$data['navigation'] = $this->navigation();
 		$data = $this->config($data);
 		if($content){
 			try {
-				return $this->fill($content,$data);
+				return $this->replace($data,$content);
 			} catch (Exception $e) {
 				klog($e->getMessage(),"error");
 			}
 		}
 	}
 
+	/**
+	 * Build configuration from tge default one
+	 * @param Array  $data Options of data to bind
+	 * @return Array Configuration var to bind
+	 */
 	private function config(Array $data) {
 		$merge = array_merge(array(
 			'lang'     	  	=> $this->config['language'],
