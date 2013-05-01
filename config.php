@@ -26,7 +26,7 @@ $cyaneus = array(
 	 */
 	
 	// Tags you want to edit in your posts
-	'tags' => '',
+	'tags' => 'title,url,date,tags,description,author',
 	// The generator
 	'generator' => 'Cyaneus 1.0 B2',
 	// Put your drafts in this folder
@@ -55,5 +55,7 @@ $cyaneus = array(
 	// Your pseudo on git
 	'name_git' => '',
 	// url of the repos on github
+	// Do not add the https:// 
+	// ex: https://github.com/dhoko/blog/ => github.com/dhoko/blog/master/
 	'url_git' => ''
 );

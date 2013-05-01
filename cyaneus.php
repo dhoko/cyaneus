@@ -295,9 +295,17 @@ function createPageHtml(Array $content) {
  * Erase all files store in ARTICLES and rss&archives&index.html
  */
 function cleanFiles() {
-    $current = dirname(__FILE__).DIRECTORY_SEPARATOR;
-    $_noDelete = $current.ARTICLES.DIRECTORY_SEPARATOR.'index.html';
-    $_noDelete2 = $current.DRAFT.DIRECTORY_SEPARATOR.'index.html';
+
+	klog('ERASE : Clean all the files');
+    $current = STORE;
+    $_noDelete = STORE.ARTICLES.DIRECTORY_SEPARATOR.'index.html';
+    $_noDelete2 = STORE.$GLOBALS['cyaneus']['draft'].DIRECTORY_SEPARATOR.'index.html';
+
+    if(!empty(STORE)) {
+    	unlink(STORE);
+    	unlink(dirname(__FILE__).DIRECTORY_SEPARATOR.'data');
+    	return;
+    }
     $iterator = new RecursiveDirectoryIterator($current,RecursiveIteratorIterator::CHILD_FIRST);
 
     foreach(new RecursiveIteratorIterator($iterator) as $file) {
@@ -361,7 +369,7 @@ if(isset($_GET['github'])) {
 		 * https://raw.github.com/dhoko/blog/master/
 		 * For repository: blog by me (dhoko) on branch master
 		 */
-		$_base = 'XXX';
+		$_base = 'https://raw.'.$GLOBALS['cyaneus']['url_git'].'master/';
 
 		try {
 			$json = json_decode($_POST['payload']);
@@ -369,7 +377,7 @@ if(isset($_GET['github'])) {
 				throw new Exception('Wrong email pusher');
 			if(isset($json->pusher->name) && $json->pusher->name !== $GLOBALS['cyaneus']['name_git']) 
 				throw new Exception('Wrong name pusher');
-			if(isset($json->repository->url) && $json->repository->url !== $GLOBALS['cyaneus']['url_git']) 
+			if(isset($json->repository->url) && $json->repository->url !== 'https://'.$GLOBALS['cyaneus']['url_git']) 
 				throw new Exception('Wrong repository url');
 			
 			if(!in_array($_SERVER['REMOTE_ADDR'], $_ip))
