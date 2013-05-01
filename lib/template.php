@@ -22,6 +22,10 @@ class Template {
 				'main' 	  => file_get_contents(TEMPLATEPATH.'index.html'),
 				'content' => file_get_contents(TEMPLATEPATH.'content-index.html'),
 				),
+			'rss' => array(
+				'main' 	  => file_get_contents(TEMPLATEPATH.'rss.html'),
+				'content' => file_get_contents(TEMPLATEPATH.'content-rss.html'),
+				),
 			'navigation' => file_get_contents(TEMPLATEPATH.'navigation.html')
 			 );
 
@@ -61,12 +65,18 @@ class Template {
 	}
 
 	public function navigation() {
-		
+		return $this->fill($this->template['navigation'],$this->config(array()));
 	}
 
 	public function page($context,Array $data){
+		$_content = '';
 		$content = $this->template[$context]['main'];
-		$data    = $this->config($data);
+		foreach ($data['content'] as $post_find) {
+			$_content .= $this->loop($context,$post_find);
+		}
+		$data['content'] = $_content;
+		$data['navigation'] = $this->navigation();
+		$data = $this->config($data);
 		if($content){
 			try {
 				return $this->fill($content,$data);
@@ -76,6 +86,22 @@ class Template {
 		}
 	}
 
+	public function post(Array $data){
+		$_content = '';
+		$content = $this->template['post']['main'];
+		$_content = $this->loop('post',$data);
+
+		$data['content'] = $_content;
+		$data['navigation'] = $this->navigation();
+		$data = $this->config($data);
+		if($content){
+			try {
+				return $this->fill($content,$data);
+			} catch (Exception $e) {
+				klog($e->getMessage(),"error");
+			}
+		}
+	}
 
 	private function config(Array $data) {
 		$merge = array_merge(array(
@@ -83,7 +109,7 @@ class Template {
 			'site_url' 	  	=> $this->config['url'],
 			'site_title'  	=> $this->config['name'],
 			'site_description' => $this->config['description'],
-			'version'  	  	=> $this->config['generator'],
+			'generator'  	  	=> $this->config['generator'],
 			'author'   	  	=> $this->config['author'],
 			'template'    => $this->config['template_name'],
 			'rss_url'     => $this->config['rss'],
