@@ -298,11 +298,10 @@ function cleanFiles() {
 
 	klog('ERASE : Clean all the files');
     $current = STORE;
-    $_noDelete = STORE.ARTICLES.DIRECTORY_SEPARATOR.'index.html';
-    $_noDelete2 = STORE.$GLOBALS['cyaneus']['draft'].DIRECTORY_SEPARATOR.'index.html';
-
-    if(!empty(STORE)) {
-    	unlink(STORE);
+    $_noDelete = $current.ARTICLES.DIRECTORY_SEPARATOR.'index.html';
+    $_noDelete2 = $current.$GLOBALS['cyaneus']['draft'].DIRECTORY_SEPARATOR.'index.html';
+    if (!empty($current)) {
+    	unlink($current);
     	unlink(dirname(__FILE__).DIRECTORY_SEPARATOR.'data');
     	return;
     }
@@ -373,6 +372,7 @@ if(isset($_GET['github'])) {
 
 		try {
 			$json = json_decode($_POST['payload']);
+			klog(var_export(json_decode($_POST['payload'],true),true),'server');
 			if(isset($json->pusher->email) && $json->pusher->email !== $GLOBALS['cyaneus']['email_git']) 
 				throw new Exception('Wrong email pusher');
 			if(isset($json->pusher->name) && $json->pusher->name !== $GLOBALS['cyaneus']['name_git']) 
