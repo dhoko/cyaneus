@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+	<meta charset="UTF-8">
+	<title>{{post_title}} - {{site_title}}</title>
+	<meta name="description" content="{{post_description}}"/>
+	<meta name="author" content="{{post_author}}">
+	<link rel="alternate" type="application/rss+xml" href="{{rss_url}}" />
+	<link rel="stylesheet" type="text/css" href="{{css_url}}" />
+	<link rel="shortcut icon" type="image/png" href="favicon.png" />
+</head>
+<body>
+<section id="main">
+	<header>
+		<h1>
+		<a href="{{site_url}}" title="{{site_description}}">{{site_title}}</a></h1>
+	</header>
+{{navigation}}
+<article class="post">
+	<header>
+		<h1 class="post-title">{{post_title}}</h1>
+		<time class="post-date">{{post_date}}</time>
+	</header>
+	{{post_content}}
+	<footer>
+	By <strong>{{post_author}}</strong>
+	</footer>
+</article>
+<p class="skip"><a href="#haut">Retourner en haut</a></p>
+</section>
+</body>
+</html>
