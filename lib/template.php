@@ -18,10 +18,7 @@ class Template {
 				'main' 	  => file_get_contents(TEMPLATEPATH.'index.html'),
 				'content' => file_get_contents(TEMPLATEPATH.'content-index.html'),
 				),
-			'post' => array(
-				'main' 	  => file_get_contents(TEMPLATEPATH.'post.html'),
-				'content' => file_get_contents(TEMPLATEPATH.'content-post.html'),
-				),
+			'post' => file_get_contents(TEMPLATEPATH.'post.html'),
 			'archives' => array(
 				'main' 	  => file_get_contents(TEMPLATEPATH.'index.html'),
 				'content' => file_get_contents(TEMPLATEPATH.'content-index.html'),
@@ -104,7 +101,7 @@ class Template {
 	 */
 	public function post(Array $data){
 		$_content = '';
-		$content = $this->template['post']['main'];
+		$content = $this->template['post'];
 		$data['navigation'] = $this->navigation();
 		$data = $this->config($data);
 		if($content){

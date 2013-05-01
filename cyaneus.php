@@ -24,12 +24,12 @@ function klog($msg,$type="") {
  * Init Kiwi - It will create user's config folder with some usefull files such as list of each articles etc...
  */
 function init() {
-
 	// Load configuration file
 	require 'config.php';
 	$cyaneus['rss'] = $cyaneus['url'].'rss.xml';
 	$cyaneus['css'] = $cyaneus['url'].'style.css';
 	$GLOBALS['cyaneus'] = $cyaneus;
+
 
 	// Define template path
 	define('TEMPLATEPATH', $cyaneus['template'].DIRECTORY_SEPARATOR.$cyaneus['template_name'].DIRECTORY_SEPARATOR);
@@ -38,12 +38,31 @@ function init() {
 	$list_article = $data_folder.'articles.json';
 
 	define('USERDATA', $data_folder);
+	mkdirStoreDir($cyaneus);
+
+	define('ARTICLES', $GLOBALS['cyaneus']['articles'].DIRECTORY_SEPARATOR);
+	define('STORE', $GLOBALS['cyaneus']['folder_main_path'].DIRECTORY_SEPARATOR);
+
 
 	if(!file_exists($data_folder)) mkdir($data_folder,0705);
 	// Store an empty string base 64
 	if(!file_exists($list_article)) file_put_contents($list_article,base64_encode(json_encode(array())));
 	$GLOBALS['archives'] = json_decode(base64_decode(file_get_contents($list_article)),true);
+
+	if(!file_exists(trim($cyaneus['folder_main_path']).DIRECTORY_SEPARATOR.'style.css')) {
+		klog('Moving CSS file to defautl path');
+		copy(TEMPLATEPATH.'style.css',trim($cyaneus['folder_main_path']).DIRECTORY_SEPARATOR.'style.css');
+	}
 	klog('INIT - Cyaneus loaded');
+}
+
+function mkdirStoreDir($config) {
+	$f = array(
+			$config['folder_main_path'],
+			$config['folder_main_path'].DIRECTORY_SEPARATOR.$config['articles'].DIRECTORY_SEPARATOR
+		);
+
+	foreach ($f as $key) { if(!file_exists($key)) mkdir($key,0755);}
 }
 /**
  * Find tags from a post from its header.
@@ -125,7 +144,7 @@ function generatePict(Array $config) {
 	}
 	 //backgroundColor transparent, only for PNG (otherwise it will be white if set null)
 	// (file_path,file_name,create_folder,background_color,quality)
-	return $image->save($GLOBALS['cyaneus']['articles'].DIRECTORY_SEPARATOR, $config['file'], true, null, 85);
+	return $image->save(STORE.ARTICLES, $config['file'], true, null, 85);
 }
 
 /**
@@ -168,7 +187,7 @@ function draftsToHtml() {
 		$info['date'] = date($GLOBALS['cyaneus']['date_format'],$d['draft']['build']);
 		// Build an array of each key we need to build templates
 		$index_list[] = array(
-			'post_url' => $GLOBALS['cyaneus']['articles'].DIRECTORY_SEPARATOR.$info['url'].".html",
+			'post_url' => ARTICLES.$info['url'].".html",
 			'post_title' => $info['title'],
 			'post_date' => $info['date'],
 			'post_date_rss' => date('D, j M Y H:i:s \G\M\T',$d['draft']['build']),
@@ -244,8 +263,7 @@ function buildRss(Array $content) {
 	klog('Build Rss file');
 	$template = new Template($GLOBALS['cyaneus']);
 	$str = $template->page('rss',array('content' => $content));
-	$path = trim($GLOBALS['cyaneus']['folder_main_path']).DIRECTORY_SEPARATOR;
-    return file_put_contents($path.'rss.xml',$str);
+    return file_put_contents(STORE.'rss.xml',$str);
 }
 /**
  * Build a page for the site
@@ -257,8 +275,7 @@ function buildPage(Array $content,$page='index') {
 
 	$template = new Template($GLOBALS['cyaneus']);
 	$str = $template->page($page,array('content' => $content));
-	$path = trim($GLOBALS['cyaneus']['folder_main_path']).DIRECTORY_SEPARATOR;
-    return file_put_contents($path.$page.'.html',$str);
+    return file_put_contents(STORE.$page.'.html',$str);
 }
 /**
  * Build the post
@@ -270,7 +287,7 @@ function createPageHtml(Array $content) {
 	klog('CREATION : Create a page : '.$content['post_url']);
 	$template = new Template($GLOBALS['cyaneus']);
 	$str = $template->post($content);
-	$path = trim($GLOBALS['cyaneus']['folder_main_path']).DIRECTORY_SEPARATOR.$content['post_url'];
+	$path = STORE.$content['post_url'];
 	return file_put_contents($path, $str);
 }
 
