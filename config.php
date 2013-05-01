@@ -28,7 +28,7 @@ $cyaneus = array(
 	// Your posts builds will be store in this folder
 	'articles' => 'articles',
 	// Thumbnail width
-	'thumb_w' => ,
+	'thumb_w' => 600,
 
 	/**
 	 * Rebuild Key
