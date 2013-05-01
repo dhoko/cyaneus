@@ -11,29 +11,33 @@ class Template {
 		$this->config = $config;
 		$this->template = array(
 			'index' => array(
-				'main' 	  => file_get_contents(TEMPLATEPATH.'index.html')
+				'main' 	  => file_get_contents(TEMPLATEPATH.'index.html'),
 				'content' => file_get_contents(TEMPLATEPATH.'content-index.html'),
 				),
 			'post' => array(
-				'main' 	  => file_get_contents(TEMPLATEPATH.'post.html')
+				'main' 	  => file_get_contents(TEMPLATEPATH.'post.html'),
 				'content' => file_get_contents(TEMPLATEPATH.'content-post.html'),
 				),
 			'archives' => array(
-				'main' 	  => file_get_contents(TEMPLATEPATH.'archives.html')
-				'content' => file_get_contents(TEMPLATEPATH.'content-archives.html'),
+				'main' 	  => file_get_contents(TEMPLATEPATH.'index.html'),
+				'content' => file_get_contents(TEMPLATEPATH.'content-index.html'),
 				),
 			'navigation' => file_get_contents(TEMPLATEPATH.'navigation.html')
 			 );
 
 	}
 
-	private function replace($key,$value, $data) {
-		return preg_replace('{{'.$key.'}}', $value, $data);
+	private function replace($opt, $string) {
+		$_data = array();
+		foreach ($opt as $key => $value) {
+			$_data['{{'.$key.'}}'] = $value;
+		}
+		return strtr($string,$_data);
 	}
 
-	private function fill($content,$data = null) {
+	private function fill($content,$data = array()) {
 		if(empty($content)) throw new Exception("Cannot fill an empty string");
-		$render = $content;
+		return $this->replace($data,$content);
 
 		if(!empty($data)){
 			foreach ($data as $key => $value) {
@@ -62,6 +66,7 @@ class Template {
 
 	public function page($context,Array $data){
 		$content = $this->template[$context]['main'];
+		$data    = $this->config($data);
 		if($content){
 			try {
 				return $this->fill($content,$data);
@@ -72,19 +77,18 @@ class Template {
 	}
 
 
-	private function config(Array $config) {
+	private function config(Array $data) {
 		$merge = array_merge(array(
-			'title'    	  => $this->config['title'],
-			'lang'     	  => $this->config['language'],
-			'base_url' 	  => $this->config['url'],
-			'version'  	  => $this->config['version'],
-			'author'   	  => $this->config['author'],
-			'description' => $this->config['description'],
-			'template'    => $this->config['template'],
+			'lang'     	  	=> $this->config['language'],
+			'site_url' 	  	=> $this->config['url'],
+			'site_title'  	=> $this->config['name'],
+			'site_description' => $this->config['description'],
+			'version'  	  	=> $this->config['generator'],
+			'author'   	  	=> $this->config['author'],
+			'template'    => $this->config['template_name'],
 			'rss_url'     => $this->config['rss'],
 			'css_url'     => $this->config['css'],
 			),$data);
 		return $merge;
 	}
-
 }
