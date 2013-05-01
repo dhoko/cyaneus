@@ -36,8 +36,7 @@ $cyaneus = array(
 	// Template folder
 	'template' => 'template',
 	// To change the destination of your site.
-	// . = Same folder as your config.php
-	'folder_main_path' => '.',
+	'folder_main_path' => 'cyaneus',
 
 
 	/**
