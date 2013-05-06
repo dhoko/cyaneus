@@ -19,6 +19,8 @@ class GithubHook extends Cyaneus {
 	public function get() {
 
 		try {
+			$this->grabFiles('removed');
+			$this->grabFiles('updated');
 			$this->grabFiles();
 			return $this->post;
 		} catch (Exception $e) {
@@ -30,7 +32,7 @@ class GithubHook extends Cyaneus {
 	/**
 	 * Read each files from a hook to build them in DRAFT and find the post
 	 */
-	private function grabFiles() {
+	private function grabFiles($status = 'added') {
 
 		$files = array();
 		$db = array();
@@ -59,10 +61,24 @@ class GithubHook extends Cyaneus {
 		if(empty($this->post['post'])) 
 			throw new Exception('No Post found for the commit: '.$this->json->compare);
 
-		$this->build($files);
-		$this->update($db);
+		switch ($status) {
+			case 'updated':
+				$this->build($files);
+				$this->update($db);
+				break;
+			
+			case 'removed':
+				$this->destroy($files);
+				break;
+
+			default:
+				$this->build($files);
+				$this->update($db);
+				break;
+		}
 	}
-	
+
+
 	/**
 	 * Create a static files in DRAFT from webHook files.
 	 * @param  Array $files Array of files from WebHook
@@ -72,7 +88,21 @@ class GithubHook extends Cyaneus {
 			if(!file_exists(DRAFT.DIRECTORY_SEPARATOR.$e['folder']))
 				mkdir(DRAFT.DIRECTORY_SEPARATOR.$e['folder']);
 			
+			if(file_exists(DRAFT.DIRECTORY_SEPARATOR.$e['path'])) unlink(DRAFT.DIRECTORY_SEPARATOR.$e['path']);
 			file_put_contents(DRAFT.DIRECTORY_SEPARATOR.$e['path'],$e['content'] );
+		}
+	}
+
+	/**
+	 * Delete a file if we delete it from a commit
+	 * @param  Array $files Array of files from WebHook
+	 */
+	private function build(Array $files) {
+		foreach ($files as $e) {
+			if(file_exists(DRAFT.DIRECTORY_SEPARATOR.$e['folder']))
+				unlink(DRAFT.DIRECTORY_SEPARATOR.$e['folder']);
+			
+			if(file_exists(DRAFT.DIRECTORY_SEPARATOR.$e['path'])) unlink(DRAFT.DIRECTORY_SEPARATOR.$e['path']);
 		}
 	}
 }
