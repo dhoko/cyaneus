@@ -321,7 +321,7 @@ function cleanFiles() {
 }
 
 function formRebuild() {
-	$str = head(array('title'=> 'Rebuild')).menu().$content.footer();
+//	$str = head(array('title'=> 'Rebuild')).menu().$content.footer();
 	echo '<form method="GET" action="'.$GLOBALS['url'].'cya.php">';
 	echo '<input type="password" name="rebuild" id="rebuild" />';
 	echo '<button type="submit">Rebuild</button>';
@@ -368,7 +368,7 @@ if(isset($_GET['github'])) {
 		 * https://raw.github.com/dhoko/blog/master/
 		 * For repository: blog by me (dhoko) on branch master
 		 */
-		$_base = 'https://raw.'.$GLOBALS['cyaneus']['url_git'].'master/';
+		$_base = 'https://raw.'.$GLOBALS['cyaneus']['url_git'].'/master/';
 
 		try {
 			$json = json_decode($_POST['payload']);
