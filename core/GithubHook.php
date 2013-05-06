@@ -97,7 +97,7 @@ class GithubHook extends Cyaneus {
 	 * Delete a file if we delete it from a commit
 	 * @param  Array $files Array of files from WebHook
 	 */
-	private function build(Array $files) {
+	private function destroy(Array $files) {
 		foreach ($files as $e) {
 			if(file_exists(DRAFT.DIRECTORY_SEPARATOR.$e['folder']))
 				unlink(DRAFT.DIRECTORY_SEPARATOR.$e['folder']);
