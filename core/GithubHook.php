@@ -97,7 +97,7 @@ class GithubHook extends Cyaneus {
 		klog('HOOK '.$data['total'].' files found from this webhook');
 		if($data['total'] > 0) {
 			$this->insert($data);
-			$files = $this->generatePostFiles($data['date']);
+			$files = $this->getContentPostFiles($data['date']);
 			$this->build($files['post']);
 			$this->build($files['pict']);
 		}
@@ -109,7 +109,7 @@ class GithubHook extends Cyaneus {
 			$this->update($data);
 			$this->destroy($data['post']);
 			$this->destroy($data['pict']);
-			$files = $this->getContentPostFiles();
+			$files = $this->getContentPostFiles($data['date']);
 			$this->build($files['post']);
 			$this->build($files['pict']);
 		}
