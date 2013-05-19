@@ -19,9 +19,9 @@ class GithubHook extends Cyaneus {
 	public function get() {
 
 		try {
-			$this->addedFiles();
+			// $this->addedFiles();
 			$this->modifiedFiles();
-			$this->removedFiles();
+			// $this->removedFiles();
 			return array('status'=>'success','msg'=>'');
 		} catch (Exception $e) {
 			klog($e->getMessage(),'error');
@@ -56,6 +56,23 @@ class GithubHook extends Cyaneus {
 			'total' => count($db),
 			'date' => $timestamp
 			);
+	}
+
+	private function listFiles($data) {
+		$files = array();
+		foreach ($data['pict'] as $pict) {
+			$files[] = array(
+				'folder' => current(explode('/', $pict)),
+				'path' => $pict
+				);
+		}
+		foreach ($data['post'] as $post) {
+			$files[] = array(
+				'folder' => current(explode('/', $post[0])),
+				'path' => $post[0]
+				);
+		}
+		return $files;
 	}
 
 	/**
@@ -107,8 +124,7 @@ class GithubHook extends Cyaneus {
 		klog('HOOK '.$data['total'].' modified files found from this webhook');
 		if($data['total'] > 0) {
 			$this->update($data);
-			$this->destroy($data['post']);
-			$this->destroy($data['pict']);
+			$this->destroy($this->listFiles($data));
 			$files = $this->getContentPostFiles($data['date']);
 			$this->build($files['post']);
 			$this->build($files['pict']);
@@ -122,8 +138,7 @@ class GithubHook extends Cyaneus {
 			foreach ($data['post'] as $post) {$posts[] = 'pathname="'.$post[0].'"';}
 			$conditions = implode(' AND ', $posts);
 			$this->delete($conditions);
-			$this->destroy($data['post']);
-			$this->destroy($data['pict']);
+			$this->destroy($this->listFiles($data));
 		}
 	}
 

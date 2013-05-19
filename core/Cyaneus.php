@@ -84,12 +84,9 @@ class Cyaneus {
 	 */
 	protected function destroy(Array $files) {
 		foreach ($files as $e) {
-			if(file_exists(DRAFT.DIRECTORY_SEPARATOR.$e['folder']))
-				unlink(DRAFT.DIRECTORY_SEPARATOR.$e['folder']);
-			
 			if(file_exists(DRAFT.DIRECTORY_SEPARATOR.$e['path'])) unlink(DRAFT.DIRECTORY_SEPARATOR.$e['path']);
 			
-			klog('Delete file success for '.$files['path']);
+			klog('Delete file success for '.$e['path']);
 		}
 	}
 }
