@@ -123,7 +123,10 @@ class GithubHook extends Cyaneus {
 		$data = $this->grabFiles('modified');
 		klog('HOOK '.$data['total'].' modified files found from this webhook');
 		if($data['total'] > 0) {
-			$this->update($data);
+			$this->update(array(
+				'data' => array('last_update'=> $data['date']),
+				'condition' => $this->updateCondition($data['post'])
+				));
 			$this->destroy($this->listFiles($data));
 			$files = $this->getContentPostFiles($data['date']);
 			$this->build($files['post']);
@@ -140,6 +143,14 @@ class GithubHook extends Cyaneus {
 			$this->delete($conditions);
 			$this->destroy($this->listFiles($data));
 		}
+	}
+
+	private function updateCondition($data) {
+		$condition = array();
+		foreach ($data as $e) {
+			$condition[] = 'pathname="'.$e[0].'"';
+		}
+		return implode(' AND ', $condition);
 	}
 
 }
