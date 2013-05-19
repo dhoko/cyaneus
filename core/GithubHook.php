@@ -19,9 +19,9 @@ class GithubHook extends Cyaneus {
 	public function get() {
 
 		try {
-			// $this->addedFiles();
+			$this->addedFiles();
 			$this->modifiedFiles();
-			// $this->removedFiles();
+			$this->removedFiles();
 			return array('status'=>'success','msg'=>'');
 		} catch (Exception $e) {
 			klog($e->getMessage(),'error');
