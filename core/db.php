@@ -39,6 +39,13 @@ class Db {
 					id INTEGER PRIMARY KEY,
 					post_id INTEGER, 
 					config TEXT
+				);");
+			self::$db->exec("CREATE TABLE IF NOT EXISTS Picture (
+					id INTEGER PRIMARY KEY,
+					post_id INTEGER, 
+					pathname VARCHAR(255),
+					thumbnail INTEGER DEFAULT 0,
+					added_time DATETIME DEFAULT CURRENT_TIMESTAMP
 				);");    
 			return true;
 		}
@@ -56,7 +63,15 @@ class Db {
 	 */
 	public static function create($table,Array $keys,Array $data) {
 		try {
-			self::$db->exec("INSERT INTO ".$table." (".implode(',', $keys).") VALUES ('".implode("','", $data)."');");
+			klog('SQLLITE Insert data to DB - '.$table);
+
+			foreach ($data as $value) {
+				$toSql[] = '("'.implode('","', $value).'")';
+			}
+			$sql = "INSERT INTO ".$table." (".implode(',', $keys).") VALUES ".implode(",", $toSql).";";
+			klog('SQLLITE Insert data to DB - '.$sql);
+			self::$db->exec($sql);
+			return self::$db->lastInsertId();
 		} catch (Exception $e) {
 			klog("SQLLITE ".$e->getMessage(),'error');
 		}
@@ -69,6 +84,7 @@ class Db {
 	 */
 	public static function read($sql = '') {
 		try {
+			klog('SQLLITE Read data from DB - '.$sql);
 			$req = self::$db->prepare($sql);
 			$req->execute();
 			return $req->fetchAll(PDO::FETCH_CLASS,'ArrayObject');

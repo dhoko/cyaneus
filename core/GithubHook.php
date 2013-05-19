@@ -19,12 +19,11 @@ class GithubHook extends Cyaneus {
 	public function get() {
 
 		try {
-			$this->grabFiles('removed');
-			$this->grabFiles('updated');
-			$this->grabFiles();
+			$this->getPosts();
 			return $this->post;
 		} catch (Exception $e) {
 			klog($e->getMessage(),'error');
+		
 			return array();
 		}
 	}
@@ -34,75 +33,67 @@ class GithubHook extends Cyaneus {
 	 */
 	private function grabFiles($status = 'added') {
 
-		$files = array();
 		$db = array();
-		$_base = 'https://raw.github.com/dhoko/blog/master/';
-		foreach ($this->json['head_commit']['added'] as $file) {
-			klog('GITHUB Try to get content from : '.$_base.$file);
-			$_timeStamp = (new DateTime($this->json['head_commit']['timestamp']))->format('U');
-			$folder = explode('/', $file);
-			$files[] = array(
-				'path'    => $file,
-				'folder'  => $folder[0],
-				'content' => file_get_contents($_base.$file),
-				);
-			if(!isset($db['s'.$_timeStamp])) $db['s'.$_timeStamp] = $folder[0];
+		$pict = array();
+		$timestamp = (new DateTime($this->json['head_commit']['timestamp']))->format('Y-m-d H:i:s');
+
+		foreach ($this->json['head_commit'][$status] as $file) {
 			if (in_array(pathinfo($file, PATHINFO_EXTENSION), $this->postFilesExt)) {
-				$this->post['post'] = file_get_contents($_base.$file);
+				$db[] = array($file,$timestamp);
 				klog('HOOK - Post content found');
 			}
-
 			if (in_array(pathinfo($file, PATHINFO_EXTENSION), $this->pictFilesExt)) {
-				$this->post['pict'][] = $file;
+				$pict[] = $file;
 				klog('HOOK - Picture found');
 			}
 		}
+		return array(
+			'post' => $db,
+			'pict' => $pict,
+			'total' => count($db)
+			);
+		
+	}
 
-		if(empty($this->post['post'])) 
-			throw new Exception('No Post found for the commit: '.$this->json->compare);
+	private function generatePostFiles() {
+		$_base = 'https://raw.github.com/dhoko/blog/master/';
+		$data = array('pict' => array(),'post' => array());
+		$sql_post = 'SELECT pathname	FROM Posts';
+		$sql_pict = 'SELECT 
+					Pi.pathname 
+					FROM Posts as P 
+					INNER JOIN Picture as Pi on P.id=Pi.post_id';
 
-		switch ($status) {
-			case 'updated':
-				$this->build($files);
-				$this->update($db);
-				break;
-			
-			case 'removed':
-				$this->destroy($files);
-				break;
+		$result_post = Db::read($sql_post);
+		$result_pict = Db::read($sql_pict);
 
-			default:
-				$this->build($files);
-				$this->update($db);
-				break;
+		foreach ($result_post as $post) {
+			$data['post'][] = array(
+				'path' => $post->pathname,
+				'folder' => current(explode('/', $post->pathname)),
+				'content' => file_get_contents($_base.$post->pathname)
+				);
+		}
+		foreach ($result_pict as $pict) {
+			$data['pict'][] = array(
+				'path' => $pict->pathname,
+				'folder' => current(explode('/', $pict->pathname)),
+				'content' => file_get_contents($_base.$pict->pathname)
+				);
+		}
+		return $data;
+	}
+
+	public function getPosts() {
+		$data = $this->grabFiles();
+		klog('HOOK '.$data['total'].' files found from this webhook');
+		if($data['total'] > 0) {
+			$this->insert($data);
+			$files = $this->generatePostFiles();
+			$this->build($files['post']);
+			$this->build($files['pict']);
 		}
 	}
 
-
-	/**
-	 * Create a static files in DRAFT from webHook files.
-	 * @param  Array $files Array of files from WebHook
-	 */
-	private function build(Array $files) {
-		foreach ($files as $e) {
-			if(!file_exists(DRAFT.DIRECTORY_SEPARATOR.$e['folder']))
-				mkdir(DRAFT.DIRECTORY_SEPARATOR.$e['folder']);
-			
-			if(file_exists(DRAFT.DIRECTORY_SEPARATOR.$e['path'])) unlink(DRAFT.DIRECTORY_SEPARATOR.$e['path']);
-			file_put_contents(DRAFT.DIRECTORY_SEPARATOR.$e['path'],$e['content'] );
-		}
-	}
-
-	/**
-	 * Delete a file if we delete it from a commit
-	 * @param  Array $files Array of files from WebHook
-	 */
-	private function destroy(Array $files) {
-		foreach ($files as $e) {
-			if(file_exists(DRAFT.DIRECTORY_SEPARATOR.$e['folder']))
-				unlink(DRAFT.DIRECTORY_SEPARATOR.$e['folder']);
-			
-			if(file_exists(DRAFT.DIRECTORY_SEPARATOR.$e['path'])) unlink(DRAFT.DIRECTORY_SEPARATOR.$e['path']);
-		}
-	}
+	
 }

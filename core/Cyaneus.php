@@ -28,4 +28,44 @@ class Cyaneus {
 		}
 		
 	}
+
+	protected function insert($db) {
+		$pictures = array();
+		$post_id = Db::create('Posts',array('pathname','last_update'),$db['post']);
+		
+		foreach ($db['pict'] as $pict) {
+			$pictures[] = array($post_id,$pict);
+		}
+		Db::create('Picture',array('post_id','pathname'),$pictures);
+	}
+
+	/**
+	 * Create a static files in DRAFT from webHook files.
+	 * @param  Array $files Array of files from WebHook
+	 */
+	protected function build(Array $data) {
+		foreach ($data as $files) {
+			if(!file_exists(DRAFT.DIRECTORY_SEPARATOR.$files['folder']))
+					mkdir(DRAFT.DIRECTORY_SEPARATOR.$files['folder']);
+				
+			if(file_exists(DRAFT.DIRECTORY_SEPARATOR.$files['path'])) unlink(DRAFT.DIRECTORY_SEPARATOR.$files['path']);
+			file_put_contents(DRAFT.DIRECTORY_SEPARATOR.$files['path'],$files['content'] );
+			klog('Build file success for '.$files['path']);
+		}
+	}
+
+	/**
+	 * Delete a file if we delete it from a commit
+	 * @param  Array $files Array of files from WebHook
+	 */
+	protected function destroy(Array $files) {
+		foreach ($files as $e) {
+			if(file_exists(DRAFT.DIRECTORY_SEPARATOR.$e['folder']))
+				unlink(DRAFT.DIRECTORY_SEPARATOR.$e['folder']);
+			
+			if(file_exists(DRAFT.DIRECTORY_SEPARATOR.$e['path'])) unlink(DRAFT.DIRECTORY_SEPARATOR.$e['path']);
+			
+			klog('Delete file success for '.$files['path']);
+		}
+	}
 }
