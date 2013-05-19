@@ -13,23 +13,31 @@ class GithubHook extends Cyaneus {
 	}
 
 	/**
-	 * Get a post and images attach to a webhook
-	 * @return Array [post,pict] content for a post
+	 * Get new updates from github
+	 * @return Array [status,msg] status = success||error
 	 */
 	public function get() {
 
 		try {
-			$this->getPosts();
-			return $this->post;
+			$data = $this->grabFiles();
+			klog('HOOK '.$data['total'].' files found from this webhook');
+			if($data['total'] > 0) {
+				$this->insert($data);
+				$files = $this->generatePostFiles();
+				$this->build($files['post']);
+				$this->build($files['pict']);
+			}
+			return array('status'=>'success','msg'=>'');
 		} catch (Exception $e) {
 			klog($e->getMessage(),'error');
-		
-			return array();
+			return array('status'=>'error','msg'=>$e->getMessage());
 		}
 	}
 
 	/**
 	 * Read each files from a hook to build them in DRAFT and find the post
+	 * @param String $status 
+	 * @return Array [post,pict,total]
 	 */
 	private function grabFiles($status = 'added') {
 
@@ -52,10 +60,13 @@ class GithubHook extends Cyaneus {
 			'pict' => $pict,
 			'total' => count($db)
 			);
-		
 	}
 
-	private function generatePostFiles() {
+	/**
+	 * Get the content of each files from the hook
+	 * @return Array [post,pict]
+	 */
+	private function getContentPostFiles() {
 		$_base = 'https://raw.github.com/dhoko/blog/master/';
 		$data = array('pict' => array(),'post' => array());
 		$sql_post = 'SELECT pathname	FROM Posts';
@@ -84,16 +95,4 @@ class GithubHook extends Cyaneus {
 		return $data;
 	}
 
-	public function getPosts() {
-		$data = $this->grabFiles();
-		klog('HOOK '.$data['total'].' files found from this webhook');
-		if($data['total'] > 0) {
-			$this->insert($data);
-			$files = $this->generatePostFiles();
-			$this->build($files['post']);
-			$this->build($files['pict']);
-		}
-	}
-
-	
 }
