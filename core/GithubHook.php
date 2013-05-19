@@ -19,14 +19,9 @@ class GithubHook extends Cyaneus {
 	public function get() {
 
 		try {
-			$data = $this->grabFiles();
-			klog('HOOK '.$data['total'].' files found from this webhook');
-			if($data['total'] > 0) {
-				$this->insert($data);
-				$files = $this->generatePostFiles();
-				$this->build($files['post']);
-				$this->build($files['pict']);
-			}
+			$this->addedFiles();
+			$this->modifiedFiles();
+			$this->removedFiles();
 			return array('status'=>'success','msg'=>'');
 		} catch (Exception $e) {
 			klog($e->getMessage(),'error');
@@ -58,7 +53,8 @@ class GithubHook extends Cyaneus {
 		return array(
 			'post' => $db,
 			'pict' => $pict,
-			'total' => count($db)
+			'total' => count($db),
+			'date' => $timestamp
 			);
 	}
 
@@ -66,14 +62,15 @@ class GithubHook extends Cyaneus {
 	 * Get the content of each files from the hook
 	 * @return Array [post,pict]
 	 */
-	private function getContentPostFiles() {
+	private function getContentPostFiles($date) {
 		$_base = 'https://raw.github.com/dhoko/blog/master/';
 		$data = array('pict' => array(),'post' => array());
-		$sql_post = 'SELECT pathname	FROM Posts';
+		$sql_post = 'SELECT pathname FROM Posts WHERE added_time >= "'.$date.'"';
 		$sql_pict = 'SELECT 
 					Pi.pathname 
 					FROM Posts as P 
-					INNER JOIN Picture as Pi on P.id=Pi.post_id';
+					INNER JOIN Picture as Pi on P.id=Pi.post_id
+					WHERE P.added_time >= "'.$date.'"';
 
 		$result_post = Db::read($sql_post);
 		$result_pict = Db::read($sql_pict);
@@ -93,6 +90,41 @@ class GithubHook extends Cyaneus {
 				);
 		}
 		return $data;
+	}
+
+	private function addedFiles() {
+		$data = $this->grabFiles();
+		klog('HOOK '.$data['total'].' files found from this webhook');
+		if($data['total'] > 0) {
+			$this->insert($data);
+			$files = $this->generatePostFiles($data['date']);
+			$this->build($files['post']);
+			$this->build($files['pict']);
+		}
+	}
+	private function modifiedFiles() {
+		$data = $this->grabFiles('modified');
+		klog('HOOK '.$data['total'].' modified files found from this webhook');
+		if($data['total'] > 0) {
+			$this->update($data);
+			$this->destroy($data['post']);
+			$this->destroy($data['pict']);
+			$files = $this->getContentPostFiles();
+			$this->build($files['post']);
+			$this->build($files['pict']);
+		}
+	}
+	private function removedFiles() {
+		$data = $this->grabFiles('removed');
+		klog('HOOK '.$data['total'].' deleted files found from this webhook');
+		if($data['total'] > 0) {
+			$posts = array();
+			foreach ($data['post'] as $post) {$posts[] = 'pathname="'.$post[0].'"';}
+			$conditions = implode(' AND ', $posts);
+			$this->delete($conditions);
+			$this->destroy($data['post']);
+			$this->destroy($data['pict']);
+		}
 	}
 
 }

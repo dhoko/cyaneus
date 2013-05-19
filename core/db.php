@@ -96,17 +96,33 @@ class Db {
 	/**
 	 * Update an element from the DB
 	 * @param  String  $table Table name to update data
-	 * @param  Integer $id    id of the row to update
+	 * @param  String  $condition 
 	 * @param  Array   $data  data to update
 	 */
-	public static function update($table,$id,Array $data) {
+	public static function update($table,$condition,Array $data) {
 		try {
 			$update = array();
 			foreach ($data as $key => $value) {
 				$update[] = trim($key).'="'.trim($value).'"';
 			}
-			$sql = sprintf('UPDATE %s SET %s WHERE id=%d',$table,implode(',', $update),$id);
-			self::$db->exec("UPDATE ".$table." SET (".implode(',', $keys).") VALUES ('".implode("','", $data)."');");
+			$sql = sprintf('UPDATE %s SET %s WHERE %s',$table,implode(',', $update),$condition);
+			klog('SQLLITE Update data from DB - '.$sql);
+			self::$db->exec($sql);
+		} catch (Exception $e) {
+			klog("SQLLITE ".$e->getMessage(),'error');
+		}
+	}
+
+	/**
+	 * Delete elements from the DB
+	 * @param  String  $table Table name to update data
+	 * @param  String  $condition 
+	 */
+	public static function delete($table,$condition) {
+		try {
+			$sql = 'DELETE * FROM '.$table.' WHERE '.$condition;
+			klog('SQLLITE Update data from DB - '.$sql);
+			self::$db->exec($sql);
 		} catch (Exception $e) {
 			klog("SQLLITE ".$e->getMessage(),'error');
 		}
