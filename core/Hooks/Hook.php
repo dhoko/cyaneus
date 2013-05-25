@@ -26,7 +26,7 @@ class Hook {
 	}
 
 	public function run() {
-		$className = $this->type.'Hook';
+		$className = $this->type.'Listener';
 		$hook = new $className($this->json);
 		return $hook->get();
 	}
