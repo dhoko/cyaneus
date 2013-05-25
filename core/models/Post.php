@@ -1,9 +1,55 @@
 <?php 
 class Post extends Db {
 
+	public static function all($from = '1970-01-01') {
+
+		$posts = parent::read('SELECT
+			Po.id,
+			Po.name as name,
+			Po.pathname as path,
+			Po.added_time as added_time,
+			Po.last_update as last_update,
+			Pi.id as pict_id,
+			Pi.pathname as pict_path,
+			Pi.thumbnail as pict_thumbnail,
+			Pi.added_time as pict_added_time
+			FROM Posts as Po
+			INNER JOIN Picture as Pi on Pi.post_id = Po.id
+			WHERE Po.added_time >= "'.$from.'"');
+		$list = array();
+
+		foreach ($posts as $post) {
+			$md5 = md5($post->id);
+			if(!isset($list[$md5])) $list[$md5] = new stdClass();
+
+			if(empty($list[$md5]->name)) 
+				$list[$md5]->name = $post->name;
+
+			if(empty($list[$md5]->id)) 
+				$list[$md5]->id = $post->id;
+
+			if(empty($list[$md5]->path)) 
+				$list[$md5]->path = $post->path;
+
+			if(empty($list[$md5]->added_time)) 
+				$list[$md5]->added_time = $post->added_time;
+
+			if(empty($list[$md5]->last_update)) 
+				$list[$md5]->last_update = $post->last_update;
+
+			$list[$md5]->picture[] = (object)array(
+				'id' => $post->pict_id,
+				'path' => $post->pict_path,
+				'thumbnail' => (bool)$post->pict_thumbnail,
+				'added_time' => $post->pict_added_time,
+				);
+		}
+		return $list;
+	}
+
 	public static function findByDate($from = '') {
 		if(empty($from)) $from = date('Y-m-d H:i:s');
-		$sql = 'SELECT pathname FROM Posts WHERE added_time >= "'.$from.'"';
+		$sql = 'SELECT * FROM Posts WHERE added_time >= "'.$from.'"';
 		return parent::read($sql);
 	}
 

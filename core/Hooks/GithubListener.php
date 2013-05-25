@@ -20,13 +20,25 @@ class GithubListener extends HookListener {
 	public function get() {
 		
 		try {
-			$this->addedFiles();
-			// $this->modifiedFiles();
-			// $this->removedFiles();
-			return array('status'=>'success','msg'=>'');
+
+			return array(
+				'status' => 'success',
+				'msg'    => 'New elements from github',
+				'files'  => array(
+					'added'    => $this->addedFiles(),
+					'modified' => $this->modifiedFiles(),
+					'removed'  => $this->removedFiles()
+					),
+				'timestamp' => $this->timestamp
+				);
 		} catch (Exception $e) {
 			klog($e->getMessage(),'error');
-			return array('status'=>'error','msg'=>$e->getMessage());
+			return array(
+				'status'    => 'error',
+				'files'     => array(),
+				'timestamp' => '',
+				'msg'       => $e->getMessage()
+				);
 		}
 	}
 
@@ -39,11 +51,11 @@ class GithubListener extends HookListener {
 
 		$db = array();
 		$pict = array();
-		$timestamp = (new DateTime($this->json['head_commit']['timestamp']))->format('Y-m-d H:i:s');
+		$this->timestamp = (new DateTime($this->json['head_commit']['timestamp']))->format('Y-m-d H:i:s');
 
 		foreach ($this->json['head_commit'][$status] as $file) {
 			if (in_array(pathinfo($file, PATHINFO_EXTENSION), $this->postFilesExt)) {
-				$db[] = array($file,$timestamp);
+				$db[] = array($file,$this->timestamp);
 				klog('HOOK - Post content found');
 			}
 			if (in_array(pathinfo($file, PATHINFO_EXTENSION), $this->pictFilesExt)) {
@@ -55,7 +67,7 @@ class GithubListener extends HookListener {
 			'post' => $db,
 			'pict' => $pict,
 			'total' => count($db),
-			'date' => $timestamp
+			'date' => $this->timestamp
 			);
 	}
 }

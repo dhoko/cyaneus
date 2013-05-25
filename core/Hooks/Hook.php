@@ -27,8 +27,8 @@ class Hook {
 
 	public function run() {
 		$className = $this->type.'Listener';
-		$hook = new $className($this->json);
-		return $hook->get();
+		$hookClass = new $className($this->json);
+		return Cyaneus::make($hookClass->get());
 	}
 
 }

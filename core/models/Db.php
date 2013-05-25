@@ -87,7 +87,8 @@ class Db {
 			klog('SQLLITE Read data from DB - '.$sql);
 			$req = self::$db->prepare($sql);
 			$req->execute();
-			return $req->fetchAll(PDO::FETCH_CLASS,'ArrayObject');
+			return $req->fetchAll(PDO::FETCH_OBJ);
+			// return $req->fetchAll(PDO::FETCH_CLASS,'ArrayObject');
 		} catch (Exception $e) {
 			klog("SQLLITE ".$e->getMessage(),'error');
 		}

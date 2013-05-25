@@ -6,6 +6,7 @@
 abstract class HookListener {
 	
 	protected $base = '';
+	protected $timestamp = '';
 	protected $postFilesExt = array('md','markdowm');
 	protected $pictFilesExt = array('jpg','jpeg','gif','webp','png','bmp','ico');
 
@@ -49,6 +50,7 @@ abstract class HookListener {
 			Factory::build($files['post']);
 			Factory::build($files['pict']);
 		}
+		return $data['total'];
 	}
 
 	protected function modifiedFiles() {
@@ -63,6 +65,7 @@ abstract class HookListener {
 			Factory::build($files['post']);
 			Factory::build($files['pict']);
 		}
+		return $data['total'];
 	}
 
 	protected function removedFiles() {
@@ -73,6 +76,7 @@ abstract class HookListener {
 			Post::destroy($conditions);
 			Factory::destroy($this->listFiles($data));
 		}
+		return $data['total'];
 	}
 
 	private function listFiles($data) {

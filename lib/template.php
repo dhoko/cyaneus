@@ -11,8 +11,8 @@ class Template {
 	 * Build our basic configuration for a template, such as default config var and template string 
 	 * @param Array $config Cyaneus COnfig
 	 */
-	public function __construct(Array $config) {
-		$this->config = $config;
+	public function __construct() {
+
 		$this->template = array(
 			'index' => array(
 				'main' 	  => file_get_contents(TEMPLATEPATH.'index.html'),
@@ -120,15 +120,15 @@ class Template {
 	 */
 	private function config(Array $data) {
 		$merge = array_merge(array(
-			'lang'     	  	=> $this->config['language'],
-			'site_url' 	  	=> $this->config['url'],
-			'site_title'  	=> $this->config['name'],
-			'site_description' => $this->config['description'],
-			'generator'  	  	=> $this->config['generator'],
-			'author'   	  	=> $this->config['author'],
-			'template'    => $this->config['template_name'],
-			'rss_url'     => $this->config['rss'],
-			'css_url'     => $this->config['css'],
+			'lang'     	  	=> LANGUAGE,
+			'site_url' 	  	=> URL,
+			'site_title'  	=> NAME,
+			'site_description' => DESCRIPTION,
+			'generator'  	  	=> GENERATOR,
+			'author'   	  	=> AUTHOR,
+			'template'    => TEMPLATE_NAME,
+			'rss_url'     => RSS,
+			'css_url'     => CSS,
 			),$data);
 		return $merge;
 	}
