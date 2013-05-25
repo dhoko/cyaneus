@@ -10,4 +10,12 @@ class Picture extends Db {
 				WHERE P.added_time >= "'.$from.'"';
 		return parent::read($sql);
 	}
+
+	public static function create($pictures,$post_id) {
+		$_pictures = array();
+		foreach ($pictures as $pict) {
+			$_pictures[] = array($post_id,$pict);
+		}
+		return parent::create('Picture',array('post_id','pathname'),$_pictures);
+	}
 }

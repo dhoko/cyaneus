@@ -113,7 +113,7 @@ class GithubHook extends Cyaneus {
 		$data = $this->grabFiles();
 		klog('HOOK '.$data['total'].' files found from this webhook');
 		if($data['total'] > 0) {
-			Post::recordWithPicture($data);
+			$this->insert($data);
 			$files = $this->getContentPostFiles($data['date']);
 			Factory::build($files['post']);
 			Factory::build($files['pict']);
@@ -123,9 +123,11 @@ class GithubHook extends Cyaneus {
 		$data = $this->grabFiles('modified');
 		klog('HOOK '.$data['total'].' modified files found from this webhook');
 		if($data['total'] > 0) {
-			Post::update($this->updateCondition($data['post']),array('last_update'=> $data['date']));
+			$this->update(array(
+				'data' => array('last_update'=> $data['date']),
+				'condition' => $this->updateCondition($data['post'])
+				));
 			Factory::destroy($this->listFiles($data));
-
 			$files = $this->getContentPostFiles($data['date']);
 			Factory::build($files['post']);
 			Factory::build($files['pict']);
@@ -138,7 +140,7 @@ class GithubHook extends Cyaneus {
 			$posts = array();
 			foreach ($data['post'] as $post) {$posts[] = 'pathname="'.$post[0].'"';}
 			$conditions = implode(' AND ', $posts);
-			Post::destroy($conditions);
+			$this->delete($conditions);
 			Factory::destroy($this->listFiles($data));
 		}
 	}

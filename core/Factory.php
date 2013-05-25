@@ -28,4 +28,40 @@ class Factory extends Cyaneus {
 		}
 	}
 
+	/**
+	 * Will find each drafts from DRAFT. 
+	 * File must have these extensions : md|markdown
+	 * @return Array array of ['build':timestamp,file,path]
+	 */
+	public static function find() {
+		$files          = array(); 
+		$readable_draft = array('md','markdown');
+		$draftPath      = dirname(__FILE__).DIRECTORY_SEPARATOR.DRAFT.DIRECTORY_SEPARATOR;
+		$iterator       = new RecursiveDirectoryIterator($draftPath,RecursiveIteratorIterator::CHILD_FIRST);
+
+		klog('Looking for drafts');
+		foreach(new RecursiveIteratorIterator($iterator) as $file) {
+			if($file->isFile()) {
+				$md5 = md5($file->getPath());
+				if (in_array($file->getExtension(), $readable_draft)) {
+					$files[$md5]['draft'] = array(
+						'build' => $file->getMTime(),
+						'file'  => $file->getfilename(),
+						'path'  => $file->getPath().DIRECTORY_SEPARATOR.$file->getfilename()
+					);
+				}
+				if( in_array($file->getExtension(), array("jpg",'png','gif','jpeg')) ) {
+					$files[$md5]['pict'] = array(
+						'build' => $file->getMTime(),
+						'file'  => $file->getfilename(),
+						'path'  => $file->getPath().DIRECTORY_SEPARATOR.$file->getfilename()
+					);
+				}
+
+				if(empty($files[$md5]['draft'])) unset($files[$md5]);
+			} 
+		}
+		return $files;
+	}
+
 }
