@@ -40,7 +40,7 @@ class Factory {
 		$template = new Template();
 		foreach ($content as $e) {
 			$build[] = array(
-				'folder' => POST,
+				'folder' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST,
 				'path' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.$e['post_url'],
 				'content' => $template->post($e)	
 				);

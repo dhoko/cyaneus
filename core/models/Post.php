@@ -76,4 +76,9 @@ class Post extends Db {
 		$post_id = self::create($data['post']);
 		Picture::create($data['pict'],$post_id);
 	}
+
+	public static function drop() {
+		parent::$db->exec('DELETE From Posts');
+		parent::$db->exec('DELETE From Picture');
+	}
 }

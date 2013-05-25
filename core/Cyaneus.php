@@ -65,7 +65,8 @@ class Cyaneus {
 		return array(
 				'post_url' => POST.DIRECTORY_SEPARATOR.$info['url'].".html",
 				'post_title' => $info['title'],
-				'post_date' => $info['added_time'],
+				'post_date' => (new DateTime($info['added_time']))->format(DATE_FORMAT),
+				'post_update' => (new DateTime($info['last_update']))->format(DATE_FORMAT),
 				'post_date_rss' => date('D, j M Y H:i:s \G\M\T',(new DateTime($info['last_update']))->format('U')),
 				'post_description' => $info['description'],
 				'post_content' =>  $info['content'],
