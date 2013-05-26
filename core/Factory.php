@@ -207,18 +207,23 @@ class Factory {
 	    return strtolower($url);
 	}
 
+	public static function pictures(Array $content) {
+		foreach ($content as $picture) {
+			self::picture((array)$picture);
+		}
+	}
 	/**
 	 * Build attachement picture for a post
 	 * @param Array $config Configuration for an image
 	 * @return bool
 	 */
-	public static function generatePict(Array $config) {
+	public static function picture(Array $config) {
 
 		klog('Find an image attach to the current post');
 		// [0] => w ---- [1] => h
-		$_info = getimagesize($config['path']);
+		$_info = getimagesize(DRAFT.DIRECTORY_SEPARATOR.$config['path']);
 		$image = new PHPImageWorkshop\ImageWorkshop(array(
-			    'imageFromPath' => $config['path'],
+			    'imageFromPath' => DRAFT.DIRECTORY_SEPARATOR.$config['path'],
 		));
 		if (THUMB_W < $_info[0]) {
 			$image->resizeInPixel(THUMB_W, null, true);
@@ -226,8 +231,10 @@ class Factory {
 			$image->resizeInPixel($_info[0], null, true);
 		}
 		 //backgroundColor transparent, only for PNG (otherwise it will be white if set null)
+		klog('Record file config '.var_export($config,true));
+		klog('Record file '.STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR.$config['basename']);
 		// (file_path,file_name,create_folder,background_color,quality)
-		return $image->save(STORE.POST, $config['file'], true, null, 85);
+		return $image->save(STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR, $config['basename'], true, null, 85);
 	}
 
 }

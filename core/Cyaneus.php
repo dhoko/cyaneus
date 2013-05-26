@@ -25,6 +25,7 @@ class Cyaneus {
 	public static function make(Array $data) {
 		try {
 			$list = array();
+			$pict =  array();
 			// Remove main posts index from your site
 			Factory::destroy(array(
 				array('path' => REPOSITORY.'index.html'),
@@ -46,10 +47,12 @@ class Cyaneus {
 					);
 				// Build an array of each key we need to build templates
 				$list[] = self::buildKeyTemplate($config);
+				$pict = array_merge_recursive($pict,$post->picture);
 			}
 
 			Factory::post($list);
 			Factory::page($list);
+			Factory::pictures($pict);
 			return array(
 					'status' => 'success',
 					'msg' => 'this build is a success'
@@ -67,6 +70,7 @@ class Cyaneus {
 
 		try {
 			Factory::drop();
+			self::init();
 			return array(
 				'status' => 'success',
 				'msg' => 'Drop project is a success',

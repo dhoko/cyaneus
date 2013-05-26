@@ -36,10 +36,11 @@ class Post extends Db {
 
 			if(empty($list[$md5]->last_update)) 
 				$list[$md5]->last_update = $post->last_update;
-
+			$fileInfo = pathinfo($post->pict_path);
 			$list[$md5]->picture[] = (object)array(
 				'id' => $post->pict_id,
 				'path' => $post->pict_path,
+				'basename' => $fileInfo['basename'],
 				'thumbnail' => (bool)$post->pict_thumbnail,
 				'added_time' => $post->pict_added_time,
 				);
