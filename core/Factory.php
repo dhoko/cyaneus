@@ -25,6 +25,11 @@ class Factory {
 			'path' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.'rss.xml',
 			'content' => $template->page('rss',array('content' => $content))	
 			);
+		$build[] = array(
+			'folder' => FOLDER_MAIN_PATH,
+			'path' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.'sitemap.xml',
+			'content' => $template->sitemap($content)	
+			);
 
 		self::build($build,'post');
 	}

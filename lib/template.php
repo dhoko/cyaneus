@@ -113,6 +113,37 @@ class Template {
 		}
 	}
 
+	public function sitemap(Array $data) {
+		$header = '<?xml version="1.0" encoding="UTF-8"?><!-- generator="'.GENERATOR.'" -->';
+		$header .= '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
+		$url = function($data,$type = 'page') {
+			
+			$path = ($type === 'page') ? URL.$data['url'] : URL.POST.$data['url'];
+			$update = date('c',$data['timestamp_up']);
+			$freq = ($type === 'page') ? 'daily' : 'monthly';
+			$priority = ($type === 'page') ? '0.6' : '0.2';
+			if($data['url'] === 'index.html') {
+				$priority = '1.0';
+				$path = URL;
+			}
+			$url = '<url>
+				<loc>%s</loc>
+				<lastmod>%s</lastmod>
+				<changefreq>%s</changefreq>
+				<priority>%.1f</priority>
+			</url>';
+			return sprintf($url,$path,$update,$freq,$priority);
+		}
+
+		foreach ($data as $element) {
+			$header .= $url($element['data'],$element['type']);
+		}
+
+		$header .= '</urlset>';
+		return $header;
+	}
+
 	/**
 	 * Build configuration from tge default one
 	 * @param Array  $data Options of data to bind

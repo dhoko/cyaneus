@@ -48,6 +48,8 @@ class Cyaneus {
 				// Build an array of each key we need to build templates
 				$list[] = self::buildKeyTemplate($config);
 				$pict = array_merge_recursive($pict,$post->picture);
+				Post::update('id='.$post->id,array('name' => $config['title']));
+
 			}
 
 			Factory::post($list);
@@ -88,16 +90,17 @@ class Cyaneus {
 
 	private static function buildKeyTemplate($info) {
 		return array(
-				'post_url' => POST.DIRECTORY_SEPARATOR.$info['url'].".html",
-				'post_title' => $info['title'],
-				'post_date' => (new DateTime($info['added_time']))->format(DATE_FORMAT),
-				'post_update' => (new DateTime($info['last_update']))->format(DATE_FORMAT),
-				'post_date_rss' => date('D, j M Y H:i:s \G\M\T',(new DateTime($info['last_update']))->format('U')),
-				'post_description' => $info['description'],
-				'post_content' =>  $info['content'],
-				'post_author' =>  $info['author'],
-				'post_tags' =>  $info['tags'],
-				'timestamp' => $info['added_time'],
-			);
+			'post_url' => POST.DIRECTORY_SEPARATOR.$info['url'].".html",
+			'post_title' => $info['title'],
+			'post_date' => (new DateTime($info['added_time']))->format(DATE_FORMAT),
+			'post_update' => (new DateTime($info['last_update']))->format(DATE_FORMAT),
+			'post_date_rss' => date('D, j M Y H:i:s \G\M\T',(new DateTime($info['last_update']))->format('U')),
+			'post_description' => $info['description'],
+			'post_content' =>  $info['content'],
+			'post_author' =>  $info['author'],
+			'post_tags' =>  $info['tags'],
+			'timestamp' => $info['added_time'],
+			'timestamp_up' => $info['last_update'],
+		);
 	}
 }
