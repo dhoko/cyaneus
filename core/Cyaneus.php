@@ -1,7 +1,6 @@
 <?php
 class Cyaneus {
 
-
 	public static function init() {
 		if(!file_exists(REPOSITORY.DIRECTORY_SEPARATOR)) {
 			klog('Create site folder');
