@@ -33,6 +33,8 @@ class Cyaneus {
 				array('path' => REPOSITORY.'sitemap.xml'),
 				),'main');
 
+			if(!empty($data['files']['removed'])) return self::rebuild();
+
 			$posts = Post::all($data['timestamp']);
 
 			foreach ($posts as $post) {
@@ -59,6 +61,25 @@ class Cyaneus {
 				'msg' => $e->getMessage()
 				);
 		}
+	}
+
+	public static function rebuild() {
+
+		try {
+			Factory::drop();
+			return array(
+				'status' => 'success',
+				'msg' => 'Drop project is a success',
+				'rebuild' => self::make(array('timestamp' => '1970-01-01'))
+				);
+		} catch (Exception $e) {
+			klog($e->getMessage(),'error');
+			return array(
+				'status' => 'error',
+				'msg' => $e->getMessage()
+				);
+		}
+
 	}
 
 	private static function buildKeyTemplate($info) {

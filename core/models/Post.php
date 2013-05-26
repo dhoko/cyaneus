@@ -15,7 +15,7 @@ class Post extends Db {
 			Pi.added_time as pict_added_time
 			FROM Posts as Po
 			INNER JOIN Picture as Pi on Pi.post_id = Po.id
-			WHERE Po.added_time >= "'.$from.'"');
+			WHERE Po.last_update >= "'.$from.'"');
 		$list = array();
 
 		foreach ($posts as $post) {

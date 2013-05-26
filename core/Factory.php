@@ -81,6 +81,26 @@ class Factory {
 	}
 
 	/**
+	 * Drop all compiled files from your site in order to rebuild it
+	 * @return bool 
+	 */
+	public static function drop() {
+		
+		klog('Drop project site');
+		$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(REPOSITORY,FilesystemIterator::SKIP_DOTS),
+             RecursiveIteratorIterator::CHILD_FIRST);
+		$ext = array('css','xml','html','htm','jpg','png'.'jpeg','webp','gif','bmp');
+		foreach($files as $file) {
+			if(!$file->isFile()) continue;
+
+			if(in_array($file->getExtension(), $ext)) {
+				klog('Remove file : '.$file->getRealPath());
+				unlink($file->getRealPath());
+			}
+		}
+	}
+
+	/**
 	 * Will find each drafts from DRAFT. 
 	 * File must have these extensions : md|markdown
 	 * @return Array array of ['build':timestamp,file,path]
