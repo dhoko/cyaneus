@@ -1,5 +1,6 @@
 <?php 
 require_once __DIR__.'/core/autoload.php';
+require_once __DIR__.'/core/Factory.php';
 
 use Symfony\Component\Console as Console;
 
