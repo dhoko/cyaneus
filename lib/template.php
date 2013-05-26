@@ -79,7 +79,7 @@ class Template {
 		$_content = '';
 		$content = $this->template[$context]['main'];
 		foreach ($data['content'] as $post_find) {
-			$_content .= $this->loop($context,$post_find);
+			$_content .= $this->loop($context,$post_find)."\n";
 		}
 		$data['content'] = $_content;
 		$data['navigation'] = $this->navigation();
