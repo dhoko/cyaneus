@@ -1,5 +1,5 @@
 <?php 
-$cyaneus = array(
+$cyaneus = [
 	/**
 	 * Informations about your site
 	 */
@@ -58,4 +58,4 @@ $cyaneus = array(
 	// Do not add the https:// 
 	// ex: https://github.com/dhoko/blog/ => github.com/dhoko/blog/master/
 	'url_git' => ''
-);
+];
