@@ -4,8 +4,8 @@
 */
 class Template {
 
-	private $template = array();
-	private $config = array();
+	private $template = [];
+	private $config = [];
 
 	/**
 	 * Build our basic configuration for a template, such as default config var and template string 

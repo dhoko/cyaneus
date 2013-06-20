@@ -37,13 +37,14 @@ class Post extends Db {
 			if(empty($list[$md5]->last_update)) 
 				$list[$md5]->last_update = $post->last_update;
 			$fileInfo = pathinfo($post->pict_path);
-			$list[$md5]->picture[] = (object)array(
+
+			$list[$md5]->picture[] = (object)[
 				'id' => $post->pict_id,
 				'path' => $post->pict_path,
 				'basename' => $fileInfo['basename'],
 				'thumbnail' => (bool)$post->pict_thumbnail,
 				'added_time' => $post->pict_added_time,
-				);
+				];
 		}
 		return $list;
 	}
@@ -55,7 +56,7 @@ class Post extends Db {
 	}
 
 	public static function create($post) {
-		return parent::create('Posts',array('pathname','last_update'),$post);
+		return parent::create('Posts',['pathname','last_update'],$post);
 	}
 
 	public static function update($conditions,$data) {

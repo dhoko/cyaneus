@@ -12,10 +12,10 @@ class Picture extends Db {
 	}
 
 	public static function create($pictures,$post_id) {
-		$_pictures = array();
+		$_pictures = [];
 		foreach ($pictures as $pict) {
-			$_pictures[] = array($post_id,$pict);
+			$_pictures[] = [$post_id,$pict];
 		}
-		return parent::create('Picture',array('post_id','pathname'),$_pictures);
+		return parent::create('Picture',['post_id','pathname'],$_pictures);
 	}
 }

@@ -8,33 +8,34 @@ class Factory {
 	 * @return Bool
 	 */
 	public static function page(Array $content) {
-		$build = array();
+		
+		$build = [];
 		$template = new Template();
-		$build[] = array(
-			'folder' => FOLDER_MAIN_PATH,
-			'path' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.'index.html',
-			'content' => $template->page('index',array('content' => $content))	
-			);
-		$build[] = array(
-			'folder' => FOLDER_MAIN_PATH,
-			'path' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.'archives.html',
-			'content' => $template->page('archives',array('content' => $content))	
-			);
-		$build[] = array(
-			'folder' => FOLDER_MAIN_PATH,
-			'path' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.'rss.xml',
-			'content' => $template->page('rss',array('content' => $content))	
-			);
+
+		// Config array for a page
+		$config =  function($name) {
+			$ext = ($name !== 'rss') ? 'html' : 'xml';
+			return [
+				'folder' => FOLDER_MAIN_PATH,
+				'path' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.$name.'.'.$ext,
+				'content' => $template->page($name,['content' => $content])
+			];
+		};
+
+		$build[] = $config('index');
+		$build[] = $config('archives');
+		$build[] = $config('rss');
+
 		self::build($build,'post');
 	}
 
 	public static function sitemap($data) {
 		$template = new Template();
-		self::build(array(array(
+		self::build([[
 			'folder' => FOLDER_MAIN_PATH,
 			'path' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.'sitemap.xml',
-			'content' => $template->sitemap($data)	
-			)),'post');
+			'content' => $template->sitemap($data)
+			]],'post');
 	}
 
 	/**
@@ -97,7 +98,7 @@ class Factory {
 		klog('Drop project site');
 		$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(REPOSITORY,FilesystemIterator::SKIP_DOTS),
              RecursiveIteratorIterator::CHILD_FIRST);
-		$ext = array('css','xml','html','htm','jpg','png'.'jpeg','webp','gif','bmp');
+		$ext = ['css','xml','html','htm','jpg','png'.'jpeg','webp','gif','bmp'];
 		foreach($files as $file) {
 			if(!$file->isFile()) continue;
 
@@ -114,8 +115,8 @@ class Factory {
 	 * @return Array array of ['build':timestamp,file,path]
 	 */
 	public static function find() {
-		$files          = array(); 
-		$readable_draft = array('md','markdown');
+		$files          = []; 
+		$readable_draft = ['md','markdown'];
 		$draftPath      = dirname(__FILE__).DIRECTORY_SEPARATOR.DRAFT.DIRECTORY_SEPARATOR;
 		$iterator       = new RecursiveDirectoryIterator($draftPath,RecursiveIteratorIterator::CHILD_FIRST);
 
@@ -124,18 +125,18 @@ class Factory {
 			if($file->isFile()) {
 				$md5 = md5($file->getPath());
 				if (in_array($file->getExtension(), $readable_draft)) {
-					$files[$md5]['draft'] = array(
+					$files[$md5]['draft'] = [
 						'build' => $file->getMTime(),
 						'file'  => $file->getfilename(),
 						'path'  => $file->getPath().DIRECTORY_SEPARATOR.$file->getfilename()
-					);
+					];
 				}
-				if( in_array($file->getExtension(), array("jpg",'png','gif','jpeg')) ) {
-					$files[$md5]['pict'] = array(
+				if( in_array($file->getExtension(), ["jpg",'png','gif','jpeg']) ) {
+					$files[$md5]['pict'] = [
 						'build' => $file->getMTime(),
 						'file'  => $file->getfilename(),
 						'path'  => $file->getPath().DIRECTORY_SEPARATOR.$file->getfilename()
-					);
+					];
 				}
 
 				if(empty($files[$md5]['draft'])) unset($files[$md5]);
@@ -153,10 +154,10 @@ class Factory {
 			// Remove headers from the draft to keep the content
 			$article = str_replace('==POST==','',strstr($content,'==POST=='));
 
-			return array(
+			return [
 				'config' => self::getTags($config),
 				'raw' => $article
-				);
+			];
 		}
 		return array();
 		
@@ -168,7 +169,7 @@ class Factory {
 	 * @return Array [tag:value]
 	 */
 	private static function getTags($post) {
-		$info = array();
+		$info = [];
 		$kiwi_tags = explode(',', TAGS);
 		foreach ($kiwi_tags as $tag) {
 			$info[$tag] = self::info($post,$tag);

@@ -102,7 +102,7 @@ class Db {
 	 */
 	public static function update($table,$condition,Array $data) {
 		try {
-			$update = array();
+			$update = [];
 			foreach ($data as $key => $value) {
 				$update[] = trim($key).'="'.trim($value).'"';
 			}
