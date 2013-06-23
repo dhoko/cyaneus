@@ -131,6 +131,7 @@ You will be able to build custom templates for other pages. Today we only have:
 - archives
 - index (home)
 - rss
+- sitemap
 
 It's static.
 
