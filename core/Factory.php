@@ -81,7 +81,7 @@ class Factory {
 	 */
 	public static function destroy(Array $files,$type = 'draft') {
 		$elemets = ($type === 'draft') ? DRAFT : STORE.POST;
-		if($type === 'main') $elemets = SITE;
+		if($type === 'main') $elemets = FOLDER_MAIN_PATH;
 		foreach ($files as $e) {
 			if(file_exists($elemets.DIRECTORY_SEPARATOR.$e['path'])) unlink($elemets.DIRECTORY_SEPARATOR.$e['path']);
 			
