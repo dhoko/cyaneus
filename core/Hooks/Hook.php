@@ -11,6 +11,7 @@ class Hook {
 	public function init($json) {
 		if(empty($json)) throw new Exception('Empty JSON for the hook');
 		$this->json = $json;
+		klog('Hook source payload: '.var_export($json,true),'server');
 	}
 
 	public function isValidIp($server,$ip) {
@@ -27,6 +28,8 @@ class Hook {
 
 	public function run() {
 		$className = $this->type.'Listener';
+
+		klog('Init and security ok. Build '.$this->type.'Listener');
 		$hookClass = new $className($this->json);
 		return Cyaneus::make($hookClass->get());
 	}

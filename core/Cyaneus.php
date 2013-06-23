@@ -17,12 +17,20 @@ class Cyaneus {
 			mkdir(REPOSITORY.DIRECTORY_SEPARATOR.POST);
 		}
 
+		if(!file_exists(DRAFT)) {
+			klog('Create site folder for drafts');
+			mkdir(DRAFT);
+		}
+
 		if(!file_exists(REPOSITORY.DIRECTORY_SEPARATOR.'style.css')) {
 			klog('Moving CSS file to defautl path');
 			copy(TEMPLATEPATH.'style.css',REPOSITORY.DIRECTORY_SEPARATOR.'style.css');
 		}else{
 			unlink(REPOSITORY.DIRECTORY_SEPARATOR.'style.css');
 		}
+
+		klog('Init DB connection');
+		Db::init();
 	}
 	/**
 	 * Build new HTML pages

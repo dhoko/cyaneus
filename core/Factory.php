@@ -13,7 +13,7 @@ class Factory {
 		$template = new Template();
 
 		// Config array for a page
-		$config =  function($name) {
+		$config =  function($name)  use($template, $content) {
 			$ext = ($name !== 'rss') ? 'html' : 'xml';
 			return [
 				'folder' => FOLDER_MAIN_PATH,
