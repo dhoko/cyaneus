@@ -1,7 +1,7 @@
 <?php 
-include_once 'vendor/Markdown/markdown.php');
-include_once 'vendor/Markdown/smartypants.php');
-include_once 'vendor/PhpImageWorkshop/ImageWorkshop.php');
+include_once 'vendor/Markdown/markdown.php';
+include_once 'vendor/Markdown/smartypants.php';
+include_once 'vendor/PhpImageWorkshop/ImageWorkshop.php';
 include 'Template.php';
 include 'Cyaneus.php';
 include 'Factory.php';

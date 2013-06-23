@@ -174,6 +174,7 @@ class Cyaneus {
 	public static function rebuild() {
 
 		try {
+			klog('Rebuild the website');
 			Factory::drop();
 			self::init();
 			return [
