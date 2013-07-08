@@ -2,7 +2,7 @@
 include_once 'vendor/Markdown/markdown.php';
 include_once 'vendor/Markdown/smartypants.php';
 include_once 'vendor/PhpImageWorkshop/ImageWorkshop.php';
-include 'vendor/ip-in-range/ip-in-range.php';
+include 'vendor/ip_in_range/ip_in_range.php';
 include 'Template.php';
 include 'Cyaneus.php';
 include 'Factory.php';
