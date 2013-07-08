@@ -61,7 +61,7 @@ class Db {
 	 * @param  Array  $keys  keys to update
 	 * @param  Array  $data  data to put
 	 */
-	public static function create($table,Array $keys,Array $data) {
+	public static function build($table,Array $keys,Array $data) {
 		try {
 			klog('SQLLITE Insert data to DB - '.$table);
 
@@ -100,7 +100,7 @@ class Db {
 	 * @param  String  $condition 
 	 * @param  Array   $data  data to update
 	 */
-	public static function update($table,$condition,Array $data) {
+	public static function put($table,$condition,Array $data) {
 		try {
 			$update = [];
 			foreach ($data as $key => $value) {

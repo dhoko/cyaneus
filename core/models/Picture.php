@@ -16,6 +16,6 @@ class Picture extends Db {
 		foreach ($pictures as $pict) {
 			$_pictures[] = [$post_id,$pict];
 		}
-		return parent::create('Picture',['post_id','pathname'],$_pictures);
+		return parent::build('Picture',['post_id','pathname'],$_pictures);
 	}
 }

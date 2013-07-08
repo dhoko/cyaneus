@@ -56,11 +56,11 @@ class Post extends Db {
 	}
 
 	public static function create($post) {
-		return parent::create('Posts',['pathname','last_update'],$post);
+		return parent::build('Posts',['pathname','last_update'],$post);
 	}
 
 	public static function update($conditions,$data) {
-		return parent::update('Posts',$conditions,$data);
+		return parent::put('Posts',$conditions,$data);
 	}
 
 	/**
