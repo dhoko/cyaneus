@@ -39,7 +39,7 @@ class Cyaneus {
 	 */
 	public static function make(Array $data) {
 		try {
-			if(!empty($data['files']['removed'])) return self::rebuild();
+			// if(!empty($data['files']['removed'])) return self::rebuild();
 			$posts = self::buildPosts($data);
 			$pages = self::buildPages();
 			

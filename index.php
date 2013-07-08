@@ -45,6 +45,9 @@ require 'core'.DIRECTORY_SEPARATOR.'includes.php';
  * Github Hook page. url?github
  */
 if(isset($_GET['github'])) {
+	
+	// Init application - build folders if they do not exist
+	Cyaneus::init();
 
 	// Github post data in ['payload key']
 	if(empty($_POST['payload'])) {
@@ -57,8 +60,6 @@ if(isset($_GET['github'])) {
 		exit();
 	}
 
-	// Init application - build folders if they do not exist
-	Cyaneus::init();
 
 	// Hook API init (default Github)
 	$hook =  new Hook();
