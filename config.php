@@ -57,5 +57,7 @@ $cyaneus = [
 	// url of the repos on github
 	// Do not add the https:// 
 	// ex: https://github.com/dhoko/blog/ => github.com/dhoko/blog/master/
+	// 
+	// DO NOT FORGET /MASTER/ (your branch)
 	'url_git' => ''
 ];

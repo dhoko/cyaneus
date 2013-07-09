@@ -8,23 +8,27 @@ class Cyaneus {
 	 * - Move your CSS template to your site folder
 	 */
 	public static function init() {
+		if(!file_exists(USERDATA.DIRECTORY_SEPARATOR)) {
+			mkdir(USERDATA.DIRECTORY_SEPARATOR);
+			klog('Create user data folder');
+		}
 		if(!file_exists(REPOSITORY.DIRECTORY_SEPARATOR)) {
-			klog('Create site folder');
 			mkdir(REPOSITORY.DIRECTORY_SEPARATOR);
+			klog('Create site folder');
 		}
 		if(!file_exists(REPOSITORY.DIRECTORY_SEPARATOR.POST)) {
-			klog('Create site folder for posts');
 			mkdir(REPOSITORY.DIRECTORY_SEPARATOR.POST);
+			klog('Create site folder for posts');
 		}
 
 		if(!file_exists(DRAFT)) {
-			klog('Create site folder for drafts');
 			mkdir(DRAFT);
+			klog('Create site folder for drafts');
 		}
 
 		if(!file_exists(REPOSITORY.DIRECTORY_SEPARATOR.'style.css')) {
-			klog('Moving CSS file to defautl path');
 			copy(TEMPLATEPATH.'style.css',REPOSITORY.DIRECTORY_SEPARATOR.'style.css');
+			klog('Moving CSS file to defautl path');
 		}else{
 			unlink(REPOSITORY.DIRECTORY_SEPARATOR.'style.css');
 		}

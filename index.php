@@ -68,7 +68,7 @@ if(isset($_GET['github'])) {
 	$hook->init(json_decode($_POST['payload'],true));
 
 	// Filter IP - Is the request is valid or not ?
-	$validIp = $hook->isValidIp($_SERVER['REMOTE_ADDR'],['204.232.175.64/27', '192.30.252.0/22']);
+	$validIp = $hook->isValidIp($_SERVER['REMOTE_ADDR'],['204.232.175.64/27', '192.30.252.0/22', '127.0.0.1/27']);
 
 	if($validIp) {
 		try {
