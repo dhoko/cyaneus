@@ -186,27 +186,35 @@ class Cyaneus {
 	public static function rebuild() {
 
 		try {
-			self::init();
 			Factory::drop();
-			klog('Rebuild the website');
+			self::init();
+			klog('Rebuild the website - files and folder updated');
 
+			// Find each post we have
 			$data = Factory::find();
+			klog('Rebuild the website - Find some files');
 
+			// For each one we make a record in the database
 			foreach ($data as $key => $file) {
-				if(isset($file['pict'])) {
 
+				// Detect if we have an attachement file or not
+				if(isset($file['pict'])) {
 					$file['draft'] = [$file['draft']];
 					Post::recordWithPicture($file);
-
+					klog('Rebuild the website - Find a post with an image');
 				}else {
 					Post::create([$file['draft']]);
+					klog('Rebuild the website - Find a post');
 				}
 			}
+
+			// Rebuild the site : let's go !
+			klog('Rebuild the website - init phase done.');
+			self::make(['timestamp' => '1970-01-01']);
 
 			return [
 				'status'  => 'success',
 				'msg'     => 'Drop project is a success',
-				'rebuild' => self::make(array('timestamp' => '1970-01-01'))
 				];
 		} catch (Exception $e) {
 			klog($e->getMessage(),'error');

@@ -128,6 +128,8 @@ class Factory {
 				unlink($file->getRealPath());
 			}
 		}
+
+		unlink(USERDATA.DIRECTORY_SEPARATOR.'cyaneus.sqlite');
 	}
 
 	/**
@@ -270,7 +272,7 @@ class Factory {
 			$image = new PHPImageWorkshop\ImageWorkshop(array(
 				    'imageFromPath' => DRAFT.DIRECTORY_SEPARATOR.$config['path'],
 			));
-			
+
 			if (THUMB_W < $_info[0]) {
 				$image->resizeInPixel(THUMB_W, null, true);
 			}else{
