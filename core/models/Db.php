@@ -18,6 +18,31 @@ class Db {
 	 */
 	public static $db = null;
 
+	public static function createInstance() {
+		self::init();
+		self::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			//create the database
+		self::$db->exec("CREATE TABLE IF NOT EXISTS Posts (
+				id INTEGER PRIMARY KEY,
+				pathname VARCHAR(255), 
+				name VARCHAR(255), 
+				added_time DATETIME DEFAULT CURRENT_TIMESTAMP, 
+				last_update DATETIME
+			);");    
+		self::$db->exec("CREATE TABLE IF NOT EXISTS Posts_meta (
+				id INTEGER PRIMARY KEY,
+				post_id INTEGER, 
+				config TEXT
+			);");
+		self::$db->exec("CREATE TABLE IF NOT EXISTS Picture (
+				id INTEGER PRIMARY KEY,
+				post_id INTEGER, 
+				pathname VARCHAR(255),
+				thumbnail INTEGER DEFAULT 0,
+				added_time DATETIME DEFAULT CURRENT_TIMESTAMP
+			);");    
+	}
+
 	/**
 	 * Create our connection and create tables if they don't exist
 	 * @return Object PDO connection
@@ -26,27 +51,7 @@ class Db {
 		try {
 			//open the database
 			self::$db = new PDO('sqlite:'.USERDATA.DIRECTORY_SEPARATOR.'cyaneus.sqlite');
-			self::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			//create the database
-			self::$db->exec("CREATE TABLE IF NOT EXISTS Posts (
-					id INTEGER PRIMARY KEY,
-					pathname VARCHAR(255), 
-					name VARCHAR(255), 
-					added_time DATETIME DEFAULT CURRENT_TIMESTAMP, 
-					last_update DATETIME
-				);");    
-			self::$db->exec("CREATE TABLE IF NOT EXISTS Posts_meta (
-					id INTEGER PRIMARY KEY,
-					post_id INTEGER, 
-					config TEXT
-				);");
-			self::$db->exec("CREATE TABLE IF NOT EXISTS Picture (
-					id INTEGER PRIMARY KEY,
-					post_id INTEGER, 
-					pathname VARCHAR(255),
-					thumbnail INTEGER DEFAULT 0,
-					added_time DATETIME DEFAULT CURRENT_TIMESTAMP
-				);");    
+			
 			return true;
 		}
 		catch(PDOException $e) {

@@ -5,8 +5,8 @@
 */
 abstract class HookListener {
 	
-	protected $base = '';
-	protected $timestamp = '';
+	protected $base         = '';
+	protected $timestamp    = '';
 	protected $postFilesExt = ['md','markdowm'];
 	protected $pictFilesExt = ['jpg','jpeg','gif','webp','png','bmp','ico'];
 
@@ -27,16 +27,16 @@ abstract class HookListener {
 		foreach ($result_post as $post) {
 
 			$data['post'][] = [
-				'path' => $post->pathname,
-				'folder' => current(explode('/', $post->pathname)),
+				'path'    => $post->pathname,
+				'folder'  => current(explode('/', $post->pathname)),
 				'content' => file_get_contents($this->base.$post->pathname)
 			];
 		}
 		foreach ($result_pict as $pict) {
 
 			$data['pict'][] = [
-				'path' => $pict->pathname,
-				'folder' => current(explode('/', $pict->pathname)),
+				'path'    => $pict->pathname,
+				'folder'  => current(explode('/', $pict->pathname)),
 				'content' => file_get_contents($this->base.$pict->pathname)
 			];
 		}
@@ -70,7 +70,6 @@ abstract class HookListener {
 				}, $data['post']));
 
 			Post::update($conditions,['last_update'=> $data['date']]);
-
 			Factory::destroy($this->listFiles($data));
 
 			$files = $this->getContentPostFiles($data['date']);
@@ -104,7 +103,7 @@ abstract class HookListener {
 
 			$files[] = [
 				'folder' => current(explode('/', $pict)),
-				'path' => $pict
+				'path'   => $pict
 			];
 		}
 
@@ -112,7 +111,7 @@ abstract class HookListener {
 			
 			$files[] = [
 				'folder' => current(explode('/', $post[0])),
-				'path' => $post[0]
+				'path'   => $post[0]
 			];
 		}
 		return $files;

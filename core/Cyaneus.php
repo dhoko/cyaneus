@@ -33,6 +33,11 @@ class Cyaneus {
 			unlink(REPOSITORY.DIRECTORY_SEPARATOR.'style.css');
 		}
 
+		if(!file_exists(USERDATA.DIRECTORY_SEPARATOR.'cyaneus.sqlite')) {
+			Db::createInstance();
+			klog('Create a new DB instance');
+		}
+
 		klog('Init DB connection');
 		Db::init();
 	}
@@ -75,6 +80,7 @@ class Cyaneus {
 	public static function buildPages() {
 		try {
 			$sitemap = [];
+			$list    = [];
 			// Remove previous version of these files
 			Factory::destroy([
 				['path' => REPOSITORY.'index.html'],
@@ -98,13 +104,13 @@ class Cyaneus {
 			}
 
 			$sitemap[] = [
-				'type' => 'page',
-				'post_url' => 'index.html',
+				'type'            => 'page',
+				'post_url'        => 'index.html',
 				'timestamp_upRaw' => date('U')
 				];
 			$sitemap[] = [
-				'type' => 'page',
-				'post_url' => 'archives.html',
+				'type'            => 'page',
+				'post_url'        => 'archives.html',
 				'timestamp_upRaw' => date('U')
 				];
 			$sitemap = array_merge($sitemap,$list);
@@ -142,9 +148,9 @@ class Cyaneus {
 			foreach ($posts as $post) {
 				$info = Factory::getContent(DRAFT.DIRECTORY_SEPARATOR.$post->path);
 				$config = $info['config'] + [
-					'added_time' => $post->added_time,
+					'added_time'  => $post->added_time,
 					'last_update' => $post->last_update,
-					'content' => Factory::convert($info['raw'])
+					'content'     => Factory::convert($info['raw'])
 					];
 				// Build an array of each key we need to build templates
 				$list[] = self::buildKeyTemplate($config);
@@ -159,13 +165,13 @@ class Cyaneus {
 
 			return [
 				'status' => 'success',
-				'msg' => 'Post build is a success'
+				'msg'    => 'Post build is a success'
 				];
 		} catch (Exception $e) {
 			klog($e->getMessage(),'error');
 			return [
 				'status' => 'error',
-				'msg' => $e->getMessage()
+				'msg'    => $e->getMessage()
 				];
 		}
 	}
@@ -178,19 +184,19 @@ class Cyaneus {
 	public static function rebuild() {
 
 		try {
-			klog('Rebuild the website');
-			Factory::drop();
 			self::init();
+			Factory::drop();
+			klog('Rebuild the website');
 			return [
-				'status' => 'success',
-				'msg' => 'Drop project is a success',
+				'status'  => 'success',
+				'msg'     => 'Drop project is a success',
 				'rebuild' => self::make(array('timestamp' => '1970-01-01'))
 				];
 		} catch (Exception $e) {
 			klog($e->getMessage(),'error');
 			return [
 				'status' => 'error',
-				'msg' => $e->getMessage()
+				'msg'    => $e->getMessage()
 				];
 		}
 
@@ -204,18 +210,18 @@ class Cyaneus {
 	 */
 	private static function buildKeyTemplate($info) {
 		return [
-			'post_url' => POST.DIRECTORY_SEPARATOR.$info['url'].".html",
-			'post_title' => $info['title'],
-			'post_date' => (new DateTime($info['added_time']))->format(DATE_FORMAT),
-			'post_update' => (new DateTime($info['last_update']))->format(DATE_FORMAT),
-			'post_date_rss' => date('D, j M Y H:i:s \G\M\T',(new DateTime($info['last_update']))->format('U')),
+			'post_url'         => POST.DIRECTORY_SEPARATOR.$info['url'].".html",
+			'post_title'       => $info['title'],
+			'post_date'        => (new DateTime($info['added_time']))->format(DATE_FORMAT),
+			'post_update'      => (new DateTime($info['last_update']))->format(DATE_FORMAT),
+			'post_date_rss'    => date('D, j M Y H:i:s \G\M\T',(new DateTime($info['last_update']))->format('U')),
 			'post_description' => $info['description'],
-			'post_content' =>  $info['content'],
-			'post_author' =>  $info['author'],
-			'post_tags' =>  $info['tags'],
-			'timestamp' => $info['added_time'],
-			'timestamp_up' => $info['last_update'],
-			'timestamp_upRaw' => (new DateTime($info['last_update']))->format('U'),
+			'post_content'     => $info['content'],
+			'post_author'      => $info['author'],
+			'post_tags'        => $info['tags'],
+			'timestamp'        => $info['added_time'],
+			'timestamp_up'     => $info['last_update'],
+			'timestamp_upRaw'  => (new DateTime($info['last_update']))->format('U'),
 		];
 	}
 }

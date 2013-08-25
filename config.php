@@ -1,19 +1,19 @@
 <?php 
-$cyaneus = [
+$cyaneus = array(
 	/**
 	 * Informations about your site
 	 */
 	
 	// Site name
-	'name' => '',
+	'name' => 'Le colibri libre',
 	// Site main url, must be end with /
-	'url' => '',
+	'url' => 'http://localhost:8000/',
 	// Language of your site
-	'language' => '',
+	'language' => 'fr_FR',
 	// Webmaster
-	'author' => '',
+	'author' => 'dhoko',
 	// SIte description
-	'description' => '',
+	'description' => 'Le blog d\'un intégrateur intégriste',
 	// Template Name
 	'template_name' => 'base',
 	// Thumbnail width
@@ -36,7 +36,8 @@ $cyaneus = [
 	// Template folder
 	'template' => 'template',
 	// To change the destination of your site.
-	'folder_main_path' => 'cyaneus',
+	// . = Same folder as your config.php
+	'folder_main_path' => 'hookonsdesbois',
 
 
 	/**
@@ -51,13 +52,9 @@ $cyaneus = [
 	 * You must specify some informations to verify the hook origin
 	 */
 	// Your registred mail from git
-	'email_git' => '',
+	'email_git' => 'aurelien@procheo.fr',
 	// Your pseudo on git
-	'name_git' => '',
+	'name_git' => 'dhoko',
 	// url of the repos on github
-	// Do not add the https:// 
-	// ex: https://github.com/dhoko/blog/ => github.com/dhoko/blog/master/
-	// 
-	// DO NOT FORGET /MASTER/ (your branch)
-	'url_git' => ''
-];
+	'url_git' => 'github.com/dhoko/blog/master/'
+);
