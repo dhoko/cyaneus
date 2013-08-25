@@ -8,6 +8,7 @@ class Cyaneus {
 	 * - Move your CSS template to your site folder
 	 */
 	public static function init() {
+
 		if(!file_exists(USERDATA.DIRECTORY_SEPARATOR)) {
 			mkdir(USERDATA.DIRECTORY_SEPARATOR);
 			klog('Create user data folder');
@@ -146,6 +147,7 @@ class Cyaneus {
 			$posts = Post::all($data['timestamp']);
 
 			foreach ($posts as $post) {
+
 				$info = Factory::getContent(DRAFT.DIRECTORY_SEPARATOR.$post->path);
 				$config = $info['config'] + [
 					'added_time'  => $post->added_time,
@@ -187,6 +189,20 @@ class Cyaneus {
 			self::init();
 			Factory::drop();
 			klog('Rebuild the website');
+
+			$data = Factory::find();
+
+			foreach ($data as $key => $file) {
+				if(isset($file['pict'])) {
+
+					$file['draft'] = [$file['draft']];
+					Post::recordWithPicture($file);
+
+				}else {
+					Post::create([$file['draft']]);
+				}
+			}
+
 			return [
 				'status'  => 'success',
 				'msg'     => 'Drop project is a success',

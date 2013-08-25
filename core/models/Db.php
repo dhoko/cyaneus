@@ -69,10 +69,12 @@ class Db {
 	public static function build($table,Array $keys,Array $data) {
 		try {
 			klog('SQLLITE Insert data to DB - '.$table);
+			$toSql = [];
 
 			foreach ($data as $value) {
 				$toSql[] = '("'.implode('","', $value).'")';
 			}
+
 			$sql = "INSERT INTO ".$table." (".implode(',', $keys).") VALUES ".implode(",", $toSql).";";
 			klog('SQLLITE Insert data to DB - '.$sql);
 			self::$db->exec($sql);

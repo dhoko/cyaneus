@@ -14,7 +14,7 @@ class Post extends Db {
 			Pi.thumbnail as pict_thumbnail,
 			Pi.added_time as pict_added_time
 			FROM Posts as Po
-			INNER JOIN Picture as Pi on Pi.post_id = Po.id
+			LEFT JOIN Picture as Pi on Pi.post_id = Po.id
 			WHERE Po.last_update >= "'.$from.'"');
 		$list = array();
 
@@ -38,13 +38,17 @@ class Post extends Db {
 				$list[$md5]->last_update = $post->last_update;
 			$fileInfo = pathinfo($post->pict_path);
 
-			$list[$md5]->picture[] = (object)[
-				'id' => $post->pict_id,
-				'path' => $post->pict_path,
-				'basename' => $fileInfo['basename'],
-				'thumbnail' => (bool)$post->pict_thumbnail,
-				'added_time' => $post->pict_added_time,
+			$list[$md5]->picture[] = [];
+
+			if(isset($post->pict_id)) {
+				$list[$md5]->picture[] = (object)[
+					'id'         => $post->pict_id,
+					'path'       => $post->pict_path,
+					'basename'   => $fileInfo['basename'],
+					'thumbnail'  => (bool)$post->pict_thumbnail,
+					'added_time' => $post->pict_added_time,
 				];
+			}
 		}
 		return $list;
 	}
@@ -75,7 +79,13 @@ class Post extends Db {
 	}
 
 	public static function recordWithPicture($data) {
-		$post_id = self::create($data['post']);
+		
+		if(isset($data['post'])) {
+			$post_id = self::create($data['post']);
+		}else {
+			$post_id = self::create($data['draft']);
+		}
+
 		Picture::create($data['pict'],$post_id);
 	}
 

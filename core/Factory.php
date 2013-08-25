@@ -45,6 +45,7 @@ class Factory {
 	 * @return Bool
 	 */
 	public static function post(Array $content) {
+
 		$build = array();
 		$template = new Template();
 		foreach ($content as $e) {
@@ -63,13 +64,22 @@ class Factory {
 	 * @param  String $type Files to build
 	 */
 	public static function build(Array $data,$type = 'draft') {
+
 		$elemets = ($type === 'draft') ? DRAFT : rtrim(STORE,DIRECTORY_SEPARATOR);
+		$path = $elemets.DIRECTORY_SEPARATOR;	
+
 		foreach ($data as $files) {
-			if(!file_exists($elemets.DIRECTORY_SEPARATOR.$files['folder']))
-					mkdir($elemets.DIRECTORY_SEPARATOR.$files['folder']);
+
+			if(!file_exists($path.$files['folder'])) {
+				mkdir($path.$files['folder']);
+			}
 				
-			if(file_exists($elemets.DIRECTORY_SEPARATOR.$files['path'])) unlink($elemets.DIRECTORY_SEPARATOR.$files['path']);
-			file_put_contents($elemets.DIRECTORY_SEPARATOR.$files['path'],$files['content'] );
+			if(file_exists($path.$files['path'])) {
+				unlink($path.$files['path']);
+			}
+
+			file_put_contents($path.$files['path'],$files['content']);
+
 			klog('Build file success for '.$files['path']);
 		}
 	}
@@ -80,10 +90,15 @@ class Factory {
 	 * @param  String $type Files to destroy
 	 */
 	public static function destroy(Array $files,$type = 'draft') {
+
 		$elemets = ($type === 'draft') ? DRAFT : STORE.POST;
 		if($type === 'main') $elemets = FOLDER_MAIN_PATH;
+
 		foreach ($files as $e) {
-			if(file_exists($elemets.DIRECTORY_SEPARATOR.$e['path'])) unlink($elemets.DIRECTORY_SEPARATOR.$e['path']);
+
+			if(file_exists($elemets.DIRECTORY_SEPARATOR.$e['path'])) {
+				unlink($elemets.DIRECTORY_SEPARATOR.$e['path']);
+			}
 			
 			klog('Delete file success for '.$e['path']);
 		}
@@ -96,9 +111,15 @@ class Factory {
 	public static function drop() {
 		
 		klog('Drop project site');
-		$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(REPOSITORY,FilesystemIterator::SKIP_DOTS),
-             RecursiveIteratorIterator::CHILD_FIRST);
+		$files = new RecursiveIteratorIterator(
+						new RecursiveDirectoryIterator(
+							REPOSITORY,
+							FilesystemIterator::SKIP_DOTS),
+			            RecursiveIteratorIterator::CHILD_FIRST
+           		 );
+
 		$ext = ['css','xml','html','htm','jpg','png'.'jpeg','webp','gif','bmp'];
+		
 		foreach($files as $file) {
 			if(!$file->isFile()) continue;
 
@@ -115,27 +136,37 @@ class Factory {
 	 * @return Array array of ['build':timestamp,file,path]
 	 */
 	public static function find() {
+
 		$files          = []; 
 		$readable_draft = ['md','markdown'];
-		$draftPath      = dirname(__FILE__).DIRECTORY_SEPARATOR.DRAFT.DIRECTORY_SEPARATOR;
+		$draftPath      = DRAFT;
 		$iterator       = new RecursiveDirectoryIterator($draftPath,RecursiveIteratorIterator::CHILD_FIRST);
 
 		klog('Looking for drafts');
 		foreach(new RecursiveIteratorIterator($iterator) as $file) {
+
 			if($file->isFile()) {
+
 				$md5 = md5($file->getPath());
+				$folder = pathinfo($file->getpath());	
+
+				// Find articles
 				if (in_array($file->getExtension(), $readable_draft)) {
+
 					$files[$md5]['draft'] = [
-						'build' => $file->getMTime(),
-						'file'  => $file->getfilename(),
-						'path'  => $file->getPath().DIRECTORY_SEPARATOR.$file->getfilename()
+						'pathname' => $folder['basename'].DIRECTORY_SEPARATOR.$file->getfilename(),
+						'last_update' => (new DateTime(strtotime($file->getMTime())))->format('Y-m-d H:i:s')
 					];
 				}
+
+				// Find images associate to a post
 				if( in_array($file->getExtension(), ["jpg",'png','gif','jpeg']) ) {
+
 					$files[$md5]['pict'] = [
-						'build' => $file->getMTime(),
-						'file'  => $file->getfilename(),
-						'path'  => $file->getPath().DIRECTORY_SEPARATOR.$file->getfilename()
+						// 'build'    => $file->getMTime(),
+						// 'file'     => $file->getfilename(),
+						'pathname' => $folder['basename'].DIRECTORY_SEPARATOR.$file->getfilename(),
+						// 'last_update' => (new DateTime(strtotime($file->getMTime())))->format('Y-m-d H:i:s')
 					];
 				}
 
@@ -146,7 +177,10 @@ class Factory {
 	}
 
 	public static function getContent($file) {
+
+		klog('Active draft to read : ' . $file, 'error');
 		if(file_exists($file)) {
+
 			klog('New draft found : '.$file);
 			$content = file_get_contents($file);
 			// We extract headers from the draft
@@ -228,22 +262,26 @@ class Factory {
 	 */
 	public static function picture(Array $config) {
 
-		klog('Find an image attach to the current post');
-		// [0] => w ---- [1] => h
-		$_info = getimagesize(DRAFT.DIRECTORY_SEPARATOR.$config['path']);
-		$image = new PHPImageWorkshop\ImageWorkshop(array(
-			    'imageFromPath' => DRAFT.DIRECTORY_SEPARATOR.$config['path'],
-		));
-		if (THUMB_W < $_info[0]) {
-			$image->resizeInPixel(THUMB_W, null, true);
-		}else{
-			$image->resizeInPixel($_info[0], null, true);
+		if(!empty($config)) {
+
+			klog('Find an image attach to the current post');
+			// [0] => w ---- [1] => h
+			$_info = getimagesize(DRAFT.DIRECTORY_SEPARATOR.$config['path']);
+			$image = new PHPImageWorkshop\ImageWorkshop(array(
+				    'imageFromPath' => DRAFT.DIRECTORY_SEPARATOR.$config['path'],
+			));
+			
+			if (THUMB_W < $_info[0]) {
+				$image->resizeInPixel(THUMB_W, null, true);
+			}else{
+				$image->resizeInPixel($_info[0], null, true);
+			}
+			 //backgroundColor transparent, only for PNG (otherwise it will be white if set null)
+			klog('Record file config '.var_export($config,true));
+			klog('Record file '.STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR.$config['basename']);
+			// (file_path,file_name,create_folder,background_color,quality)
+			return $image->save(STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR, $config['basename'], true, null, 85);
 		}
-		 //backgroundColor transparent, only for PNG (otherwise it will be white if set null)
-		klog('Record file config '.var_export($config,true));
-		klog('Record file '.STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR.$config['basename']);
-		// (file_path,file_name,create_folder,background_color,quality)
-		return $image->save(STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR, $config['basename'], true, null, 85);
 	}
 
 }
