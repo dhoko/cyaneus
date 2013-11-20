@@ -12,7 +12,7 @@ class GithubListener extends AbstractHookListener
 
         // Remove old one
         if(file_exists(DRAFT)) {
-            exec(escapeshellcmd('rm -r '.DRAFT).' 2>&1', $wget_output, $wget_error);
+            exec(escapeshellcmd('rm -r '.DRAFT).' 2>&1', $rmr_output, $rmr_error);
         }
 
         $wget = '/usr/bin/wget --no-check-certificate  ';

@@ -78,6 +78,9 @@ abstract class AbstractHookListener
         if(! $archive->close()) {
             throw new Exception('Cannot open '.$file.' with unzip()');
         }
+
+        // Remove the zip at the end
+        unlink($file);
     }
 
 
