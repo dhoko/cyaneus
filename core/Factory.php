@@ -1,4 +1,4 @@
-<?php 
+<?php
 class Factory {
 
 	/**
@@ -8,7 +8,7 @@ class Factory {
 	 * @return Bool
 	 */
 	public static function page(Array $content) {
-		
+
 		$build = [];
 		$template = new Template();
 
@@ -52,7 +52,7 @@ class Factory {
 			$build[] = array(
 				'folder' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST,
 				'path' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.$e['post_url'],
-				'content' => $template->post($e)	
+				'content' => $template->post($e)
 				);
 		}
 		self::build($build,'post');
@@ -66,14 +66,14 @@ class Factory {
 	public static function build(Array $data,$type = 'draft') {
 
 		$elemets = ($type === 'draft') ? DRAFT : rtrim(STORE,DIRECTORY_SEPARATOR);
-		$path = $elemets.DIRECTORY_SEPARATOR;	
+		$path = $elemets.DIRECTORY_SEPARATOR;
 
 		foreach ($data as $files) {
 
 			if(!file_exists($path.$files['folder'])) {
 				mkdir($path.$files['folder']);
 			}
-				
+
 			if(file_exists($path.$files['path'])) {
 				unlink($path.$files['path']);
 			}
@@ -99,17 +99,17 @@ class Factory {
 			if(file_exists($elemets.DIRECTORY_SEPARATOR.$e['path'])) {
 				unlink($elemets.DIRECTORY_SEPARATOR.$e['path']);
 			}
-			
+
 			klog('Delete file success for '.$e['path']);
 		}
 	}
 
 	/**
 	 * Drop all compiled files from your site in order to rebuild it
-	 * @return bool 
+	 * @return bool
 	 */
 	public static function drop() {
-		
+
 		klog('Drop project site');
 		$files = new RecursiveIteratorIterator(
 						new RecursiveDirectoryIterator(
@@ -119,7 +119,7 @@ class Factory {
            		 );
 
 		$ext = ['css','xml','html','htm','jpg','png'.'jpeg','webp','gif','bmp'];
-		
+
 		foreach($files as $file) {
 			if(!$file->isFile()) continue;
 
@@ -133,13 +133,13 @@ class Factory {
 	}
 
 	/**
-	 * Will find each drafts from DRAFT. 
+	 * Will find each drafts from DRAFT.
 	 * File must have these extensions : md|markdown
 	 * @return Array array of ['build':timestamp,file,path]
 	 */
 	public static function find() {
 
-		$files          = []; 
+		$files          = [];
 		$readable_draft = ['md','markdown'];
 		$draftPath      = DRAFT;
 		$iterator       = new RecursiveDirectoryIterator($draftPath,RecursiveIteratorIterator::CHILD_FIRST);
@@ -150,7 +150,7 @@ class Factory {
 			if($file->isFile()) {
 
 				$md5 = md5($file->getPath());
-				$folder = pathinfo($file->getpath());	
+				$folder = pathinfo($file->getpath());
 
 				// Find articles
 				if (in_array($file->getExtension(), $readable_draft)) {
@@ -173,17 +173,15 @@ class Factory {
 				}
 
 				if(empty($files[$md5]['draft'])) unset($files[$md5]);
-			} 
+			}
 		}
 		return $files;
 	}
 
 	public static function getContent($file) {
 
-		klog('Active draft to read : ' . $file, 'error');
 		if(file_exists($file)) {
 
-			klog('New draft found : '.$file);
 			$content = file_get_contents($file);
 			// We extract headers from the draft
 			$config = strstr($content,'==POST==', true );
@@ -196,7 +194,7 @@ class Factory {
 			];
 		}
 		return array();
-		
+
 	}
 
 	/**
@@ -241,7 +239,7 @@ class Factory {
 	/**
 	 * Build a valid url from a title
 	 * New Firefox OS app : XBMC remote -> new-firefox-os-app-xbmc-remote
-	 * @param string 
+	 * @param string
 	 * @return string
 	 */
 	public static function url($path) {

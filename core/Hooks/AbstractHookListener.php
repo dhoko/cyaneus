@@ -1,5 +1,4 @@
 <?php
-
 /**
 *   Hook listener
 */

@@ -8,8 +8,8 @@ class GithubListener extends AbstractHookListener
      * Execute a WGET command to download the zip from
      * REPOSITORY_URL. Then it will extract it
      */
-    public function get() {
-
+    public function get()
+    {
         // Remove old one
         if(file_exists(DRAFT)) {
             exec(escapeshellcmd('rm -r '.DRAFT).' 2>&1', $rmr_output, $rmr_error);
