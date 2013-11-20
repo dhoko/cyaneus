@@ -29,7 +29,7 @@ class Build
      */
     public function __construct()
     {
-        $this->datetime = (new DateTime("now",new DateTimeZone("Europe/Paris")))->format('Y-m-d H:i:s');
+        $this->datetime = (new DateTime("now",new DateTimeZone(TIMEZONE)))->format('Y-m-d H:i:s');
         return $this;
     }
 
@@ -70,7 +70,24 @@ class Build
      */
     public function run()
     {
-        var_dump($this->content);
+        try {
+            var_dump($this->content);
+            $posts = [];
+            $template = new Template();
+
+            foreach ($this->content as $post) {
+                $posts[] = $template->post([
+                    'config' => $post['config'],
+                    'html'   => Factory::convert($post['raw'])
+                ]);
+            }
+
+            $template->pages($posts);
+
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+
     }
 
 
