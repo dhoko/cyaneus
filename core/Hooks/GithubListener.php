@@ -1,78 +1,30 @@
 <?php
-class GithubListener extends HookListener {
+/**
+ * Get content of a repository from a Github Webhook
+ */
+class GithubListener extends AbstractHookListener
+{
+    /**
+     * Execute a WGET command to download the zip from
+     * REPOSITORY_URL. Then it will extract it
+     */
+    public function get() {
 
-	private $json = null;
-	private $post = [];
+        // Remove old one
+        if(file_exists(DRAFT)) {
+            exec(escapeshellcmd('rm -r '.DRAFT).' 2>&1', $wget_output, $wget_error);
+        }
 
-	/**
-	 * Init a hook with the datas send by Github
-	 * @param Array $payload Gihub JSON from $_POST['payload']
-	 */
-	public function __construct($payload) {
-		$this->base = 'https://raw.'.URL_GIT;
-		$this->json = $payload;
-	}
+        $wget = '/usr/bin/wget --no-check-certificate  ';
+        $url = REPOSITORY_URL;
+        $file = __DIR__.DIRECTORY_SEPARATOR.'file.zip';
 
-	/**
-	 * Get new updates from github
-	 * @return Array [status,msg] status = success||error
-	 */
-	public function get() {
-		
-		try {
+        exec(escapeshellcmd($wget.$url.' -O '.$file).' 2>&1', $wget_output, $wget_error);
 
-			return [
-				'status' => 'success',
-				'msg'    => 'New elements from github',
-				'files'  => array(
-					'added'    => $this->addedFiles(),
-					'modified' => $this->modifiedFiles(),
-					'removed'  => $this->removedFiles()
-					),
-				'timestamp' => $this->timestamp
-			];
+        if($wget_error) {
+            throw new Exception('An error has occurred with wget: '.var_export($wget_output, true));
+        }
 
-		} catch (Exception $e) {
-			klog($e->getMessage(),'error');
-			return [
-				'status'    => 'error',
-				'files'     => array(),
-				'timestamp' => '',
-				'msg'       => $e->getMessage()
-			];
-		}
-	}
-
-	/**
-	 * Read each files from a hook to build them in DRAFT and find the post
-	 * @param String $status 
-	 * @return Array [post,pict,total]
-	 */
-	protected function grabFiles($status = 'added') {
-
-		$db = [];
-		$pict = [];
-		$this->timestamp = (new DateTime($this->json['head_commit']['timestamp']))->format('Y-m-d H:i:s');
-
-		foreach ($this->json['head_commit'][$status] as $file) {
-
-			if (in_array(pathinfo($file, PATHINFO_EXTENSION), $this->postFilesExt)) {
-
-				$db[] = [$file,$this->timestamp];
-				klog('HOOK - Post content found');
-			}
-
-			if (in_array(pathinfo($file, PATHINFO_EXTENSION), $this->pictFilesExt)) {
-
-				$pict[] = $file;
-				klog('HOOK - Picture found');
-			}
-		}
-		return [
-			'post' => $db,
-			'pict' => $pict,
-			'total' => count($db),
-			'date' => $this->timestamp
-		];
-	}
+        $this->extract($file);
+    }
 }
