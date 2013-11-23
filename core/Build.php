@@ -29,7 +29,7 @@ class Build
      */
     public function __construct()
     {
-        $this->datetime = (new DateTime("now",new DateTimeZone(TIMEZONE)))->format('Y-m-d H:i:s');
+        $this->datetime = (new DateTime("now",new DateTimeZone(Cyaneus::config('site')->timezone)))->format('Y-m-d H:i:s');
         return $this;
     }
 
@@ -73,7 +73,7 @@ class Build
         try {
             var_dump($this->content);
             $posts = [];
-            $template = new Template();
+            $template = new Template((array) Cyaneus::config('site'));
 
             foreach ($this->content as $post) {
                 $posts[] = $template->post([

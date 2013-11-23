@@ -1,9 +1,9 @@
-<?php 
+<?php
 $cyaneus = [
 	/**
 	 * Informations about your site
 	 */
-	
+
 	// Site name
 	'name' => '',
 	// Site main url, must be end with /
@@ -20,11 +20,13 @@ $cyaneus = [
 	'thumb_w' => 600,
 	// Date format to display
 	'date_format' => 'd/m/Y',
+  // Your timezone
+  'timezone' => "Europe/Paris"
 
 	/**
 	 * Cyaneus Confiuration
 	 */
-	
+
 	// Tags you want to edit in your posts
 	'tags' => 'title,url,date,tags,description,author',
 	// The generator
@@ -55,9 +57,9 @@ $cyaneus = [
 	// Your pseudo on git
 	'name_git' => '',
 	// url of the repos on github
-	// Do not add the https:// 
+	// Do not add the https://
 	// ex: https://github.com/dhoko/blog/ => github.com/dhoko/blog/master/
-	// 
+	//
 	// DO NOT FORGET /MASTER/ (your branch)
 	'url_git' => ''
 ];

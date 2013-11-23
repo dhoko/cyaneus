@@ -1,287 +1,184 @@
 <?php
-class Factory {
+class Factory
+{
+    /**
+     * Build pages for the site
+     * @param  Array  $pages Configuration of each pages
+     */
+    public static function make(Array $pages)
+    {
 
-	/**
-	 * Build a page for the site
-	 * @param Array $content config array of each post
-	 * @param string page to build
-	 * @return Bool
-	 */
-	public static function page(Array $content) {
+        if( !file_exists(Cyaneus::config('path')->site) ) {
+            mkdir(Cyaneus::config('path')->site);
+        }
 
-		$build = [];
-		$template = new Template();
+        foreach ($pages as $pageName => $content) {
 
-		// Config array for a page
-		$config =  function($name)  use($template, $content) {
-			$ext = ($name !== 'rss') ? 'html' : 'xml';
-			return [
-				'folder' => FOLDER_MAIN_PATH,
-				'path' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.$name.'.'.$ext,
-				'content' => $template->page($name,['content' => $content])
-			];
-		};
 
-		$build[] = $config('index');
-		$build[] = $config('archives');
-		$build[] = $config('rss');
+            // Posts are not associative
+            if( !is_string($pageName) ) {
 
-		self::build($build,'post');
-	}
+                $pageName = $content['config']['url'];
+                $content  = $content['html'];
+                $file = Cyaneus::config('path')->post($pageName);
+            }else {
+                $file = Cyaneus::config('path')->page($pageName);
+            }
 
-	public static function sitemap($data) {
-		$template = new Template();
-		self::build([[
-			'folder' => FOLDER_MAIN_PATH,
-			'path' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.'sitemap.xml',
-			'content' => $template->sitemap($data)
-			]],'post');
-	}
+            if( !file_exists($file) ) {
+                unlink($file);
+            }
 
-	/**
-	 * Build a page for each post
-	 * @param Array $content config array of each post
-	 * @param string page to build
-	 * @return Bool
-	 */
-	public static function post(Array $content) {
+            file_put_contents($file,$content);
+        }
+    }
 
-		$build = array();
-		$template = new Template();
-		foreach ($content as $e) {
-			$build[] = array(
-				'folder' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST,
-				'path' => FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.$e['post_url'],
-				'content' => $template->post($e)
-				);
-		}
-		self::build($build,'post');
-	}
+    /**
+     * Drop all compiled files from your site in order to rebuild it
+     * @return bool
+     */
+    public static function drop()
+    {
+        klog('Drop project site');
+        $files = new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator(
+                            REPOSITORY,
+                            FilesystemIterator::SKIP_DOTS),
+                        RecursiveIteratorIterator::CHILD_FIRST
+                    );
 
-	/**
-	 * Create a static files in DRAFT from webHook files.
-	 * @param  Array $files Array of files from WebHook
-	 * @param  String $type Files to build
-	 */
-	public static function build(Array $data,$type = 'draft') {
+        $ext = ['css','xml','html','htm','jpg','png'.'jpeg','webp','gif','bmp'];
 
-		$elemets = ($type === 'draft') ? DRAFT : rtrim(STORE,DIRECTORY_SEPARATOR);
-		$path = $elemets.DIRECTORY_SEPARATOR;
+        foreach($files as $file) {
+            if(!$file->isFile()) continue;
 
-		foreach ($data as $files) {
+            if(in_array($file->getExtension(), $ext)) {
+                klog('Remove file : '.$file->getRealPath());
+                unlink($file->getRealPath());
+            }
+        }
 
-			if(!file_exists($path.$files['folder'])) {
-				mkdir($path.$files['folder']);
-			}
+        unlink(USERDATA.DIRECTORY_SEPARATOR.'cyaneus.sqlite');
+    }
 
-			if(file_exists($path.$files['path'])) {
-				unlink($path.$files['path']);
-			}
+    /**
+     * Parse a draft and extract the post content and its configuration
+     * @param  String $file
+     * @return Array       [config,raw]
+     */
+    public static function getContent($file)
+    {
+        if( file_exists($file) ) {
 
-			file_put_contents($path.$files['path'],$files['content']);
+            $content = file_get_contents($file);
+            // We extract headers from the draft
+            $config = strstr($content,'==POST==', true );
+            // Remove headers from the draft to keep the content
+            $article = str_replace('==POST==','',strstr($content,'==POST=='));
 
-			klog('Build file success for '.$files['path']);
-		}
-	}
+            return [
+                'config' => self::getTags($config),
+                'raw' => $article
+            ];
+        }
+        return [];
+    }
 
-	/**
-	 * Delete a file if we delete it from a commit
-	 * @param  Array $files Array of files from WebHook
-	 * @param  String $type Files to destroy
-	 */
-	public static function destroy(Array $files,$type = 'draft') {
+    /**
+     * Loop on each TAGS in order to build an array [tag:value]
+     * @param string Header from a post
+     * @return Array [tag:value]
+     */
+    private static function getTags($post)
+    {
+        $info = [];
+        $kiwi_tags = explode(',', TAGS);
 
-		$elemets = ($type === 'draft') ? DRAFT : STORE.POST;
-		if($type === 'main') $elemets = FOLDER_MAIN_PATH;
+        foreach ($kiwi_tags as $tag) {
+            $info[$tag] = self::info($post,$tag);
+        }
 
-		foreach ($files as $e) {
+        // Rebuild some informations
+        if(empty($info['url'])) {
+            $info['url'] = self::url($info['title']);
+        }
 
-			if(file_exists($elemets.DIRECTORY_SEPARATOR.$e['path'])) {
-				unlink($elemets.DIRECTORY_SEPARATOR.$e['path']);
-			}
+        return $info;
+    }
 
-			klog('Delete file success for '.$e['path']);
-		}
-	}
+    /**
+     * Find tags from a post from its header.
+     * info('author="dhoko"','author') => dhoko
+     * @param string Header of a post
+     * @param string Tag tag to find cf TAGS
+     * @return string tag value
+     */
+    private static function info($data,$tag)
+    {
+        preg_match('/"([^"]+)"/',strstr($data,$tag),$match);
+        return (isset($match[1])) ? $match[1] : '';
+    }
 
-	/**
-	 * Drop all compiled files from your site in order to rebuild it
-	 * @return bool
-	 */
-	public static function drop() {
+    /**
+     * Convert raw content to HTML
+     * @param  string $data   Your draft
+     * @param  string $format convertion format
+     * @return string         html
+     * @todo add convertion format
+     */
+    public static function convert($data,$format = 'markdown')
+    {
+        return SmartyPants(Markdown($data));
+    }
 
-		klog('Drop project site');
-		$files = new RecursiveIteratorIterator(
-						new RecursiveDirectoryIterator(
-							REPOSITORY,
-							FilesystemIterator::SKIP_DOTS),
-			            RecursiveIteratorIterator::CHILD_FIRST
-           		 );
+    /**
+     * Build a valid url from a title
+     * New Firefox OS app : XBMC remote -> new-firefox-os-app-xbmc-remote
+     * @param string
+     * @return string
+     */
+    public static function url($path)
+    {
+        $url = str_replace('&', '-and-', $path);
+        $url = trim(preg_replace('/[^\w\d_ -]/si', '', $url));//remove all illegal chars
+        $url = str_replace(' ', '-', $url);
+        $url = str_replace('--', '-', $url);
+        return strtolower($url);
+    }
 
-		$ext = ['css','xml','html','htm','jpg','png'.'jpeg','webp','gif','bmp'];
+    public static function pictures(Array $content)
+    {
+        foreach ($content as $picture) {
+            self::picture((array)$picture);
+        }
+    }
+    /**
+     * Build attachement picture for a post
+     * @param Array $config Configuration for an image
+     * @return bool
+     */
+    public static function picture(Array $config)
+    {
+        if(!empty($config)) {
 
-		foreach($files as $file) {
-			if(!$file->isFile()) continue;
+            klog('Find an image attach to the current post');
+            // [0] => w ---- [1] => h
+            $_info = getimagesize(DRAFT.DIRECTORY_SEPARATOR.$config['path']);
+            $image = new PHPImageWorkshop\ImageWorkshop(array(
+                    'imageFromPath' => DRAFT.DIRECTORY_SEPARATOR.$config['path'],
+            ));
 
-			if(in_array($file->getExtension(), $ext)) {
-				klog('Remove file : '.$file->getRealPath());
-				unlink($file->getRealPath());
-			}
-		}
-
-		unlink(USERDATA.DIRECTORY_SEPARATOR.'cyaneus.sqlite');
-	}
-
-	/**
-	 * Will find each drafts from DRAFT.
-	 * File must have these extensions : md|markdown
-	 * @return Array array of ['build':timestamp,file,path]
-	 */
-	public static function find() {
-
-		$files          = [];
-		$readable_draft = ['md','markdown'];
-		$draftPath      = DRAFT;
-		$iterator       = new RecursiveDirectoryIterator($draftPath,RecursiveIteratorIterator::CHILD_FIRST);
-
-		klog('Looking for drafts');
-		foreach(new RecursiveIteratorIterator($iterator) as $file) {
-
-			if($file->isFile()) {
-
-				$md5 = md5($file->getPath());
-				$folder = pathinfo($file->getpath());
-
-				// Find articles
-				if (in_array($file->getExtension(), $readable_draft)) {
-
-					$files[$md5]['draft'] = [
-						'pathname' => $folder['basename'].DIRECTORY_SEPARATOR.$file->getfilename(),
-						'last_update' => (new DateTime(strtotime($file->getMTime())))->format('Y-m-d H:i:s')
-					];
-				}
-
-				// Find images associate to a post
-				if( in_array($file->getExtension(), ["jpg",'png','gif','jpeg']) ) {
-
-					$files[$md5]['pict'] = [
-						// 'build'    => $file->getMTime(),
-						// 'file'     => $file->getfilename(),
-						'pathname' => $folder['basename'].DIRECTORY_SEPARATOR.$file->getfilename(),
-						// 'last_update' => (new DateTime(strtotime($file->getMTime())))->format('Y-m-d H:i:s')
-					];
-				}
-
-				if(empty($files[$md5]['draft'])) unset($files[$md5]);
-			}
-		}
-		return $files;
-	}
-
-	public static function getContent($file) {
-
-		if(file_exists($file)) {
-
-			$content = file_get_contents($file);
-			// We extract headers from the draft
-			$config = strstr($content,'==POST==', true );
-			// Remove headers from the draft to keep the content
-			$article = str_replace('==POST==','',strstr($content,'==POST=='));
-
-			return [
-				'config' => self::getTags($config),
-				'raw' => $article
-			];
-		}
-		return array();
-
-	}
-
-	/**
-	 * Loop on each TAGS in order to build an array [tag:value]
-	 * @param string Header from a post
-	 * @return Array [tag:value]
-	 */
-	private static function getTags($post) {
-		$info = [];
-		$kiwi_tags = explode(',', TAGS);
-		foreach ($kiwi_tags as $tag) {
-			$info[$tag] = self::info($post,$tag);
-		}
-		// Rebuild some informations
-		if(empty($info['url'])) $info['url'] = self::url($info['title']);
-		return $info;
-	}
-
-	/**
-	 * Find tags from a post from its header.
-	 * info('author="dhoko"','author') => dhoko
-	 * @param string Header of a post
-	 * @param string Tag tag to find cf TAGS
-	 * @return string tag value
-	 */
-	private static function info($data,$tag) {
-		preg_match('/"([^"]+)"/',strstr($data,$tag),$match);
-		return (isset($match[1])) ? $match[1] : '';
-	}
-
-	/**
-	 * Convert raw content to HTML
-	 * @param  string $data   Your draft
-	 * @param  string $format convertion format
-	 * @return string         html
-	 * @todo add convertion format
-	 */
-	public static function convert($data,$format = 'markdown') {
-		return SmartyPants(Markdown($data));
-	}
-
-	/**
-	 * Build a valid url from a title
-	 * New Firefox OS app : XBMC remote -> new-firefox-os-app-xbmc-remote
-	 * @param string
-	 * @return string
-	 */
-	public static function url($path) {
-	    $url = str_replace('&', '-and-', $path);
-	    $url = trim(preg_replace('/[^\w\d_ -]/si', '', $url));//remove all illegal chars
-	    $url = str_replace(' ', '-', $url);
-	    $url = str_replace('--', '-', $url);
-	    return strtolower($url);
-	}
-
-	public static function pictures(Array $content) {
-		foreach ($content as $picture) {
-			self::picture((array)$picture);
-		}
-	}
-	/**
-	 * Build attachement picture for a post
-	 * @param Array $config Configuration for an image
-	 * @return bool
-	 */
-	public static function picture(Array $config) {
-
-		if(!empty($config)) {
-
-			klog('Find an image attach to the current post');
-			// [0] => w ---- [1] => h
-			$_info = getimagesize(DRAFT.DIRECTORY_SEPARATOR.$config['path']);
-			$image = new PHPImageWorkshop\ImageWorkshop(array(
-				    'imageFromPath' => DRAFT.DIRECTORY_SEPARATOR.$config['path'],
-			));
-
-			if (THUMB_W < $_info[0]) {
-				$image->resizeInPixel(THUMB_W, null, true);
-			}else{
-				$image->resizeInPixel($_info[0], null, true);
-			}
-			 //backgroundColor transparent, only for PNG (otherwise it will be white if set null)
-			klog('Record file config '.var_export($config,true));
-			klog('Record file '.STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR.$config['basename']);
-			// (file_path,file_name,create_folder,background_color,quality)
-			return $image->save(STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR, $config['basename'], true, null, 85);
-		}
-	}
+            if (THUMB_W < $_info[0]) {
+                $image->resizeInPixel(THUMB_W, null, true);
+            }else{
+                $image->resizeInPixel($_info[0], null, true);
+            }
+             //backgroundColor transparent, only for PNG (otherwise it will be white if set null)
+            klog('Record file config '.var_export($config,true));
+            klog('Record file '.STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR.$config['basename']);
+            // (file_path,file_name,create_folder,background_color,quality)
+            return $image->save(STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR, $config['basename'], true, null, 85);
+        }
+    }
 
 }

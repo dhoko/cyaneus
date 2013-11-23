@@ -11,12 +11,12 @@ class GithubListener extends AbstractHookListener
     public function get()
     {
         // Remove old one
-        if(file_exists(DRAFT)) {
-            exec(escapeshellcmd('rm -r '.DRAFT).' 2>&1', $rmr_output, $rmr_error);
+        if(file_exists(Cyaneus::config('path')->draft)) {
+            exec(escapeshellcmd('rm -r '.Cyaneus::config('path')->draft).' 2>&1', $rmr_output, $rmr_error);
         }
 
         $wget = '/usr/bin/wget --no-check-certificate  ';
-        $url = REPOSITORY_URL;
+        $url = Cyaneus::config('path')->repositoryUrl;
         $file = __DIR__.DIRECTORY_SEPARATOR.'file.zip';
 
         exec(escapeshellcmd($wget.$url.' -O '.$file).' 2>&1', $wget_output, $wget_error);
