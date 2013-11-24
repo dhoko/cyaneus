@@ -92,7 +92,7 @@ class Build
 
             $pages = $template->pages($posts);
 
-            // Factory::make($pages);
+            Factory::make($pages);
             Factory::make($posts);
 
         } catch (Exception $e) {

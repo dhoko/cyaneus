@@ -71,8 +71,6 @@ class Template
         $data['config']['navigation'] = $this->navigation();
         $data['config'] = array_merge($this->config, $this->buildKeyTemplate($data['config'], $data['html']));
 
-        var_dump($data); die();
-
         if($content){
             return $this->replace($data['config'],$content);
         }
@@ -123,7 +121,7 @@ class Template
                 continue;
             }
 
-            foreach ($config as $post) {
+            foreach ($data as $post) {
 
                 $_data['content'] .= $this->loop('',$post['config']);
                 $_data['navigation'] = $this->navigation();
