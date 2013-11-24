@@ -7,7 +7,7 @@ $cyaneus = [
 	// Site name
 	'name' => '',
 	// Site main url, must be end with /
-	'url' => '',
+	'url' => 'http://localhost:8042/',
 	// Language of your site
 	'language' => '',
 	// Webmaster
@@ -21,7 +21,7 @@ $cyaneus = [
 	// Date format to display
 	'date_format' => 'd/m/Y',
   // Your timezone
-  'timezone' => "Europe/Paris"
+  'timezone' => "Europe/Paris",
 
 	/**
 	 * Cyaneus Confiuration
@@ -61,5 +61,7 @@ $cyaneus = [
 	// ex: https://github.com/dhoko/blog/ => github.com/dhoko/blog/master/
 	//
 	// DO NOT FORGET /MASTER/ (your branch)
-	'url_git' => ''
+	'url_git' => '',
+
+  'repositoryUrl' => 'https://github.com/dhoko/blog/zipball/angular_post/'
 ];

@@ -16,7 +16,7 @@ class GithubListener extends AbstractHookListener
         }
 
         $wget = '/usr/bin/wget --no-check-certificate  ';
-        $url = Cyaneus::config('path')->repositoryUrl;
+        $url  = Cyaneus::config('path')->repositoryUrl;
         $file = __DIR__.DIRECTORY_SEPARATOR.'file.zip';
 
         exec(escapeshellcmd($wget.$url.' -O '.$file).' 2>&1', $wget_output, $wget_error);

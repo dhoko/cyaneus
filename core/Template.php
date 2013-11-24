@@ -55,7 +55,7 @@ class Template
 
     private function navigation()
     {
-        return $this->replace($this->config, $this->template['navigation']);
+        return $this->replace(self::config(), $this->template['navigation']);
     }
 
     /**
@@ -66,14 +66,15 @@ class Template
      */
     public function post(Array $data)
     {
-        $_content           = '';
-        $content            = $this->template['post'];
-        $data['navigation'] = $this->navigation();
+        $_content = '';
+        $content  = $this->template['post'];
+        $data['config']['navigation'] = $this->navigation();
+        $data['config'] = array_merge($this->config, $this->buildKeyTemplate($data['config'], $data['html']));
 
-        array_merge($this->config, $this->buildKeyTemplate($data));
+        var_dump($data); die();
 
         if($content){
-            return $this->replace($data,$content);
+            return $this->replace($data['config'],$content);
         }
     }
 
@@ -142,22 +143,28 @@ class Template
     * @param  Array $info Default configuration
     * @return Array       template keys
     */
-    private function buildKeyTemplate($info) {
-        return [
-            'post_url'         => POST.DIRECTORY_SEPARATOR.$info['url'].".html",
+    private function buildKeyTemplate($info, $content) {
+
+        if(!isset($info['last_update'])) {
+            $info['last_update'] = $info['added_time'];
+        }
+        return self::config([
+            'post_url'         => Cyaneus::config('path')->postUrl.$info['url'].'.html',
             'post_title'       => $info['title'],
-            'post_date'        => (new DateTime($info['added_time']))->format(DATE_FORMAT),
-            'post_update'      => (new DateTime($info['last_update']))->format(DATE_FORMAT),
-            'post_date_rss'    => date('D, j M Y H:i:s \G\M\T',(new DateTime($info['last_update']))->format('U')),
+            'post_date'        => CDate::formated($info['added_time']),
+            'post_update'      => CDate::formated($info['last_update']),
+            'post_date_rss'    => CDate::rss($info['last_update']),
             'post_description' => $info['description'],
-            'post_content'     => $info['content'],
+            'post_content'     => $content,
             'post_author'      => $info['author'],
             'post_tags'        => $info['tags'],
             'timestamp'        => $info['added_time'],
             'timestamp_up'     => $info['last_update'],
-            'timestamp_upRaw'  => (new DateTime($info['last_update']))->format('U'),
-        ];
+            'timestamp_upRaw'  => CDate::timestamp($info['last_update']),
+            'navigation'       => $info['navigation'],
+        ]);
     }
+
 
 
 
@@ -197,18 +204,18 @@ class Template
      * @param Array  $data Options of data to bind
      * @return Array Configuration var to bind
      */
-    private function config(Array $data)
+    private function config(Array $data = array())
     {
         $merge = array_merge(array(
-            'lang'             => LANGUAGE,
-            'site_url'         => URL,
-            'site_title'       => NAME,
-            'site_description' => DESCRIPTION,
-            'generator'        => GENERATOR,
-            'author'           => AUTHOR,
-            'template'         => TEMPLATE_NAME,
-            'rss_url'          => RSS,
-            'css_url'          => CSS,
+            'lang'             => Cyaneus::config('site')->language,
+            'site_url'         => Cyaneus::config('site')->url,
+            'site_title'       => Cyaneus::config('site')->name,
+            'site_description' => Cyaneus::config('site')->description,
+            'generator'        => Cyaneus::config('site')->generator,
+            'author'           => Cyaneus::config('site')->author,
+            'template'         => Cyaneus::config('site')->template_name,
+            'rss_url'          => Cyaneus::config('path')->rss,
+            'css_url'          => Cyaneus::config('path')->css,
             ),$data);
         return $merge;
     }

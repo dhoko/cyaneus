@@ -1,7 +1,7 @@
 <?php
 class Cyaneus {
 
-    private $config = [];
+    private static $config = [];
 
     /**
     * Init Cyaneus - it will build required folders :
@@ -11,10 +11,12 @@ class Cyaneus {
     */
     public static function init() {
 
-        $config = require __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'config.php';
+        require __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'config.php';
 
-        self::$config['site'] = $config;
-        self::$config['path'] = self::buildPathConfig($config);
+        self::$config['site'] = $cyaneus;
+        self::$config['path'] = self::buildPathConfig($cyaneus);
+
+        Factory::buildPath();
     }
 
     /**
@@ -28,7 +30,7 @@ class Cyaneus {
             throw new Exception('Cannot find your configuration : '.$about);
         }
 
-        return (object) self::$config;
+        return (object) self::$config[$about];
     }
 
     /**
@@ -39,26 +41,42 @@ class Cyaneus {
      */
     private static function buildPathConfig(Array $config) {
 
-        $base = __DIR__.DIRECTORY_SEPARATOR.$config['folder_main_path'];
-        $url  = $config['url'].'/';
+        $base     = CYANEUS_PATH.$config['folder_main_path'];
+        $url      = $config['url'].'/';
+        $site     = $base.DIRECTORY_SEPARATOR;
+        $postPath = $site.$config['articles'];
 
         return [
-            'logs'          => $base.$config['logs'].DIRECTORY_SEPARATOR,
-            'draft'         => $base.$config['draft'].DIRECTORY_SEPARATOR,
-            'template'      => $base.$config['template'].DIRECTORY_SEPARATOR,
-            'repositoryUrl' => $base.$config['repositoryUrl'],
+            'base'          => $base,
+            'logs'          => CYANEUS_PATH.'data'.DIRECTORY_SEPARATOR,
+            'draft'         => CYANEUS_PATH.$config['draft'].DIRECTORY_SEPARATOR,
+            'template'      => CYANEUS_PATH.$config['template'].DIRECTORY_SEPARATOR.$config['template_name'].DIRECTORY_SEPARATOR,
+            'repositoryUrl' => $config['repositoryUrl'],
+            'post'          => $postPath.DIRECTORY_SEPARATOR,
             'url'           => $url,
-            'site'          => $base.$config['site'].DIRECTORY_SEPARATOR,
+            'postUrl'       => $url.$config['articles'].DIRECTORY_SEPARATOR,
+            'site'          => $site,
             'css'           => $url.'css.css',
             'rss'           => $url.'rss.xml',
-            'sitemap'       => $url.'sitemap.xml',
-            'page'          => function ($path) use ($site) {
-                return $site.DIRECTORY_SEPARATOR.$path.'html';
-            },
-            'post'          => function ($path) use ($site, $postPath) {
-                return $site.DIRECTORY_SEPARATOR.$postPath.DIRECTORY_SEPARATOR.$path.'html';
-            }
+            'sitemap'       => $url.'sitemap.xml'
         ];
+    }
+
+    /**
+     * Get the path of a page or a post
+     * @param  String  $path name of the page
+     * @param  boolean $post Is it a post ?
+     * @return String        Path
+     */
+    public static function pages($path, $post = false) {
+
+        if($post) {
+            $path = self::config('path')->post.$path;
+        }else{
+            $path = self::config('path')->site.$path;
+        }
+
+        return $path.'.html';
     }
 
 }

@@ -7,23 +7,27 @@ class Factory
      */
     public static function make(Array $pages)
     {
-
+        // var_dump($pages); die();
         if( !file_exists(Cyaneus::config('path')->site) ) {
             mkdir(Cyaneus::config('path')->site);
         }
 
         foreach ($pages as $pageName => $content) {
 
-
             // Posts are not associative
             if( !is_string($pageName) ) {
 
                 $pageName = $content['config']['url'];
                 $content  = $content['html'];
-                $file = Cyaneus::config('path')->post($pageName);
+                $file     = Cyaneus::pages($pageName,1);
             }else {
-                $file = Cyaneus::config('path')->page($pageName);
+                $file = Cyaneus::pages($pageName);
             }
+
+
+            var_dump($file);
+            var_dump($content);
+            Log::trace('Content found for '.$pageName);
 
             if( !file_exists($file) ) {
                 unlink($file);
@@ -31,6 +35,8 @@ class Factory
 
             file_put_contents($file,$content);
         }
+
+        Log::trace('Make all the pages is a success');
     }
 
     /**
@@ -68,6 +74,7 @@ class Factory
      */
     public static function getContent($file)
     {
+        $config = [];
         if( file_exists($file) ) {
 
             $content = file_get_contents($file);
@@ -76,6 +83,7 @@ class Factory
             // Remove headers from the draft to keep the content
             $article = str_replace('==POST==','',strstr($content,'==POST=='));
 
+            Log::trace('Get content for '.$file);
             return [
                 'config' => self::getTags($config),
                 'raw' => $article
@@ -92,7 +100,7 @@ class Factory
     private static function getTags($post)
     {
         $info = [];
-        $kiwi_tags = explode(',', TAGS);
+        $kiwi_tags = explode(',', Cyaneus::config('site')->tags);
 
         foreach ($kiwi_tags as $tag) {
             $info[$tag] = self::info($post,$tag);
@@ -179,6 +187,30 @@ class Factory
             // (file_path,file_name,create_folder,background_color,quality)
             return $image->save(STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR, $config['basename'], true, null, 85);
         }
+    }
+
+    /**
+     * Initial setup for Cyaneus
+     * Build them all
+     */
+    public static function buildPath()
+    {
+        if(!file_exists(Cyaneus::config('path')->base)) {
+            mkdir(Cyaneus::config('path')->base);
+        }
+        if(!file_exists(Cyaneus::config('path')->logs)) {
+            mkdir(Cyaneus::config('path')->logs);
+        }
+        if(!file_exists(Cyaneus::config('path')->draft)) {
+            mkdir(Cyaneus::config('path')->draft);
+        }
+        if(!file_exists(Cyaneus::config('path')->site)) {
+            mkdir(Cyaneus::config('path')->site);
+        }
+        if(!file_exists(Cyaneus::config('path')->post)) {
+            mkdir(Cyaneus::config('path')->post);
+        }
+        Log::trace('All the Cyaneus folders are built');
     }
 
 }

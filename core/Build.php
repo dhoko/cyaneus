@@ -29,7 +29,7 @@ class Build
      */
     public function __construct()
     {
-        $this->datetime = (new DateTime("now",new DateTimeZone(Cyaneus::config('site')->timezone)))->format('Y-m-d H:i:s');
+        $this->datetime = CDate::datetime();
         return $this;
     }
 
@@ -41,7 +41,8 @@ class Build
     public function setHook($name)
     {
         $name = ucfirst($name).'Listener';
-        $hook = new $name(DRAFT);
+        $hook = new $name(Cyaneus::config('path')->draft);
+        Log::trace('Init a new Hook '.$name);
         $hook->get();
         $this->files = $hook->files();
         return $this;
@@ -54,9 +55,12 @@ class Build
     public function init()
     {
         $data = [];
-
         foreach ($this->files['post'] as $file => $fullPath) {
-            $data[] = Factory::getContent($fullPath);
+
+            $config = Factory::getContent($fullPath);
+            $config['config']['added_time'] = substr($file, 0,10);
+            $data[] = $config;
+            $config = [];
         }
 
         $this->content = $data;
@@ -71,20 +75,28 @@ class Build
     public function run()
     {
         try {
-            var_dump($this->content);
+
             $posts = [];
+            $pages = [];
             $template = new Template((array) Cyaneus::config('site'));
 
             foreach ($this->content as $post) {
-                $posts[] = $template->post([
-                    'config' => $post['config'],
-                    'html'   => Factory::convert($post['raw'])
-                ]);
+                $posts[] = [
+                    'html' => $template->post([
+                        'config' => $post['config'],
+                        'html'   => Factory::convert($post['raw'])
+                    ]),
+                    'config' => $post['config']
+                ];
             }
 
-            $template->pages($posts);
+            $pages = $template->pages($posts);
+
+            // Factory::make($pages);
+            Factory::make($posts);
 
         } catch (Exception $e) {
+            Log::error($e->getMessage());
             echo $e->getMessage();
         }
 
