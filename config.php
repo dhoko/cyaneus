@@ -7,7 +7,7 @@ $cyaneus = [
 	// Site name
 	'name' => '',
 	// Site main url, must be end with /
-	'url' => 'http://localhost:8042/',
+	'url' => 'http://localhost:8000/',
 	// Language of your site
 	'language' => '',
 	// Webmaster

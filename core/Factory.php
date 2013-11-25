@@ -25,11 +25,11 @@ class Factory
             }
 
 
-            var_dump($file);
-            var_dump($content);
+            // var_dump($file);
+            // var_dump($content);
             Log::trace('Content found for '.$pageName);
 
-            if( !file_exists($file) ) {
+            if( file_exists($file) ) {
                 unlink($file);
             }
 

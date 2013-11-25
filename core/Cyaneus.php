@@ -42,7 +42,7 @@ class Cyaneus {
     private static function buildPathConfig(Array $config) {
 
         $base     = CYANEUS_PATH.$config['folder_main_path'];
-        $url      = $config['url'].'/';
+        $url      = $config['url'];
         $site     = $base.DIRECTORY_SEPARATOR;
         $postPath = $site.$config['articles'];
 

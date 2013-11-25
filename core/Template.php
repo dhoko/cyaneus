@@ -84,6 +84,7 @@ class Template
      */
     public function loop($context,Array $data)
     {
+
         $data    = array_merge($this->config, $data);
         $content = $this->template[$context]['content'];
 
@@ -117,18 +118,22 @@ class Template
 
         foreach ($pages as $page) {
 
-            if($page === 'navigation') {
+            if($page === 'navigation' || $page === 'post') {
                 continue;
             }
-
+            $_data['content'] = '';
             foreach ($data as $post) {
 
-                $_data['content'] .= $this->loop('',$post['config']);
+                $_data['content'] .= $this->loop($page,$this->buildKeyTemplate($post['config'],$post['html']));
                 $_data['navigation'] = $this->navigation();
 
             }
-            $_tmp = array_merge($this->config, $_data);
+            $_tmp = $this->config($_data);
+
+            // var_dump($_data);
+            var_dump($_tmp);
             $_pages[$page] = $this->replace($_tmp,$this->template[$page]['main']);
+
         }
 
         return $_pages;
@@ -146,7 +151,7 @@ class Template
         if(!isset($info['last_update'])) {
             $info['last_update'] = $info['added_time'];
         }
-        return self::config([
+        return $this->config([
             'post_url'         => Cyaneus::config('path')->postUrl.$info['url'].'.html',
             'post_title'       => $info['title'],
             'post_date'        => CDate::formated($info['added_time']),
@@ -159,7 +164,7 @@ class Template
             'timestamp'        => $info['added_time'],
             'timestamp_up'     => $info['last_update'],
             'timestamp_upRaw'  => CDate::timestamp($info['last_update']),
-            'navigation'       => $info['navigation'],
+            'navigation'       => (isset($info['navigation'])) ? $info['navigation'] : '',
         ]);
     }
 
@@ -216,5 +221,9 @@ class Template
             'css_url'          => Cyaneus::config('path')->css,
             ),$data);
         return $merge;
+    }
+
+    public function moveCustom() {
+
     }
 }
