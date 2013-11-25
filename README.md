@@ -72,7 +72,7 @@ You can access to many variables in your template with this syntax : `{{my_var}}
 
 ### Exemple of a template
 
-```markup
+```html
 <!doctype html>
 <html lang="{{lang}}">
 <head>
