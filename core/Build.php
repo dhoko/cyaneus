@@ -40,12 +40,20 @@ class Build
      */
     public function setHook($name)
     {
-        $name = ucfirst($name).'Listener';
-        $hook = new $name(Cyaneus::config('path')->draft);
-        Log::trace('Init a new Hook '.$name);
-        $hook->get();
-        $this->files = $hook->files();
-        return $this;
+        try {
+            $name = ucfirst($name).'Listener';
+            $hook = new $name(Cyaneus::config('path')->draft);
+
+            Log::trace('Init a new Hook '.$name);
+
+            $hook->get();
+            $this->files = $hook->files();
+            return $this;
+
+        } catch (Exception $e) {
+            Log::server($e->getMessage());
+            die('Cannot get your posts');
+        }
     }
 
     /**
