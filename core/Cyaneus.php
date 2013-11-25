@@ -23,11 +23,12 @@ class Cyaneus {
      * Tu use your site's configuration
      * @param  string $about What do you want
      * @return Array
+     * @throws RuntimeException If your configuration is empty
      */
     public static function config($about) {
 
         if( !isset(self::$config[$about]) ) {
-            throw new Exception('Cannot find your configuration : '.$about);
+            throw new RuntimeException('Cannot find your configuration : '.$about);
         }
 
         return (object) self::$config[$about];

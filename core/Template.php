@@ -96,7 +96,7 @@ class Template
     public function pages(Array $config)
     {
         if(empty($config)) {
-            throw new Exception('We cannot build pages without a config');
+            throw new RuntimeException('We cannot build pages without a config');
         }
 
         return $this->page($config);
@@ -207,22 +207,26 @@ class Template
     private function config(Array $data = array())
     {
         $merge = array_merge(array(
-            'site_lang'             => Cyaneus::config('site')->language,
+            'site_lang'        => Cyaneus::config('site')->language,
             'site_url'         => Cyaneus::config('site')->url,
             'site_title'       => Cyaneus::config('site')->name,
             'site_description' => Cyaneus::config('site')->description,
-            'site_generator'        => Cyaneus::config('site')->generator,
-            'site_author'           => Cyaneus::config('site')->author,
-            'site_template'         => Cyaneus::config('site')->template_name,
-            'site_rss_url'          => Cyaneus::config('path')->rss,
-            'site_css_url'          => Cyaneus::config('path')->css,
+            'site_generator'   => Cyaneus::config('site')->generator,
+            'site_author'      => Cyaneus::config('site')->author,
+            'site_template'    => Cyaneus::config('site')->template_name,
+            'site_rss_url'     => Cyaneus::config('path')->rss,
+            'site_css_url'     => Cyaneus::config('path')->css,
             ),$data);
         return $merge;
     }
 
+    /**
+     * Move custom elements from the template
+     * Default :
+     *     - style.css
+     *     - images
+     */
     public function moveCustom() {
-
         Factory::move(['style.css','images']);
-
     }
 }

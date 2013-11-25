@@ -84,7 +84,7 @@ class Build
                 $posts[] = [
                     'html' => $template->post([
                         'config' => $post['config'],
-                        'html'   => Factory::convert($post['raw'])
+                        'html'   => String::convert($post['raw'])
                     ]),
                     'config' => $post['config']
                 ];
@@ -98,10 +98,6 @@ class Build
 
         } catch (Exception $e) {
             Log::error($e->getMessage());
-            echo $e->getMessage();
         }
-
     }
-
-
 }

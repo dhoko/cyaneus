@@ -35,7 +35,11 @@ class CDate
         return $datetime->format('U');
     }
 
+    /**
+     * Return a datetime from the current date
+     * @return String
+     */
     public static function datetime() {
-      return (new DateTime("now",new DateTimeZone(Cyaneus::config('site')->timezone)))->format('Y-m-d H:i:s');
+        return (new DateTime("now",new DateTimeZone(Cyaneus::config('site')->timezone)))->format('Y-m-d H:i:s');
     }
 }

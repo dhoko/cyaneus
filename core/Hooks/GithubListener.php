@@ -7,6 +7,7 @@ class GithubListener extends AbstractHookListener
     /**
      * Execute a WGET command to download the zip from
      * REPOSITORY_URL. Then it will extract it
+     * @throws RuntimeException If Something goes wrong during the wget process
      */
     public function get()
     {
@@ -22,7 +23,7 @@ class GithubListener extends AbstractHookListener
         exec(escapeshellcmd($wget.$url.' -O '.$file).' 2>&1', $wget_output, $wget_error);
 
         if($wget_error) {
-            throw new Exception('An error has occurred with wget: '.var_export($wget_output, true));
+            throw new RuntimeException('An error has occurred with wget: '.var_export($wget_output, true));
         }
 
         $this->extract($file);

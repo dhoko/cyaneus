@@ -81,6 +81,4 @@ abstract class AbstractHookListener
         // Remove the zip at the end
         unlink($file);
     }
-
-
 }

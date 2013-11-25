@@ -1,15 +1,39 @@
 <?php
+/**
+ * Log them all
+ * Log file is store in :
+ *     - Cyaneus::config('path')->logs.$name.'.txt'
+ *
+ * Default path is data/logs.txt
+ *
+ * It can generate files in logs_server.php if you want
+ */
 class Log {
 
-
+    /**
+     * Write a trace
+     * @param  String $message Your message to log.
+     * @return Boolean
+     */
     public static function trace($message) {
         return self::write($message);
     }
 
+    /**
+     * Write an error
+     * @param  String $message Your message to log.
+     * @return Boolean
+     */
     public static function error($message) {
         return self::write($message,'error');
     }
 
+    /**
+     * Write a trace or an error for a server request
+     * Store in logs_server.txt
+     * @param  String $message Your message to log.
+     * @return Boolean
+     */
     public static function server($message, $type='error') {
         return self::write($message, $type,'server');
     }
@@ -66,13 +90,10 @@ class Log {
             $function = 'unknown';
         }
 
-        $log = '['.CDate::datetime().']['.$level.']['.$class.'::'.$function.'] :'.$msg."\n";
+        $log = '['.CDate::datetime().']['.$level.']['.$class.'::'.$function.']: '.$msg."\n";
+        $name = ($type === "server") ? 'log_server' : 'log';
 
-        $name = 'log';
-        if($type === "server") {
-            $name = 'log_server';
-        }
-        file_put_contents(Cyaneus::config('path')->logs.$name.'.txt',$log,FILE_APPEND);
+        return file_put_contents(Cyaneus::config('path')->logs.$name.'.txt',$log,FILE_APPEND);
     }
 
 }
