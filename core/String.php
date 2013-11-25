@@ -28,7 +28,8 @@ class String {
      */
     public static function convert($data,$format = 'markdown')
     {
-        return SmartyPants(MarkdownExtended($data));
+        return MarkdownExtended($data);
+        // return SmartyPants(MarkdownExtended($data));
     }
 
     /**

@@ -103,6 +103,7 @@ class Build
 
             Factory::make($pages);
             Factory::make($posts);
+            Factory::make(['sitemap'=>$template->sitemap($posts)]);
 
         } catch (Exception $e) {
             Log::error($e->getMessage());

@@ -69,7 +69,7 @@ class Cyaneus {
      * @param  boolean $post Is it a post ?
      * @return String        Path
      */
-    public static function pages($path, $post = false) {
+    public static function pages($path, $post = false, $ext = 'html') {
 
         if($post) {
             $path = self::config('path')->post.$path;
@@ -77,7 +77,7 @@ class Cyaneus {
             $path = self::config('path')->site.$path;
         }
 
-        return $path.'.html';
+        return $path.'.'.$ext;
     }
 
 }

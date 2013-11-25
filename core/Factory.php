@@ -15,14 +15,20 @@ class Factory
 
         foreach ($pages as $pageName => $content) {
 
+            $ext = 'html';
             // Posts are not associative
             if( !is_string($pageName) ) {
 
                 $pageName = $content['config']['url'];
                 $content  = $content['html'];
-                $file     = Cyaneus::pages($pageName,1);
+                $file     = Cyaneus::pages($pageName,1,$ext);
             }else {
-                $file = Cyaneus::pages($pageName);
+
+                if($pageName === 'rss' || $pageName === 'sitemap') {
+                    $ext = 'xml';
+                }
+
+                $file = Cyaneus::pages($pageName,0,$ext);
             }
 
             Log::trace('Content found for '.$pageName);
@@ -134,9 +140,14 @@ class Factory
             // Build a folder, to prevent error during move
             if( pathinfo($file, PATHINFO_EXTENSION) === '' ) {
                 mkdir(Cyaneus::config('path')->site.$file);
+                $origin      = Cyaneus::config('path')->template.$file.DIRECTORY_SEPARATOR;
+                $destination = Cyaneus::config('path')->site;
+            }else {
+                $origin      = Cyaneus::config('path')->template.$file;
+                $destination = Cyaneus::config('path')->site.$file;
             }
 
-            exec(escapeshellcmd('cp -r '.Cyaneus::config('path')->template.$file.' '.Cyaneus::config('path')->site.$file).' 2>&1', $cp_output, $cp_error);
+            exec(escapeshellcmd('cp -r '.$origin.' '.$destination).' 2>&1', $cp_output, $cp_error);
 
              if($cp_output) {
                 throw new RuntimeException('An error has occurred with cp: '.var_export($cp_output, true));

@@ -42,4 +42,12 @@ class CDate
     public static function datetime() {
         return (new DateTime("now",new DateTimeZone(Cyaneus::config('site')->timezone)))->format('Y-m-d H:i:s');
     }
+
+    /**
+     * Return a datetime from the current date
+     * @return String
+     */
+    public static function format($date, $format = 'c') {
+        return (new DateTime($date,new DateTimeZone(Cyaneus::config('site')->timezone)))->format($format);
+    }
 }
