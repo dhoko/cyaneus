@@ -39,7 +39,6 @@ class Factory
         Log::trace('Make all the pages is a success');
     }
 
-
     /**
      * Parse a draft and extract the post content and its configuration
      * @param  String $file
