@@ -8,14 +8,15 @@
  *
  * It can generate files in logs_server.php if you want
  */
-class Log {
-
+class Log
+{
     /**
      * Write a trace
      * @param  String $message Your message to log.
      * @return Boolean
      */
-    public static function trace($message) {
+    public static function trace($message)
+    {
         return self::write($message);
     }
 
@@ -24,7 +25,8 @@ class Log {
      * @param  String $message Your message to log.
      * @return Boolean
      */
-    public static function error($message) {
+    public static function error($message)
+    {
         return self::write($message,'error');
     }
 
@@ -34,7 +36,8 @@ class Log {
      * @param  String $message Your message to log.
      * @return Boolean
      */
-    public static function server($message, $type='error') {
+    public static function server($message, $type='error')
+    {
         return self::write($message, $type,'server');
     }
 
@@ -47,8 +50,8 @@ class Log {
      * @param  String $msg  Message to log
      * @param  string $type Type of message
      */
-    private static function write($msg, $level = 'trace', $type="") {
-
+    private static function write($msg, $level = 'trace', $type="")
+    {
         // Fetch Stack Trace
         $stack = debug_backtrace();
 

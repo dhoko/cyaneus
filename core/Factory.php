@@ -8,7 +8,6 @@ class Factory
      */
     public static function make(Array $pages)
     {
-        // var_dump($pages); die();
         if( !file_exists(Cyaneus::config('path')->site) ) {
             mkdir(Cyaneus::config('path')->site);
         }
@@ -139,7 +138,11 @@ class Factory
 
             // Build a folder, to prevent error during move
             if( pathinfo($file, PATHINFO_EXTENSION) === '' ) {
-                mkdir(Cyaneus::config('path')->site.$file);
+
+                if( !file_exists(Cyaneus::config('path')->site.$file) ) {
+                    mkdir(Cyaneus::config('path')->site.$file);
+                }
+
                 $origin      = Cyaneus::config('path')->template.$file.DIRECTORY_SEPARATOR;
                 $destination = Cyaneus::config('path')->site;
             }else {

@@ -1,6 +1,6 @@
 <?php
-class Cyaneus {
-
+class Cyaneus
+{
     private static $config = [];
 
     /**
@@ -9,8 +9,8 @@ class Cyaneus {
     * - Post destination folder
     * - Move your CSS template to your site folder
     */
-    public static function init() {
-
+    public static function init()
+    {
         require __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'config.php';
 
         self::$config['site'] = $cyaneus;
@@ -25,8 +25,8 @@ class Cyaneus {
      * @return Array
      * @throws RuntimeException If your configuration is empty
      */
-    public static function config($about) {
-
+    public static function config($about)
+    {
         if( !isset(self::$config[$about]) ) {
             throw new RuntimeException('Cannot find your configuration : '.$about);
         }
@@ -40,8 +40,8 @@ class Cyaneus {
      * @param  Array  $config
      * @return Array
      */
-    private static function buildPathConfig(Array $config) {
-
+    private static function buildPathConfig(Array $config)
+    {
         $base     = CYANEUS_PATH.$config['folder_main_path'];
         $url      = $config['url'];
         $site     = $base.DIRECTORY_SEPARATOR;
@@ -69,8 +69,8 @@ class Cyaneus {
      * @param  boolean $post Is it a post ?
      * @return String        Path
      */
-    public static function pages($path, $post = false, $ext = 'html') {
-
+    public static function pages($path, $post = false, $ext = 'html')
+    {
         if($post) {
             $path = self::config('path')->post.$path;
         }else{

@@ -2,24 +2,24 @@
 /**
  * Some helpers for strings
  */
-class String {
+class String
+{
+    /**
+     * Build a valid url from a title
+     * New Firefox OS app : XBMC remote -> new-firefox-os-app-xbmc-remote
+     * @param string
+     * @return string
+     */
+    public static function url($path)
+    {
+        $url = str_replace('&', '-and-', $path);
+        $url = trim(preg_replace('/[^\w\d_ -]/si', '', $url));//remove all illegal chars
+        $url = str_replace(' ', '-', $url);
+        $url = str_replace('--', '-', $url);
+        return strtolower($url);
+    }
 
-	/**
-	 * Build a valid url from a title
-	 * New Firefox OS app : XBMC remote -> new-firefox-os-app-xbmc-remote
-	 * @param string
-	 * @return string
-	 */
-	public static function url($path)
-	{
-	    $url = str_replace('&', '-and-', $path);
-	    $url = trim(preg_replace('/[^\w\d_ -]/si', '', $url));//remove all illegal chars
-	    $url = str_replace(' ', '-', $url);
-	    $url = str_replace('--', '-', $url);
-	    return strtolower($url);
-	}
-
-	/**
+    /**
      * Convert raw content to HTML
      * @param  string $data   Your draft
      * @param  string $format convertion format

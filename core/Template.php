@@ -143,24 +143,25 @@ class Template
     * @param  Array $info Default configuration
     * @return Array       template keys
     */
-    private function buildKeyTemplate($info, $content) {
-
+    private function buildKeyTemplate($info, $content)
+    {
         if(!isset($info['last_update'])) {
             $info['last_update'] = $info['added_time'];
         }
         return $this->config([
-            'post_url'         => Cyaneus::config('path')->postUrl.$info['url'].'.html',
-            'post_title'       => $info['title'],
-            'post_date'        => CDate::formated($info['added_time']),
-            'post_update'      => CDate::formated($info['last_update']),
-            'post_date_rss'    => CDate::rss($info['last_update']),
-            'post_description' => $info['description'],
-            'post_content'     => $content,
-            'post_author'      => $info['author'],
-            'post_tags'        => $info['tags'],
-            'post_timestamp'        => $info['added_time'],
-            'post_timestamp_up'     => $info['last_update'],
-            'post_timestamp_upRaw'  => CDate::timestamp($info['last_update']),
+            'post_url'             => Cyaneus::config('path')->postUrl.$info['url'].'.html',
+            'post_title'           => $info['title'],
+            'post_date'            => CDate::formated($info['added_time']),
+            'post_lang'            => (isset($info['plang'])) ? $info['plang'] : $this->config['lang'],
+            'post_update'          => CDate::formated($info['last_update']),
+            'post_date_rss'        => CDate::rss($info['last_update']),
+            'post_description'     => $info['description'],
+            'post_content'         => $content,
+            'post_author'          => $info['author'],
+            'post_tags'            => $info['tags'],
+            'post_timestamp'       => $info['added_time'],
+            'post_timestamp_up'    => $info['last_update'],
+            'post_timestamp_upRaw' => CDate::timestamp($info['last_update']),
             'navigation'       => (isset($info['navigation'])) ? $info['navigation'] : '',
         ]);
     }
@@ -226,7 +227,8 @@ class Template
      *     - style.css
      *     - images
      */
-    public function moveCustom() {
-        Factory::move(['style.css','images']);
+    public function moveCustom()
+    {
+        Factory::move(['style.css','images', 'scripts']);
     }
 }
