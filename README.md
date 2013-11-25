@@ -120,7 +120,7 @@ We loop on content-index to build a string. This string will be append to `{{con
 
 Ex: 
 
-```markup
+```html
 <section id="main">
   <header>
     <h1>
