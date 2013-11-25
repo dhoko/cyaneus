@@ -7,7 +7,7 @@ $cyaneus = [
 	// Site name
 	'name' => '',
 	// Site main url, must be end with /
-	'url' => 'http://localhost:8000/',
+	'url' => '',
 	// Language of your site
 	'language' => '',
 	// Webmaster
@@ -30,7 +30,7 @@ $cyaneus = [
 	// Tags you want to edit in your posts
 	'tags' => 'title,url,date,tags,description,author',
 	// The generator
-	'generator' => 'Cyaneus 1.0 B2',
+	'generator' => 'Cyaneus 1.0 RC1',
 	// Put your drafts in this folder
 	'draft' => 'draft',
 	// Your posts builds will be store in this folder
@@ -49,19 +49,13 @@ $cyaneus = [
 
 	/**
 	 * Git Hook Mechanism
-	 * You build your site from Github and use webhook to pull your content to cyaneus.
-	 * You must specify some informations to verify the hook origin
+	 * Specify the path of your zipball for your repository
+   * You can find the path if you copy the link on the download Zip button
+   * on github (At the bottom of the sidebar, rigth of the window)
+   *
+   * The structure is :
+   *   - https://github.com/ + PSEUDO + REPOSITORY + /zipball/ + BRANCH
+   * The default branch is master
 	 */
-	// Your registred mail from git
-	'email_git' => '',
-	// Your pseudo on git
-	'name_git' => '',
-	// url of the repos on github
-	// Do not add the https://
-	// ex: https://github.com/dhoko/blog/ => github.com/dhoko/blog/master/
-	//
-	// DO NOT FORGET /MASTER/ (your branch)
-	'url_git' => '',
-
-  'repositoryUrl' => 'https://github.com/dhoko/blog/zipball/angular_post/'
+  'repositoryUrl' => ''
 ];
