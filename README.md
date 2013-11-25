@@ -4,10 +4,12 @@ A static PHP blog generator
 
 ## How to
 
-1. Download Cyaneus : [zipfile](https://github.com/dhoko/cyaneus/archive/master.zip)
-2. Upload Cyaneus
-3. Change the default configuration in **config.php**
-4. Done
+1. Download Cyaneus : [zipfile](https://github.com/dhoko/cyaneus/zipball/master)
+2. Change the default configuration in **config.php**
+3. Upload Cyaneus
+4. Create a repository on Github and attach a webhook to `yousite.me/upload-folder/?github`
+5. Done
+
 
 ## Write a post
 
