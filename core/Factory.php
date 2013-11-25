@@ -24,9 +24,6 @@ class Factory
                 $file = Cyaneus::pages($pageName);
             }
 
-
-            // var_dump($file);
-            // var_dump($content);
             Log::trace('Content found for '.$pageName);
 
             if( file_exists($file) ) {
@@ -211,6 +208,22 @@ class Factory
             mkdir(Cyaneus::config('path')->post);
         }
         Log::trace('All the Cyaneus folders are built');
+    }
+
+    public static function move(Array $files)
+    {
+        foreach ($files as $file) {
+
+            if( !file_exists(Cyaneus::config('path')->site.$file) ) {
+                continue;
+            }
+            exec(escapeshellcmd('cp -r '.Cyaneus::config('path')->template.$file.' '.Cyaneus::config('path')->site.$file).' 2>&1', $cp_output, $cp_error);
+
+             if($cp_output) {
+                throw new Exception('An error has occurred with cp: '.var_export($cp_output, true));
+            }
+        }
+
     }
 
 }

@@ -91,7 +91,6 @@ class Build
             }
 
             $pages = $template->pages($posts);
-
             $template->moveCustom();
 
             Factory::make($pages);

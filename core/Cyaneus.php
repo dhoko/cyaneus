@@ -56,7 +56,7 @@ class Cyaneus {
             'url'           => $url,
             'postUrl'       => $url.$config['articles'].DIRECTORY_SEPARATOR,
             'site'          => $site,
-            'css'           => $url.'css.css',
+            'css'           => $url.'style.css',
             'rss'           => $url.'rss.xml',
             'sitemap'       => $url.'sitemap.xml'
         ];

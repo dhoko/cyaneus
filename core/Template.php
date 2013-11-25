@@ -129,9 +129,6 @@ class Template
 
             }
             $_tmp = $this->config($_data);
-
-            // var_dump($_data);
-            var_dump($_tmp);
             $_pages[$page] = $this->replace($_tmp,$this->template[$page]['main']);
 
         }
@@ -161,9 +158,9 @@ class Template
             'post_content'     => $content,
             'post_author'      => $info['author'],
             'post_tags'        => $info['tags'],
-            'timestamp'        => $info['added_time'],
-            'timestamp_up'     => $info['last_update'],
-            'timestamp_upRaw'  => CDate::timestamp($info['last_update']),
+            'post_timestamp'        => $info['added_time'],
+            'post_timestamp_up'     => $info['last_update'],
+            'post_timestamp_upRaw'  => CDate::timestamp($info['last_update']),
             'navigation'       => (isset($info['navigation'])) ? $info['navigation'] : '',
         ]);
     }
@@ -210,20 +207,22 @@ class Template
     private function config(Array $data = array())
     {
         $merge = array_merge(array(
-            'lang'             => Cyaneus::config('site')->language,
+            'site_lang'             => Cyaneus::config('site')->language,
             'site_url'         => Cyaneus::config('site')->url,
             'site_title'       => Cyaneus::config('site')->name,
             'site_description' => Cyaneus::config('site')->description,
-            'generator'        => Cyaneus::config('site')->generator,
-            'author'           => Cyaneus::config('site')->author,
-            'template'         => Cyaneus::config('site')->template_name,
-            'rss_url'          => Cyaneus::config('path')->rss,
-            'css_url'          => Cyaneus::config('path')->css,
+            'site_generator'        => Cyaneus::config('site')->generator,
+            'site_author'           => Cyaneus::config('site')->author,
+            'site_template'         => Cyaneus::config('site')->template_name,
+            'site_rss_url'          => Cyaneus::config('path')->rss,
+            'site_css_url'          => Cyaneus::config('path')->css,
             ),$data);
         return $merge;
     }
 
     public function moveCustom() {
+
+        Factory::move(['style.css','images']);
 
     }
 }
