@@ -80,4 +80,19 @@ class Cyaneus
         return $path.'.'.$ext;
     }
 
+    /**
+     * Determine if an IP is within a specific range.
+     * @param  String  $ip     Current request IP
+     * @param  Array   $ranges Array of ranges or IP
+     * @return boolean
+     */
+    public function ipValidator($ip, Array $ranges) {
+
+        foreach ($ranges as $range) {
+            if(ip_in_range($ip, $range)) return true;
+            continue;
+        }
+        return false;
+    }
+
 }
