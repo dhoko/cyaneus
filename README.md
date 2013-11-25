@@ -74,7 +74,7 @@ You can access to many variables in your template with this syntax : `{{my_var}}
 
 ### Exemple of a template
 
-```markup
+```html
 <!doctype html>
 <html lang="{{lang}}">
 <head>
@@ -122,7 +122,7 @@ We loop on content-index to build a string. This string will be append to `{{con
 
 Ex: 
 
-```markup
+```html
 <section id="main">
   <header>
     <h1>
