@@ -23,7 +23,7 @@ if(isset($_GET['github'])) {
         }
 
         $build = (new Cyaneus\Build())->setHook('github')->init()->run();
-        die('Build done');
+
 
     } catch (\Exception $e) {
         Cyaneus\Helpers\Log::server($e->getMessage());

@@ -1,7 +1,7 @@
 <?php
 namespace Cyaneus\Hooks;
 use Cyaneus\Cyaneus;
-use \RecursiveDirectoryIterator;
+use \RecursiveIteratorIterator;
 use \RecursiveDirectoryIterator;
 use \ZipArchive;
 /**
