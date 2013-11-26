@@ -1,4 +1,10 @@
 <?php
+
+namespace Cyaneus\Helpers;
+use Cyaneus\Cyaneus;
+use Cyaneus\Helpers\Log;
+use Cyaneus\Helpers\String;
+
 class Factory
 {
     /**
@@ -37,7 +43,7 @@ class Factory
             }
 
             if(!file_put_contents($file,$content)) {
-                throw new RuntimeException('Cannot write the file : '.$file);
+                throw new \RuntimeException('Cannot write the file : '.$file);
             }
         }
 
@@ -76,26 +82,26 @@ class Factory
      */
     public static function picture(Array $config)
     {
-        if(!empty($config)) {
+        // if(!empty($config)) {
 
-            klog('Find an image attach to the current post');
-            // [0] => w ---- [1] => h
-            $_info = getimagesize(DRAFT.DIRECTORY_SEPARATOR.$config['path']);
-            $image = new PHPImageWorkshop\ImageWorkshop(array(
-                    'imageFromPath' => DRAFT.DIRECTORY_SEPARATOR.$config['path'],
-            ));
+        //     klog('Find an image attach to the current post');
+        //     // [0] => w ---- [1] => h
+        //     $_info = getimagesize(DRAFT.DIRECTORY_SEPARATOR.$config['path']);
+        //     $image = new PHPImageWorkshop\ImageWorkshop(array(
+        //             'imageFromPath' => DRAFT.DIRECTORY_SEPARATOR.$config['path'],
+        //     ));
 
-            if (THUMB_W < $_info[0]) {
-                $image->resizeInPixel(THUMB_W, null, true);
-            }else{
-                $image->resizeInPixel($_info[0], null, true);
-            }
-             //backgroundColor transparent, only for PNG (otherwise it will be white if set null)
-            klog('Record file config '.var_export($config,true));
-            klog('Record file '.STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR.$config['basename']);
-            // (file_path,file_name,create_folder,background_color,quality)
-            return $image->save(STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR, $config['basename'], true, null, 85);
-        }
+        //     if (THUMB_W < $_info[0]) {
+        //         $image->resizeInPixel(THUMB_W, null, true);
+        //     }else{
+        //         $image->resizeInPixel($_info[0], null, true);
+        //     }
+        //      //backgroundColor transparent, only for PNG (otherwise it will be white if set null)
+        //     klog('Record file config '.var_export($config,true));
+        //     klog('Record file '.STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR.$config['basename']);
+        //     // (file_path,file_name,create_folder,background_color,quality)
+        //     return $image->save(STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR, $config['basename'], true, null, 85);
+        // }
     }
 
     /**
@@ -153,7 +159,7 @@ class Factory
             exec(escapeshellcmd('cp -r '.$origin.' '.$destination).' 2>&1', $cp_output, $cp_error);
 
              if($cp_output) {
-                throw new RuntimeException('An error has occurred with cp: '.var_export($cp_output, true));
+                throw new \RuntimeException('An error has occurred with cp: '.var_export($cp_output, true));
             }
         }
 

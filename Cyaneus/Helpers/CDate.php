@@ -1,4 +1,9 @@
 <?php
+namespace Cyaneus\Helpers;
+use Cyaneus\Cyaneus;
+use \DateTime;
+use \DateTimeZone;
+
 class CDate
 {
     /**

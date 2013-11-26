@@ -1,4 +1,8 @@
 <?php
+namespace Cyaneus\Helpers;
+use Cyaneus\Cyaneus;
+use Cyaneus\Helpers\CDate;
+
 /**
  * Log them all
  * Log file is store in :

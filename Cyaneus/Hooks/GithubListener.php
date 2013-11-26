@@ -1,4 +1,7 @@
 <?php
+namespace Cyaneus\Hooks;
+use Cyaneus\Cyaneus;
+
 /**
  * Get content of a repository from a Github Webhook
  */
@@ -23,7 +26,7 @@ class GithubListener extends AbstractHookListener
         exec(escapeshellcmd($wget.$url.' -O '.$file).' 2>&1', $wget_output, $wget_error);
 
         if($wget_error) {
-            throw new RuntimeException('An error has occurred with wget: '.var_export($wget_output, true));
+            throw new \RuntimeException('An error has occurred with wget: '.var_export($wget_output, true));
         }
 
         $this->extract($file);

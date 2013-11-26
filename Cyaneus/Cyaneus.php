@@ -1,4 +1,8 @@
 <?php
+
+namespace Cyaneus;
+use Cyaneus\Helpers\Factory;
+
 class Cyaneus
 {
     private static $config = [];
@@ -28,7 +32,7 @@ class Cyaneus
     public static function config($about)
     {
         if( !isset(self::$config[$about]) ) {
-            throw new RuntimeException('Cannot find your configuration : '.$about);
+            throw new \RuntimeException('Cannot find your configuration : '.$about);
         }
 
         return (object) self::$config[$about];

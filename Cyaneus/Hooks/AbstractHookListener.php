@@ -1,4 +1,9 @@
 <?php
+namespace Cyaneus\Hooks;
+use Cyaneus\Cyaneus;
+use \RecursiveIteratorIterator;
+use \RecursiveDirectoryIterator;
+use \ZipArchive;
 /**
 *   Hook listener
 */
@@ -67,15 +72,15 @@ abstract class AbstractHookListener
         $open = $archive->open($file);
 
         if($open != true) {
-            throw new Exception('Cannot open '.$file.' with unzip(): Erreur '.$open);
+            throw new \Exception('Cannot open '.$file.' with unzip(): Erreur '.$open);
         }
 
         if(! $archive->extractTo($this->path)) {
-            throw new Exception('Cannot extract '.$file.' to '.$destination.' with unzip()');
+            throw new \Exception('Cannot extract '.$file.' to '.$destination.' with unzip()');
         }
 
         if(! $archive->close()) {
-            throw new Exception('Cannot open '.$file.' with unzip()');
+            throw new \Exception('Cannot open '.$file.' with unzip()');
         }
 
         // Remove the zip at the end

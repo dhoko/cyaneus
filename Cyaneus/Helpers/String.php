@@ -1,4 +1,7 @@
 <?php
+namespace Cyaneus\Helpers;
+use Cyaneus\Cyaneus;
+
 /**
  * Some helpers for strings
  */
@@ -28,7 +31,7 @@ class String
      */
     public static function convert($data,$format = 'markdown')
     {
-        return MarkdownExtended($data);
+        return \MarkdownExtended($data);
         // return SmartyPants(MarkdownExtended($data));
     }
 
