@@ -3,6 +3,7 @@ namespace Cyaneus\Template;
 use Cyaneus\Cyaneus;
 use Cyaneus\Helpers\CDate;
 use Cyaneus\Helpers\Factory;
+use Cyaneus\Helpers\String;
 
 /**
 * Main class to build generate pages from templates
@@ -38,29 +39,9 @@ class Template
     }
 
 
-
-    /**
-     * Replace var in a template from an array [key=>value]
-     * @param Array $opt Options of data to bind
-     * @param String $string Template string
-     * @return String Template with datas
-     */
-    private function replace(Array $opt, $string)
-    {
-        if(empty($string)) {
-            throw new \Exception("Cannot fill an empty string");
-        }
-
-        $_data = array();
-        foreach ($opt as $key => $value) {
-            $_data['{{'.$key.'}}'] = $value;
-        }
-        return strtr($string,$_data);
-    }
-
     private function navigation()
     {
-        return $this->replace(self::config(), $this->template['navigation']);
+        return String::replace(self::config(), $this->template['navigation']);
     }
 
     /**
@@ -77,7 +58,7 @@ class Template
         $data['config'] = array_merge($this->config, $this->buildKeyTemplate($data['config'], $data['html']));
 
         if($content){
-            return $this->replace($data['config'],$content);
+            return String::replace($data['config'],$content);
         }
     }
 
@@ -94,7 +75,7 @@ class Template
         $content = $this->template[$context]['content'];
 
         if($content){
-            return $this->replace($data,$content);
+            return String::replace($data,$content);
         }
     }
 
@@ -134,7 +115,7 @@ class Template
 
             }
             $_tmp = $this->config($_data);
-            $_pages[$page] = $this->replace($_tmp,$this->template[$page]['main']);
+            $_pages[$page] = String::replace($_tmp,$this->template[$page]['main']);
 
         }
 
@@ -176,33 +157,14 @@ class Template
 
     public function sitemap(Array $data)
     {
-        $header = '<?xml version="1.0" encoding="UTF-8"?><!-- generator="'.Cyaneus::config('site')->generator.'" -->';
-        $header .= '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-
-        $url = function ($data) {
-            // var_dump(date('c',$data['timestamp_upRaw'])); exit();
-            $path = $data['post_url'];
-            $update = CDate::format($data['post_timestamp']);
-            $freq = (isset($data['type']) && $data['type'] === 'page') ? 'daily' : 'monthly';
-            $priority = (isset($data['type']) && $data['type'] === 'page') ? '0.6' : '0.2';
-            if($data['post_url'] === 'index.html') {
-                $priority = '1.0';
-                $path = Cyaneus::config('path')->url;
-            }
-            $url = '<url>'."\n";
-            $url .= "\t".'<loc>%s</loc>'."\n";
-            $url .= "\t".'<lastmod>%s</lastmod>'."\n";
-            $url .= "\t".'<changefreq>%s</changefreq>'."\n";
-            $url .= "\t".'<priority>%.1f</priority>'."\n";
-            $url .= '</url>';
-            return sprintf($url,$path,$update,$freq,$priority);
-        };
-        foreach ($data as $element) {
-            $header .= "\n".$url(array_merge($this->config, $this->buildKeyTemplate($element['config'], $element['html'])));
-        }
-
-        $header .= "\n".'</urlset>';
-        return $header;
+        $sitemap = new Cyaneus\Template\Models\SiteMap([
+            'tags'      => $this->config(),
+            'templates' => [
+                'main'    => file_get_contents(Cyaneus::config('path')->ctemplate.'sitemap.xml'),
+                'content' => file_get_contents(Cyaneus::config('path')->ctemplate.'sitemap-content.xml')
+            ]
+        ]);
+        return $sitemap->build();
     }
 
     /**

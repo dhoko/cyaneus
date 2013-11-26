@@ -18,6 +18,10 @@ class Cyaneus
         require __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'config.php';
 
         self::$config['site'] = $cyaneus;
+        // Some paths for custom Cyaneus Resources
+        self::$config['site']['resources'] = __DIR__.DIRECTORY_SEPARATOR.'Resources'.DIRECTORY_SEPARATOR;
+        self::$config['site']['ctemplate'] = self::$config['site']['resources'].DIRECTORY_SEPARATOR.'Template'.DIRECTORY_SEPARATOR;
+
         self::$config['path'] = self::buildPathConfig($cyaneus);
 
         Factory::buildPath();

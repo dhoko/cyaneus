@@ -70,6 +70,23 @@ class String
         return (isset($match[1])) ? $match[1] : '';
     }
 
+    /**
+     * Replace var in a template from an array [key=>value]
+     * @param Array $opt Options of data to bind
+     * @param String $string Template string
+     * @return String Template with datas
+     * @throws InvalidArgumentsExcepption If you pass an empty template
+     */
+    public static function replace(Array $opt, $string)
+    {
+        if(empty($string)) {
+            throw new \InvalidArgumentsException("Cannot fill an empty string");
+        }
 
-
+        $_data = array();
+        foreach ($opt as $key => $value) {
+            $_data['{{'.$key.'}}'] = $value;
+        }
+        return strtr($string,$_data);
+    }
 }
