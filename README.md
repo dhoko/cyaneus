@@ -10,6 +10,9 @@ A static PHP blog generator
 4. Create a repository on Github and attach a webhook to `yousite.me/upload-folder/?github`
 5. Done
 
+> You must use this script if you have : 
+- Wget on your system, yup it does not work on a Windows Server yet.
+
 
 ## Write a post
 
