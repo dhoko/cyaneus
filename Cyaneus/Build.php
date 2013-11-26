@@ -27,18 +27,12 @@ class Build
     private $files;
 
     /**
-     * A DateTime for logs
-     * @var String
-     */
-    private $datetime;
-
-    /**
      * Init the build process, and set a datetime
      * @return Build   Build instance
      */
     public function __construct()
     {
-        $this->datetime = CDate::datetime();
+        define('CYANEUS_DATETIME',CDate::datetime());
         return $this;
     }
 

@@ -5,16 +5,64 @@ use Cyaneus\Cyaneus;
 use Cyaneus\Helpers\CDate;
 use Cyaneus\Helpers\Factory;
 
+/**
+ * Model for a Sitemap
+ */
 class Sitemap extends AbstractTemplateModel
 {
 
 
     public function build()
     {
-
+        $tags = $this->getTags([
+                    'sitemap_url'       => '',
+                    'sitemap_date'      => CYANEUS_DATETIME,
+                    'sitemap_frequency' => '',
+                    'sitemap_priority'  => '',
+                ]);
     }
 
-    private function get() {
+    /**
+     * Compute the priority for a page
+     * @param  String $type type of page. page || anything
+     * @param  String $url  Current page url
+     * @return String
+     */
+    private function computePriority($type, $url)
+    {
+        if( strstr('index.html', $url) ) {
+            return '1.0';
+        }
+
+        return ($type === 'page') ? '0.6' : '0.2';
+    }
+
+    /**
+     * Compute the frequency of update for a page
+     * It will be
+     *     - daily
+     *     - monthly
+     * @param  String $type Type of content
+     * @return String
+     */
+    private function computeFrequency($type)
+    {
+        return ($type === 'page') ? 'daily' : 'monthly';
+    }
+
+    /**
+     * Compure the URl for your page
+     * @param  String $url Current url
+     * @return String
+     */
+    private function computeUrl($url) {
+
+        return ( !strstr('index.html', $url) ) ? $url : Cyaneus::config('path')->url;
+    }
+
+
+    private function get()
+    {
         $header = '<?xml version="1.0" encoding="UTF-8"?><!-- generator="'.Cyaneus::config('site')->generator.'" -->';
         $header .= '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
 
