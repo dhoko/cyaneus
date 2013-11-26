@@ -42,13 +42,17 @@ abstract class AbstractTemplateModel
             throw new \InvalidArgumentException('You must set a template key with it\'s assiciative array');
         }
 
-        if( empty($config['pages']) ) {
-            throw new \InvalidArgumentException('You must set a pages key with it\'s assiciative array');
-        }
-
         $this->tags     = $config['tags'];
-        $this->template = $config['template'];
-        $this->pages    = $config['pages'];
+        $this->template = $config['templates'];
+    }
+
+    /**
+     * Add pages to the model
+     * @param Array $pages
+     */
+    public function setPages(Array $pages)
+    {
+        $this->pages = $pages;
     }
 
     /**

@@ -18,10 +18,6 @@ class Cyaneus
         require __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'config.php';
 
         self::$config['site'] = $cyaneus;
-        // Some paths for custom Cyaneus Resources
-        self::$config['site']['resources'] = __DIR__.DIRECTORY_SEPARATOR.'Resources'.DIRECTORY_SEPARATOR;
-        self::$config['site']['ctemplate'] = self::$config['site']['resources'].DIRECTORY_SEPARATOR.'Template'.DIRECTORY_SEPARATOR;
-
         self::$config['path'] = self::buildPathConfig($cyaneus);
 
         Factory::buildPath();
@@ -54,6 +50,8 @@ class Cyaneus
         $url      = $config['url'];
         $site     = $base.DIRECTORY_SEPARATOR;
         $postPath = $site.$config['articles'];
+        // Some paths for custom Cyaneus Resources
+        $resources = __DIR__.DIRECTORY_SEPARATOR.'Resources'.DIRECTORY_SEPARATOR;
 
         return [
             'base'          => $base,
@@ -67,7 +65,10 @@ class Cyaneus
             'site'          => $site,
             'css'           => $url.'style.css',
             'rss'           => $url.'rss.xml',
-            'sitemap'       => $url.'sitemap.xml'
+            'sitemap'       => $url.'sitemap.xml',
+            'resources'     => $resources,
+            'ctemplate'     => $resources.DIRECTORY_SEPARATOR.'Template'.DIRECTORY_SEPARATOR,
+
         ];
     }
 

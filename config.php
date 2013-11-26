@@ -7,7 +7,7 @@ $cyaneus = [
   // Site name
   'name' => '',
   // Site main url, must be end with /
-  'url' => '',
+  'url' => 'http://localhost:8000/',
   // Language of your site
   'language' => 'fr-FR',
   // Webmaster
@@ -57,5 +57,5 @@ $cyaneus = [
    *   - https://github.com/ + PSEUDO + REPOSITORY + /zipball/ + BRANCH
    * The default branch is master
    */
-  'repositoryUrl' => ''
+  'repositoryUrl' => 'https://github.com/dhoko/blog/zipball/angular_post'
 ];

@@ -99,21 +99,21 @@ class Build
 
             foreach ($this->content as $post) {
                 $posts[] = [
-                    'html' => $template->post([
-                        'config' => $post['config'],
-                        'html'   => String::convert($post['raw'])
-                    ]),
+                    // 'html' => $template->post([
+                    //     'config' => $post['config'],
+                    //     'html'   => String::convert($post['raw'])
+                    // ]),
                     'config' => $post['config']
                 ];
             }
 
-            $pages = $template->pages($posts);
+            // $pages = $template->pages($posts);
             $template->moveCustom();
 
-            Factory::make($pages);
-            Factory::make($posts);
-            Factory::make(['sitemap'=>$template->sitemap($posts)]);
-
+            // Factory::make($pages);
+            // Factory::make($posts);
+            // Factory::make(['sitemap'=>$template->sitemap($posts)]);
+            $template->sitemap($posts);
             die('Build done');
 
         } catch (Exception $e) {

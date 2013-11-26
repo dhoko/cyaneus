@@ -4,6 +4,7 @@ use Cyaneus\Cyaneus;
 use Cyaneus\Helpers\CDate;
 use Cyaneus\Helpers\Factory;
 use Cyaneus\Helpers\String;
+use Cyaneus\Template\Models as Models;
 
 /**
 * Main class to build generate pages from templates
@@ -11,7 +12,7 @@ use Cyaneus\Helpers\String;
 class Template
 {
     private $template = [];
-    private $config = [];
+    private $config;
 
     /**
      * Build our basic configuration for a template, such as default config var and template string
@@ -157,13 +158,15 @@ class Template
 
     public function sitemap(Array $data)
     {
-        $sitemap = new Cyaneus\Template\Models\SiteMap([
+        $sitemap = new Models\Sitemap([
             'tags'      => $this->config(),
             'templates' => [
                 'main'    => file_get_contents(Cyaneus::config('path')->ctemplate.'sitemap.xml'),
                 'content' => file_get_contents(Cyaneus::config('path')->ctemplate.'sitemap-content.xml')
             ]
         ]);
+
+        $sitemap->setPages($data);
         return $sitemap->build();
     }
 

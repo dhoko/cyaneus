@@ -11,7 +11,6 @@ use Cyaneus\Helpers\Factory;
 class Sitemap extends AbstractTemplateModel
 {
 
-
     public function build()
     {
         $tags = $this->getTags([
@@ -20,6 +19,10 @@ class Sitemap extends AbstractTemplateModel
                     'sitemap_frequency' => '',
                     'sitemap_priority'  => '',
                 ]);
+
+        foreach ($this->pages as $key => $value) {
+            dd($value);
+        }
     }
 
     /**
