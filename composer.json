@@ -1,0 +1,14 @@
+{
+    "name": "Cyaneus",
+    "type": "library",
+    "description": "Static site generator from Github hooks",
+    "homepage": "https://github.com/dhoko/cyaneus",
+    "keywords": ["markdown","static","github","hook"],
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4"
+    },
+    "autoload": {
+        "psr-0" : {"Cyaneus\\" : ''}
+    }
+}
