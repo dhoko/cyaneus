@@ -1,165 +1,234 @@
-<?php 
+<?php
 /**
 * Main class to build generate pages from templates
 */
-class Template {
+class Template
+{
+    private $template = [];
+    private $config = [];
 
-	private $template = [];
-	private $config = [];
+    /**
+     * Build our basic configuration for a template, such as default config var and template string
+     * @param Array $config Cyaneus COnfig
+     */
+    public function __construct(Array $config)
+    {
+        $this->config = $config;
+        $this->template = array(
+            'index' => array(
+                'main'    => file_get_contents(Cyaneus::config('path')->template.'index.html'),
+                'content' => file_get_contents(Cyaneus::config('path')->template.'content-index.html'),
+                ),
+            'post' => file_get_contents(Cyaneus::config('path')->template.'post.html'),
+            'archives' => array(
+                'main'    => file_get_contents(Cyaneus::config('path')->template.'index.html'),
+                'content' => file_get_contents(Cyaneus::config('path')->template.'content-index.html'),
+                ),
+            'rss' => array(
+                'main'    => file_get_contents(Cyaneus::config('path')->template.'rss.html'),
+                'content' => file_get_contents(Cyaneus::config('path')->template.'content-rss.html'),
+                ),
+            'navigation' => file_get_contents(Cyaneus::config('path')->template.'navigation.html')
+             );
+    }
 
-	/**
-	 * Build our basic configuration for a template, such as default config var and template string 
-	 * @param Array $config Cyaneus COnfig
-	 */
-	public function __construct() {
 
-		$this->template = array(
-			'index' => array(
-				'main' 	  => file_get_contents(TEMPLATEPATH.'index.html'),
-				'content' => file_get_contents(TEMPLATEPATH.'content-index.html'),
-				),
-			'post' => file_get_contents(TEMPLATEPATH.'post.html'),
-			'archives' => array(
-				'main' 	  => file_get_contents(TEMPLATEPATH.'index.html'),
-				'content' => file_get_contents(TEMPLATEPATH.'content-index.html'),
-				),
-			'rss' => array(
-				'main' 	  => file_get_contents(TEMPLATEPATH.'rss.html'),
-				'content' => file_get_contents(TEMPLATEPATH.'content-rss.html'),
-				),
-			'navigation' => file_get_contents(TEMPLATEPATH.'navigation.html')
-			 );
 
-	}
+    /**
+     * Replace var in a template from an array [key=>value]
+     * @param Array $opt Options of data to bind
+     * @param String $string Template string
+     * @return String Template with datas
+     */
+    private function replace(Array $opt, $string)
+    {
+        if(empty($string)) {
+            throw new Exception("Cannot fill an empty string");
+        }
 
-	/**
-	 * Replace var in a template from an array [key=>value]
-	 * @param Array $opt Options of data to bind
-	 * @param String $string Template string
-	 * @return String Template with datas
-	 */
-	private function replace(Array $opt, $string) {
-		if(empty($string)) throw new Exception("Cannot fill an empty string");
-		$_data = array();
-		foreach ($opt as $key => $value) {
-			$_data['{{'.$key.'}}'] = $value;
-		}
-		return strtr($string,$_data);
-	}
+        $_data = array();
+        foreach ($opt as $key => $value) {
+            $_data['{{'.$key.'}}'] = $value;
+        }
+        return strtr($string,$_data);
+    }
 
-	/**
-	 * Build loop element such as content on a home page
-	 * @param String $context Template to build
-	 * @param Array  $data Options of data to bind
-	 * @return String Template with datas
-	 */
-	public function loop($context,Array $data) {
-		$data    = $this->config($data);
-		$content = $this->template[$context]['content'];
-		if($content){
-			try {
-				return $this->replace($data,$content);
-			} catch (Exception $e) {
-				klog($e->getMessage(),"error");
-			}
-		}
-	}
+    private function navigation()
+    {
+        return $this->replace(self::config(), $this->template['navigation']);
+    }
 
-	public function navigation() {
-		return $this->replace($this->config(array()), $this->template['navigation']);
-	}
+    /**
+     * Build a post
+     * @param String $context Template to build
+     * @param Array  $data Options of data to bind
+     * @return String Template with datas
+     */
+    public function post(Array $data)
+    {
+        $_content = '';
+        $content  = $this->template['post'];
+        $data['config']['navigation'] = $this->navigation();
+        $data['config'] = array_merge($this->config, $this->buildKeyTemplate($data['config'], $data['html']));
 
-	/**
-	 * Build a page
-	 * @param String $context Template to build
-	 * @param Array  $data Options of data to bind
-	 * @return String Template with datas
-	 */
-	public function page($context,Array $data){
-		$_content = '';
-		$content = $this->template[$context]['main'];
-		foreach ($data['content'] as $post_find) {
-			$_content .= $this->loop($context,$post_find)."\n";
-		}
-		$data['content'] = $_content;
-		$data['navigation'] = $this->navigation();
-		$data = $this->config($data);
-		if($content){
-			try {
-				return $this->replace($data,$content);
-			} catch (Exception $e) {
-				klog($e->getMessage(),"error");
-			}
-		}
-	}
+        if($content){
+            return $this->replace($data['config'],$content);
+        }
+    }
 
-	/**
-	 * Build a post
-	 * @param String $context Template to build
-	 * @param Array  $data Options of data to bind
-	 * @return String Template with datas
-	 */
-	public function post(Array $data){
-		$_content = '';
-		$content = $this->template['post'];
-		$data['navigation'] = $this->navigation();
-		$data = $this->config($data);
-		if($content){
-			try {
-				return $this->replace($data,$content);
-			} catch (Exception $e) {
-				klog($e->getMessage(),"error");
-			}
-		}
-	}
+    /**
+     * Build loop element such as content on a home page
+     * @param String $context Template to build
+     * @param Array  $data Options of data to bind
+     * @return String Template with datas
+     */
+    public function loop($context,Array $data)
+    {
 
-	public function sitemap(Array $data) {
-		$header = '<?xml version="1.0" encoding="UTF-8"?><!-- generator="'.GENERATOR.'" -->';
-		$header .= '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+        $data    = array_merge($this->config, $data);
+        $content = $this->template[$context]['content'];
 
-		$url = function($data) {
-			// var_dump(date('c',$data['timestamp_upRaw'])); exit();
-			$path = URL.$data['post_url'];
-			$update = date('c',$data['timestamp_upRaw']);
-			$freq = (isset($data['type']) && $data['type'] === 'page') ? 'daily' : 'monthly';
-			$priority = (isset($data['type']) && $data['type'] === 'page') ? '0.6' : '0.2';
-			if($data['post_url'] === 'index.html') {
-				$priority = '1.0';
-				$path = URL;
-			}
-			$url = '<url>'."\n";
-			$url .=	"\t".'<loc>%s</loc>'."\n";
-			$url .=	"\t".'<lastmod>%s</lastmod>'."\n";
-			$url .=	"\t".'<changefreq>%s</changefreq>'."\n";
-			$url .=	"\t".'<priority>%.1f</priority>'."\n";
-			$url .= '</url>';
-			return sprintf($url,$path,$update,$freq,$priority);
-		};
-		foreach ($data as $element) {
-			$header .= "\n".$url($element);
-		}
+        if($content){
+            return $this->replace($data,$content);
+        }
+    }
 
-		$header .= "\n".'</urlset>';
-		return $header;
-	}
+    public function pages(Array $config)
+    {
+        if(empty($config)) {
+            throw new RuntimeException('We cannot build pages without a config');
+        }
 
-	/**
-	 * Build configuration from tge default one
-	 * @param Array  $data Options of data to bind
-	 * @return Array Configuration var to bind
-	 */
-	private function config(Array $data) {
-		$merge = array_merge(array(
-			'lang'     	  	=> LANGUAGE,
-			'site_url' 	  	=> URL,
-			'site_title'  	=> NAME,
-			'site_description' => DESCRIPTION,
-			'generator'  	  	=> GENERATOR,
-			'author'   	  	=> AUTHOR,
-			'template'    => TEMPLATE_NAME,
-			'rss_url'     => RSS,
-			'css_url'     => CSS,
-			),$data);
-		return $merge;
-	}
+        return $this->page($config);
+    }
+
+
+    /**
+     * Build a page
+     * @param String $context Template to build
+     * @param Array  $data Options of data to bind
+     * @return String Template with datas
+     */
+    public function page(Array $data)
+    {
+        $_pages = [];
+        $_data  = [];
+
+        $pages = array_keys($this->template);
+
+        foreach ($pages as $page) {
+
+            if($page === 'navigation' || $page === 'post') {
+                continue;
+            }
+            $_data['content'] = '';
+            foreach ($data as $post) {
+
+                $_data['content'] .= $this->loop($page,$this->buildKeyTemplate($post['config'],$post['html']));
+                $_data['navigation'] = $this->navigation();
+
+            }
+            $_tmp = $this->config($_data);
+            $_pages[$page] = $this->replace($_tmp,$this->template[$page]['main']);
+
+        }
+
+        return $_pages;
+    }
+
+
+    /**
+    * Main configuration for Template's keys
+    * These keys are available in a template
+    * @param  Array $info Default configuration
+    * @return Array       template keys
+    */
+    private function buildKeyTemplate($info, $content)
+    {
+        if(!isset($info['last_update'])) {
+            $info['last_update'] = $info['added_time'];
+        }
+        return $this->config([
+            'post_url'             => Cyaneus::config('path')->postUrl.$info['url'].'.html',
+            'post_title'           => $info['title'],
+            'post_date'            => CDate::formated($info['added_time']),
+            'post_lang'            => (isset($info['plang'])) ? $info['plang'] : $this->config['lang'],
+            'post_update'          => CDate::formated($info['last_update']),
+            'post_date_rss'        => CDate::rss($info['last_update']),
+            'post_description'     => $info['description'],
+            'post_content'         => $content,
+            'post_author'          => $info['author'],
+            'post_tags'            => $info['tags'],
+            'post_timestamp'       => $info['added_time'],
+            'post_timestamp_up'    => $info['last_update'],
+            'post_timestamp_upRaw' => CDate::timestamp($info['last_update']),
+            'navigation'       => (isset($info['navigation'])) ? $info['navigation'] : '',
+        ]);
+    }
+
+
+
+
+    public function sitemap(Array $data)
+    {
+        $header = '<?xml version="1.0" encoding="UTF-8"?><!-- generator="'.Cyaneus::config('site')->generator.'" -->';
+        $header .= '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
+        $url = function ($data) {
+            // var_dump(date('c',$data['timestamp_upRaw'])); exit();
+            $path = $data['post_url'];
+            $update = CDate::format($data['post_timestamp']);
+            $freq = (isset($data['type']) && $data['type'] === 'page') ? 'daily' : 'monthly';
+            $priority = (isset($data['type']) && $data['type'] === 'page') ? '0.6' : '0.2';
+            if($data['post_url'] === 'index.html') {
+                $priority = '1.0';
+                $path = Cyaneus::config('path')->url;
+            }
+            $url = '<url>'."\n";
+            $url .= "\t".'<loc>%s</loc>'."\n";
+            $url .= "\t".'<lastmod>%s</lastmod>'."\n";
+            $url .= "\t".'<changefreq>%s</changefreq>'."\n";
+            $url .= "\t".'<priority>%.1f</priority>'."\n";
+            $url .= '</url>';
+            return sprintf($url,$path,$update,$freq,$priority);
+        };
+        foreach ($data as $element) {
+            $header .= "\n".$url(array_merge($this->config, $this->buildKeyTemplate($element['config'], $element['html'])));
+        }
+
+        $header .= "\n".'</urlset>';
+        return $header;
+    }
+
+    /**
+     * Build configuration from tge default one
+     * @param Array  $data Options of data to bind
+     * @return Array Configuration var to bind
+     */
+    private function config(Array $data = array())
+    {
+        $merge = array_merge(array(
+            'site_lang'        => Cyaneus::config('site')->language,
+            'site_url'         => Cyaneus::config('site')->url,
+            'site_title'       => Cyaneus::config('site')->name,
+            'site_description' => Cyaneus::config('site')->description,
+            'site_generator'   => Cyaneus::config('site')->generator,
+            'site_author'      => Cyaneus::config('site')->author,
+            'site_template'    => Cyaneus::config('site')->template_name,
+            'site_rss_url'     => Cyaneus::config('path')->rss,
+            'site_css_url'     => Cyaneus::config('path')->css,
+            ),$data);
+        return $merge;
+    }
+
+    /**
+     * Move custom elements from the template
+     * Default :
+     *     - style.css
+     *     - images
+     */
+    public function moveCustom()
+    {
+        Factory::move(['style.css','images', 'scripts']);
+    }
 }
