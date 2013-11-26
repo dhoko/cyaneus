@@ -1,4 +1,9 @@
 <?php
+namespace Cyaneus\Template;
+use Cyaneus\Cyaneus;
+use Cyaneus\Helpers\CDate;
+use Cyaneus\Helpers\Factory;
+
 /**
 * Main class to build generate pages from templates
 */
@@ -43,7 +48,7 @@ class Template
     private function replace(Array $opt, $string)
     {
         if(empty($string)) {
-            throw new Exception("Cannot fill an empty string");
+            throw new \Exception("Cannot fill an empty string");
         }
 
         $_data = array();
@@ -96,7 +101,7 @@ class Template
     public function pages(Array $config)
     {
         if(empty($config)) {
-            throw new RuntimeException('We cannot build pages without a config');
+            throw new \RuntimeException('We cannot build pages without a config');
         }
 
         return $this->page($config);

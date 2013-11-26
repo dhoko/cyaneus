@@ -1,4 +1,12 @@
 <?php
+
+namespace Cyaneus;
+use Cyaneus\Cyaneus;
+use Cyaneus\Template\Template;
+use Cyaneus\Helpers\Log;
+use Cyaneus\Helpers\CDate;
+use Cyaneus\Helpers\Factory;
+
 /**
  * Cyaneus Build method
  * It will compile the site for you
