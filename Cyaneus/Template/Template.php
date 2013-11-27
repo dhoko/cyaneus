@@ -1,9 +1,7 @@
 <?php
 namespace Cyaneus\Template;
 use Cyaneus\Cyaneus;
-use Cyaneus\Helpers\CDate;
 use Cyaneus\Helpers\Factory;
-use Cyaneus\Helpers\String;
 use Cyaneus\Template\Models as Models;
 
 /**
@@ -24,7 +22,11 @@ class Template
         $this->nav = $this->navigation();
     }
 
-
+    /**
+     * Build the site navigation
+     * You must have a navigation.html in the template folder
+     * @return String HTML
+     */
     private function navigation()
     {
         $nav = new Models\Navigation([
@@ -38,8 +40,12 @@ class Template
         return $render;
     }
 
-
-
+    /**
+     * Build the HTML for each pages
+     * @param  Array  $posts List of posts
+     * @param  Array  $pages List of page to build (array of string)
+     * @return Array        [page => HTML]
+     */
     public function pages(Array $posts, Array $pages)
     {
         $render = [];
@@ -63,6 +69,12 @@ class Template
         return $render;
     }
 
+    /**
+     * Build the RSS
+     * @param  Array  $posts List of posts
+     * @param  Array  $pages List of page to build (array of string)
+     * @return String   XML
+     */
     public function rss(Array $posts, Array $pages)
     {
         $rss = new Models\Rss([
@@ -81,6 +93,12 @@ class Template
         return $render;
     }
 
+    /**
+     * Build the sitemap
+     * @param  Array  $posts List of posts
+     * @param  Array  $pages List of page to build (array of string)
+     * @return String XML
+     */
     public function sitemap(Array $posts, Array $pages)
     {
         $sitemap = new Models\Sitemap([
@@ -99,6 +117,11 @@ class Template
         return $render;
     }
 
+    /**
+     * Build all the posts
+     * @param  Array  $posts List of posts
+     * @return Array [post=>HTML]
+     */
     public function posts(Array $posts)
     {
         $_posts = new Models\Post([

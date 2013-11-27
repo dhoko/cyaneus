@@ -112,6 +112,7 @@ class Build
                 'sitemap' => $template->sitemap($posts, ['index','archives']),
             ],false, 'xml');
 
+            unset($template);
             die('Build done');
 
         } catch (Exception $e) {

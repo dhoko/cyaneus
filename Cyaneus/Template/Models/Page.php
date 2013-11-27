@@ -15,11 +15,15 @@ class Page extends AbstractTemplateModel
         return $this->makePages();
     }
 
-    private function makePages() {
-
+    /**
+     * Build the content for a page
+     * @return String HTML template
+     */
+    private function makePages()
+    {
         $content = '';
         $_tags   = [];
-        $_tags = $this->getTags(['content' => $this->makePosts()]);
+        $_tags   = $this->getTags(['content' => $this->makePosts()]);
         $_tags['navigation'] = $this->navigation;
 
         return $this->bindParams($this->template['main'],$_tags);
