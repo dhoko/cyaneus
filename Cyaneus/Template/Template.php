@@ -126,8 +126,8 @@ class Template
     public function xmlPages(Array $posts, Array $pages = array('index','archives'))
     {
         return [
-            'rss'     => $template->rss($posts, $pages),
-            'sitemap' => $template->sitemap($posts, $pages),
+            'rss'     => $this->rss($posts, $pages),
+            'sitemap' => $this->sitemap($posts, $pages),
             ];
     }
 
