@@ -13,9 +13,9 @@ $cyaneus = [
   // Webmaster
   'author' => '',
   // SIte description
-  'description' => 'le troll volant',
+  'description' => '',
   // Template Name
-  'template_name' => 'dhoko-me',
+  'template_name' => 'base',
   // Thumbnail width
   'thumb_w' => 600,
   // Date format to display
