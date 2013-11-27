@@ -113,7 +113,10 @@ class Build
             // Factory::make($pages);
             // Factory::make($posts);
             // Factory::make(['sitemap'=>$template->sitemap($posts)]);
-            $template->rss($posts, ['index','archives']);
+
+
+            $template->posts($posts);
+            // $template->rss($posts, ['index','archives']);
             // $template->sitemap($posts, ['index','archives']);
             die('Build done');
 

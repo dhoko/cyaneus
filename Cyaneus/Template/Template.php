@@ -51,17 +51,17 @@ class Template
      * @param Array  $data Options of data to bind
      * @return String Template with datas
      */
-    public function post(Array $data)
-    {
-        $_content = '';
-        $content  = $this->template['post'];
-        $data['config']['navigation'] = $this->navigation();
-        $data['config'] = array_merge($this->config, $this->buildKeyTemplate($data['config'], $data['html']));
+    // public function post(Array $data)
+    // {
+    //     $_content = '';
+    //     $content  = $this->template['post'];
+    //     $data['config']['navigation'] = $this->navigation();
+    //     $data['config'] = array_merge($this->config, $this->buildKeyTemplate($data['config'], $data['html']));
 
-        if($content){
-            return String::replace($data['config'],$content);
-        }
-    }
+    //     if($content){
+    //         return String::replace($data['config'],$content);
+    //     }
+    // }
 
     /**
      * Build loop element such as content on a home page
@@ -154,7 +154,7 @@ class Template
     }
 
 
-    public function rss(Array $post, Array $pages)
+    public function rss(Array $posts, Array $pages)
     {
         $rss = new Models\Rss([
             'tags'      => $this->config(),
@@ -164,13 +164,15 @@ class Template
             ]
         ]);
 
-        $rss->setPosts($post);
+        $rss->setPosts($posts);
         $rss->setPages($pages);
-        return $rss->build();
+        $render = $rss->build();
+
+        unset($rss);
+        return $render;
     }
 
-
-    public function sitemap(Array $post, Array $pages)
+    public function sitemap(Array $posts, Array $pages)
     {
         $sitemap = new Models\Sitemap([
             'tags'      => $this->config(),
@@ -180,10 +182,31 @@ class Template
             ]
         ]);
 
-        $sitemap->setPosts($post);
+        $sitemap->setPosts($posts);
         $sitemap->setPages($pages);
-        return $sitemap->build();
+        $render = $sitemap->build();
+
+        unset($sitemap);
+        return $render;
     }
+
+    public function posts(Array $posts)
+    {
+        $_posts = new Models\Post([
+            'tags'      => $this->config(),
+            'templates' => [
+                'main' => file_get_contents(Cyaneus::config('path')->template.'post.html'),
+            ]
+        ]);
+
+        $_posts->setPosts($posts);
+        $render = $_posts->build();
+
+        unset($_posts);
+        return $render;
+    }
+
+
 
     /**
      * Build configuration from tge default one
