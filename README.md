@@ -21,15 +21,14 @@ You can write a post with the Markdown syntax.
 
 ### Basic draft for cyaneus
 
+You write these informations with [YAML](http://wikipedia.org/wiki/YAML).
+
 ```
-// A title for your post
-title="This is the end"
-// Some tags
-tags="css3,demosthène,lui"
-author="dhoko"
-description="To be or not to be ?"
-// Language of the post, default will be the one in your config
-plang=en
+title: The Hitchhiker's Guide to the Galaxy
+tags: 42,h2g2,Science fiction
+author: Douglas Adams
+description: The Hitchhiker's Guide to the Galaxy is a comic science fiction series created by Douglas Adams.
+language: en
 
 ==POST==
 
