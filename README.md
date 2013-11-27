@@ -1,6 +1,6 @@
 # Cyaneus
 
-A static PHP blog generator
+A static PHP blog generator from Github WebHook
 
 ## How to
 
