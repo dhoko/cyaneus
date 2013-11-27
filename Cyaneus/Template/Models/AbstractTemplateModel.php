@@ -35,6 +35,12 @@ abstract class AbstractTemplateModel
     protected $posts;
 
     /**
+     * The navigation template
+     * @var String
+     */
+    protected $navigation;
+
+    /**
      * Build a model for a page
      * @param Array $config [tags=>[],pages=>[],template=>[]]
      * @throws InvalidArgumentException If a key is missing
@@ -60,6 +66,15 @@ abstract class AbstractTemplateModel
     public function setPages($pages)
     {
         $this->pages = $pages;
+    }
+
+    /**
+     * Add navigation to the model
+     * @param String template
+     */
+    public function setNavigation($navigation)
+    {
+        $this->navigation = $navigation;
     }
 
     /**
@@ -94,7 +109,7 @@ abstract class AbstractTemplateModel
      * @param  Array  $data Your tags as an associative array
      * @return Array
      */
-    protected function getTags(Array $data)
+    protected function getTags(Array $data = array())
     {
         return array_merge($this->tags,$data);
     }

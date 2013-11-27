@@ -96,7 +96,7 @@ class Build
             $posts = [];
             $pages = [];
             $template = new Template((array) Cyaneus::config('site'));
-            // dd($this->content);
+
             foreach ($this->content as $post) {
                 $posts[] = [
                     'config' => $post['config'],
@@ -104,21 +104,14 @@ class Build
                 ];
             }
 
-            // $pages = $template->pages($posts);
             $template->moveCustom();
-            // Factory::make($pages);
-            // Factory::make($posts);
-            // Factory::make(['sitemap'=>$template->sitemap($posts)]);
+            Factory::make($template->pages($posts,['index','archives']));
+            Factory::make($template->posts($posts),true);
+            Factory::make([
+                'rss'     => $template->rss($posts, ['index','archives']),
+                'sitemap' => $template->sitemap($posts, ['index','archives']),
+            ],false, 'xml');
 
-
-            // $template->pages($posts,['index','archives']);
-            dd($template->pages($posts,['index','archives']));
-
-
-
-            // $template->posts($posts)
-            // $template->rss($posts, ['index','archives']);
-            // $template->sitemap($posts, ['index','archives']);
             die('Build done');
 
         } catch (Exception $e) {

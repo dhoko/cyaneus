@@ -1,0 +1,7 @@
+<item>
+    <title>{{rss_page_title}}</title>
+    <link>{{rss_page_url}}</link>
+    <pubDate>{{rss_page_date}}</pubDate>
+    <author>{{rss_page_author}}</author>
+    <description><![CDATA[{{rss_page_content}}]]></description>
+</item>

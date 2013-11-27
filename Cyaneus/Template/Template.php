@@ -11,7 +11,7 @@ use Cyaneus\Template\Models as Models;
 */
 class Template
 {
-    private $template = [];
+    private $nav;
     private $config;
 
     /**
@@ -21,29 +21,22 @@ class Template
     public function __construct(Array $config)
     {
         $this->config = $config;
-        // $this->template = array(
-        //     'index' => array(
-        //         'main'    => file_get_contents(Cyaneus::config('path')->template.'index.html'),
-        //         'content' => file_get_contents(Cyaneus::config('path')->template.'content-index.html'),
-        //         ),
-        //     'post' => file_get_contents(Cyaneus::config('path')->template.'post.html'),
-        //     'archives' => array(
-        //         'main'    => file_get_contents(Cyaneus::config('path')->template.'index.html'),
-        //         'content' => file_get_contents(Cyaneus::config('path')->template.'content-index.html'),
-        //         ),
-        //     'rss' => array(
-        //         'main'    => file_get_contents(Cyaneus::config('path')->template.'rss.html'),
-        //         'content' => file_get_contents(Cyaneus::config('path')->template.'content-rss.html'),
-        //         ),
-        //     'navigation' => file_get_contents(Cyaneus::config('path')->template.'navigation.html')
-        //      );
+        $this->nav = $this->navigation();
     }
 
 
-    // private function navigation()
-    // {
-    //     return String::replace(self::config(), $this->template['navigation']);
-    // }
+    private function navigation()
+    {
+        $nav = new Models\Navigation([
+                'tags'      => $this->config(),
+                'templates' => [
+                    'main'    => file_get_contents(Cyaneus::config('path')->template.'navigation.html'),
+                ]
+            ]);
+        $render = $nav->build();
+        unset($nav);
+        return $render;
+    }
 
 
 
@@ -60,7 +53,7 @@ class Template
                     'content' => file_get_contents(Cyaneus::config('path')->template.'content-'.$page.'.html')
                 ]
             ]);
-
+            $_page->setNavigation($this->nav);
             $_page->setPosts($posts);
             $_page->setPages($page);
             $render[$page] = $_page->build();
@@ -115,14 +108,13 @@ class Template
             ]
         ]);
 
+        $_posts->setNavigation($this->nav);
         $_posts->setPosts($posts);
         $render = $_posts->build();
 
         unset($_posts);
         return $render;
     }
-
-
 
     /**
      * Build configuration from tge default one
@@ -132,13 +124,13 @@ class Template
     private function config(Array $data = array())
     {
         $merge = array_merge(array(
-            'site_lang'        => Cyaneus::config('site')->language,
-            'site_url'         => Cyaneus::config('site')->url,
-            'site_title'       => Cyaneus::config('site')->name,
-            'site_description' => Cyaneus::config('site')->description,
-            'site_generator'   => Cyaneus::config('site')->generator,
-            'site_author'      => Cyaneus::config('site')->author,
-            'site_template'    => Cyaneus::config('site')->template_name,
+            'site_lang'        => $this->config['language'],
+            'site_url'         => $this->config['url'],
+            'site_title'       => $this->config['name'],
+            'site_description' => $this->config['description'],
+            'site_generator'   => $this->config['generator'],
+            'site_author'      => $this->config['author'],
+            'site_template'    => $this->config['template_name'],
             'site_rss_url'     => Cyaneus::config('path')->rss,
             'site_css_url'     => Cyaneus::config('path')->css,
             ),$data);

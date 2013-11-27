@@ -5,17 +5,17 @@ $cyaneus = [
    */
 
   // Site name
-  'name' => 'Le Colibri libre',
+  'name' => '',
   // Site main url, must be end with /
-  'url' => 'http://localhost:8000/',
+  'url' => '',
   // Language of your site
   'language' => 'fr-FR',
   // Webmaster
   'author' => '',
   // SIte description
-  'description' => 'le troll volant',
+  'description' => '',
   // Template Name
-  'template_name' => 'dhoko-me',
+  'template_name' => 'base',
   // Thumbnail width
   'thumb_w' => 600,
   // Date format to display
@@ -30,7 +30,7 @@ $cyaneus = [
   // Tags you want to edit in your posts
   'tags' => 'title,url,date,tags,description,author,plang',
   // The generator
-  'generator' => 'Cyaneus 1.0 RC1',
+  'generator' => 'Cyaneus 1.0 RC2',
   // Put your drafts in this folder
   'draft' => 'draft',
   // Your posts builds will be store in this folder
@@ -57,5 +57,5 @@ $cyaneus = [
    *   - https://github.com/ + PSEUDO + REPOSITORY + /zipball/ + BRANCH
    * The default branch is master
    */
-  'repositoryUrl' => 'https://github.com/dhoko/blog/zipball/angular_post'
+  'repositoryUrl' => ''
 ];
