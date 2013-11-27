@@ -50,6 +50,8 @@ class Cyaneus
         $url      = $config['url'];
         $site     = $base.DIRECTORY_SEPARATOR;
         $postPath = $site.$config['articles'];
+        // Some paths for custom Cyaneus Resources
+        $resources = __DIR__.DIRECTORY_SEPARATOR.'Resources'.DIRECTORY_SEPARATOR;
 
         return [
             'base'          => $base,
@@ -63,7 +65,10 @@ class Cyaneus
             'site'          => $site,
             'css'           => $url.'style.css',
             'rss'           => $url.'rss.xml',
-            'sitemap'       => $url.'sitemap.xml'
+            'sitemap'       => $url.'sitemap.xml',
+            'resources'     => $resources,
+            'ctemplate'     => $resources.DIRECTORY_SEPARATOR.'Template'.DIRECTORY_SEPARATOR,
+
         ];
     }
 
@@ -82,6 +87,14 @@ class Cyaneus
         }
 
         return $path.'.'.$ext;
+    }
+
+    public static function postUrl($post) {
+        return self::config('path')->postUrl.$post.'.html';
+    }
+
+    public static function pageUrl($page) {
+        return self::config('path')->url.$page.'.html';
     }
 
     /**

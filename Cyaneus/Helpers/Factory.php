@@ -7,12 +7,15 @@ use Cyaneus\Helpers\String;
 
 class Factory
 {
+
     /**
      * Build pages for the site
-     * @param  Array  $pages Configuration of each pages
+     * @param  Array   $pages  Configuration of each pages
+     * @param  boolean $isPost Is it a post ?
+     * @param  string  $ext    File extension
      * @throws RuntimeException If we cannot write the page
      */
-    public static function make(Array $pages)
+    public static function make(Array $pages, $isPost = false, $ext = 'html' )
     {
         if( !file_exists(Cyaneus::config('path')->site) ) {
             mkdir(Cyaneus::config('path')->site);
@@ -20,23 +23,9 @@ class Factory
 
         foreach ($pages as $pageName => $content) {
 
-            $ext = 'html';
-            // Posts are not associative
-            if( !is_string($pageName) ) {
-
-                $pageName = $content['config']['url'];
-                $content  = $content['html'];
-                $file     = Cyaneus::pages($pageName,1,$ext);
-            }else {
-
-                if($pageName === 'rss' || $pageName === 'sitemap') {
-                    $ext = 'xml';
-                }
-
-                $file = Cyaneus::pages($pageName,0,$ext);
-            }
-
             Log::trace('Content found for '.$pageName);
+
+            $file = Cyaneus::pages($pageName,$isPost,$ext);
 
             if( file_exists($file) ) {
                 unlink($file);

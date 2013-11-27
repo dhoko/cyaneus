@@ -27,18 +27,12 @@ class Build
     private $files;
 
     /**
-     * A DateTime for logs
-     * @var String
-     */
-    private $datetime;
-
-    /**
      * Init the build process, and set a datetime
      * @return Build   Build instance
      */
     public function __construct()
     {
-        $this->datetime = CDate::datetime();
+        define('CYANEUS_DATETIME',CDate::datetime());
         return $this;
     }
 
@@ -105,21 +99,20 @@ class Build
 
             foreach ($this->content as $post) {
                 $posts[] = [
-                    'html' => $template->post([
-                        'config' => $post['config'],
-                        'html'   => String::convert($post['raw'])
-                    ]),
-                    'config' => $post['config']
+                    'config' => $post['config'],
+                    'text'   => String::convert($post['raw']),
                 ];
             }
 
-            $pages = $template->pages($posts);
             $template->moveCustom();
+            Factory::make($template->pages($posts,['index','archives']));
+            Factory::make($template->posts($posts),true);
+            Factory::make([
+                'rss'     => $template->rss($posts, ['index','archives']),
+                'sitemap' => $template->sitemap($posts, ['index','archives']),
+            ],false, 'xml');
 
-            Factory::make($pages);
-            Factory::make($posts);
-            Factory::make(['sitemap'=>$template->sitemap($posts)]);
-
+            unset($template);
             die('Build done');
 
         } catch (Exception $e) {

@@ -1,16 +1,16 @@
 <?php
 namespace Cyaneus\Template;
 use Cyaneus\Cyaneus;
-use Cyaneus\Helpers\CDate;
 use Cyaneus\Helpers\Factory;
+use Cyaneus\Template\Models as Models;
 
 /**
 * Main class to build generate pages from templates
 */
 class Template
 {
-    private $template = [];
-    private $config = [];
+    private $nav;
+    private $config;
 
     /**
      * Build our basic configuration for a template, such as default config var and template string
@@ -19,190 +19,124 @@ class Template
     public function __construct(Array $config)
     {
         $this->config = $config;
-        $this->template = array(
-            'index' => array(
-                'main'    => file_get_contents(Cyaneus::config('path')->template.'index.html'),
-                'content' => file_get_contents(Cyaneus::config('path')->template.'content-index.html'),
-                ),
-            'post' => file_get_contents(Cyaneus::config('path')->template.'post.html'),
-            'archives' => array(
-                'main'    => file_get_contents(Cyaneus::config('path')->template.'index.html'),
-                'content' => file_get_contents(Cyaneus::config('path')->template.'content-index.html'),
-                ),
-            'rss' => array(
-                'main'    => file_get_contents(Cyaneus::config('path')->template.'rss.html'),
-                'content' => file_get_contents(Cyaneus::config('path')->template.'content-rss.html'),
-                ),
-            'navigation' => file_get_contents(Cyaneus::config('path')->template.'navigation.html')
-             );
+        $this->nav = $this->navigation();
     }
-
-
 
     /**
-     * Replace var in a template from an array [key=>value]
-     * @param Array $opt Options of data to bind
-     * @param String $string Template string
-     * @return String Template with datas
+     * Build the site navigation
+     * You must have a navigation.html in the template folder
+     * @return String HTML
      */
-    private function replace(Array $opt, $string)
-    {
-        if(empty($string)) {
-            throw new \Exception("Cannot fill an empty string");
-        }
-
-        $_data = array();
-        foreach ($opt as $key => $value) {
-            $_data['{{'.$key.'}}'] = $value;
-        }
-        return strtr($string,$_data);
-    }
-
     private function navigation()
     {
-        return $this->replace(self::config(), $this->template['navigation']);
+        $nav = new Models\Navigation([
+                'tags'      => $this->config(),
+                'templates' => [
+                    'main'    => file_get_contents(Cyaneus::config('path')->template.'navigation.html'),
+                ]
+            ]);
+        $render = $nav->build();
+        unset($nav);
+        return $render;
     }
 
     /**
-     * Build a post
-     * @param String $context Template to build
-     * @param Array  $data Options of data to bind
-     * @return String Template with datas
+     * Build the HTML for each pages
+     * @param  Array  $posts List of posts
+     * @param  Array  $pages List of page to build (array of string)
+     * @return Array        [page => HTML]
      */
-    public function post(Array $data)
+    public function pages(Array $posts, Array $pages)
     {
-        $_content = '';
-        $content  = $this->template['post'];
-        $data['config']['navigation'] = $this->navigation();
-        $data['config'] = array_merge($this->config, $this->buildKeyTemplate($data['config'], $data['html']));
-
-        if($content){
-            return $this->replace($data['config'],$content);
-        }
-    }
-
-    /**
-     * Build loop element such as content on a home page
-     * @param String $context Template to build
-     * @param Array  $data Options of data to bind
-     * @return String Template with datas
-     */
-    public function loop($context,Array $data)
-    {
-
-        $data    = array_merge($this->config, $data);
-        $content = $this->template[$context]['content'];
-
-        if($content){
-            return $this->replace($data,$content);
-        }
-    }
-
-    public function pages(Array $config)
-    {
-        if(empty($config)) {
-            throw new \RuntimeException('We cannot build pages without a config');
-        }
-
-        return $this->page($config);
-    }
-
-
-    /**
-     * Build a page
-     * @param String $context Template to build
-     * @param Array  $data Options of data to bind
-     * @return String Template with datas
-     */
-    public function page(Array $data)
-    {
-        $_pages = [];
-        $_data  = [];
-
-        $pages = array_keys($this->template);
+        $render = [];
 
         foreach ($pages as $page) {
 
-            if($page === 'navigation' || $page === 'post') {
-                continue;
-            }
-            $_data['content'] = '';
-            foreach ($data as $post) {
-
-                $_data['content'] .= $this->loop($page,$this->buildKeyTemplate($post['config'],$post['html']));
-                $_data['navigation'] = $this->navigation();
-
-            }
-            $_tmp = $this->config($_data);
-            $_pages[$page] = $this->replace($_tmp,$this->template[$page]['main']);
-
+            $_page = new Models\Page([
+                'tags'      => $this->config(),
+                'templates' => [
+                    'main'    => file_get_contents(Cyaneus::config('path')->template.$page.'.html'),
+                    'content' => file_get_contents(Cyaneus::config('path')->template.'content-'.$page.'.html')
+                ]
+            ]);
+            $_page->setNavigation($this->nav);
+            $_page->setPosts($posts);
+            $_page->setPages($page);
+            $render[$page] = $_page->build();
+            unset($_page);
         }
 
-        return $_pages;
+        return $render;
     }
-
 
     /**
-    * Main configuration for Template's keys
-    * These keys are available in a template
-    * @param  Array $info Default configuration
-    * @return Array       template keys
-    */
-    private function buildKeyTemplate($info, $content)
+     * Build the RSS
+     * @param  Array  $posts List of posts
+     * @param  Array  $pages List of page to build (array of string)
+     * @return String   XML
+     */
+    public function rss(Array $posts, Array $pages)
     {
-        if(!isset($info['last_update'])) {
-            $info['last_update'] = $info['added_time'];
-        }
-        return $this->config([
-            'post_url'             => Cyaneus::config('path')->postUrl.$info['url'].'.html',
-            'post_title'           => $info['title'],
-            'post_date'            => CDate::formated($info['added_time']),
-            'post_lang'            => (isset($info['plang'])) ? $info['plang'] : $this->config['lang'],
-            'post_update'          => CDate::formated($info['last_update']),
-            'post_date_rss'        => CDate::rss($info['last_update']),
-            'post_description'     => $info['description'],
-            'post_content'         => $content,
-            'post_author'          => $info['author'],
-            'post_tags'            => $info['tags'],
-            'post_timestamp'       => $info['added_time'],
-            'post_timestamp_up'    => $info['last_update'],
-            'post_timestamp_upRaw' => CDate::timestamp($info['last_update']),
-            'navigation'       => (isset($info['navigation'])) ? $info['navigation'] : '',
+        $rss = new Models\Rss([
+            'tags'      => $this->config(),
+            'templates' => [
+                'main'    => file_get_contents(Cyaneus::config('path')->ctemplate.'rss.xml'),
+                'content' => file_get_contents(Cyaneus::config('path')->ctemplate.'rss-content.xml')
+            ]
         ]);
+
+        $rss->setPosts($posts);
+        $rss->setPages($pages);
+        $render = $rss->build();
+
+        unset($rss);
+        return $render;
     }
 
-
-
-
-    public function sitemap(Array $data)
+    /**
+     * Build the sitemap
+     * @param  Array  $posts List of posts
+     * @param  Array  $pages List of page to build (array of string)
+     * @return String XML
+     */
+    public function sitemap(Array $posts, Array $pages)
     {
-        $header = '<?xml version="1.0" encoding="UTF-8"?><!-- generator="'.Cyaneus::config('site')->generator.'" -->';
-        $header .= '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+        $sitemap = new Models\Sitemap([
+            'tags'      => $this->config(),
+            'templates' => [
+                'main'    => file_get_contents(Cyaneus::config('path')->ctemplate.'sitemap.xml'),
+                'content' => file_get_contents(Cyaneus::config('path')->ctemplate.'sitemap-content.xml')
+            ]
+        ]);
 
-        $url = function ($data) {
-            // var_dump(date('c',$data['timestamp_upRaw'])); exit();
-            $path = $data['post_url'];
-            $update = CDate::format($data['post_timestamp']);
-            $freq = (isset($data['type']) && $data['type'] === 'page') ? 'daily' : 'monthly';
-            $priority = (isset($data['type']) && $data['type'] === 'page') ? '0.6' : '0.2';
-            if($data['post_url'] === 'index.html') {
-                $priority = '1.0';
-                $path = Cyaneus::config('path')->url;
-            }
-            $url = '<url>'."\n";
-            $url .= "\t".'<loc>%s</loc>'."\n";
-            $url .= "\t".'<lastmod>%s</lastmod>'."\n";
-            $url .= "\t".'<changefreq>%s</changefreq>'."\n";
-            $url .= "\t".'<priority>%.1f</priority>'."\n";
-            $url .= '</url>';
-            return sprintf($url,$path,$update,$freq,$priority);
-        };
-        foreach ($data as $element) {
-            $header .= "\n".$url(array_merge($this->config, $this->buildKeyTemplate($element['config'], $element['html'])));
-        }
+        $sitemap->setPosts($posts);
+        $sitemap->setPages($pages);
+        $render = $sitemap->build();
 
-        $header .= "\n".'</urlset>';
-        return $header;
+        unset($sitemap);
+        return $render;
+    }
+
+    /**
+     * Build all the posts
+     * @param  Array  $posts List of posts
+     * @return Array [post=>HTML]
+     */
+    public function posts(Array $posts)
+    {
+        $_posts = new Models\Post([
+            'tags'      => $this->config(),
+            'templates' => [
+                'main' => file_get_contents(Cyaneus::config('path')->template.'post.html'),
+            ]
+        ]);
+
+        $_posts->setNavigation($this->nav);
+        $_posts->setPosts($posts);
+        $render = $_posts->build();
+
+        unset($_posts);
+        return $render;
     }
 
     /**
@@ -213,13 +147,13 @@ class Template
     private function config(Array $data = array())
     {
         $merge = array_merge(array(
-            'site_lang'        => Cyaneus::config('site')->language,
-            'site_url'         => Cyaneus::config('site')->url,
-            'site_title'       => Cyaneus::config('site')->name,
-            'site_description' => Cyaneus::config('site')->description,
-            'site_generator'   => Cyaneus::config('site')->generator,
-            'site_author'      => Cyaneus::config('site')->author,
-            'site_template'    => Cyaneus::config('site')->template_name,
+            'site_lang'        => $this->config['language'],
+            'site_url'         => $this->config['url'],
+            'site_title'       => $this->config['name'],
+            'site_description' => $this->config['description'],
+            'site_generator'   => $this->config['generator'],
+            'site_author'      => $this->config['author'],
+            'site_template'    => $this->config['template_name'],
             'site_rss_url'     => Cyaneus::config('path')->rss,
             'site_css_url'     => Cyaneus::config('path')->css,
             ),$data);
