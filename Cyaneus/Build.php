@@ -27,6 +27,12 @@ class Build
     private $files;
 
     /**
+     * Store the configuration of medias found
+     * @var Array
+     */
+    private $medias;
+
+    /**
      * Init the build process, and set a datetime
      * @return Build   Build instance
      */
@@ -51,6 +57,7 @@ class Build
 
             $hook->get();
             $this->files = $hook->files();
+
             return $this;
 
         } catch (Exception $e) {
@@ -66,23 +73,46 @@ class Build
     public function init()
     {
         try {
-            $data = [];
+            $data   = [];
+            $_media = [];
             foreach ($this->files['post'] as $file => $fullPath) {
 
                 $config = Factory::getContent($fullPath);
                 $config['config']['added_time'] = substr($file, 0,10);
                 $data[] = $config;
+
+                if( !empty($config['config']['picture']) ) {
+                    $_media = $_media + $config['config']['picture'];
+                }
+
                 $config = [];
             }
 
             $this->content = $data;
+            $this->medias = $_media;
+
             unset($data);
+            unset($_media);
 
             return $this;
 
         } catch (Exception $e) {
             Log::error($e->getMessage());
             die('Init content error');
+        }
+    }
+
+    /**
+     * Build each medias associate to a page
+     */
+    private function media() {
+
+        foreach ($this->medias as $name => $params) {
+
+            if( isset($this->files['media'][$params['file']]) ) {
+                Factory::picture($name, $this->files['media'][$params['file']], $params);
+            }
+            continue;
         }
     }
 
@@ -108,6 +138,8 @@ class Build
             Factory::make($template->pages($posts,['index','archives']));
             Factory::make($template->posts($posts),true);
             Factory::make($template->xmlPages($posts),false, 'xml');
+
+            $this->media();
 
             unset($posts);
             unset($template);

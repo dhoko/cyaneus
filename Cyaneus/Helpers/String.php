@@ -63,25 +63,31 @@ class String
      */
     public static function parseConfig($string)
     {
-        $info  = [];
-        $_tags = explode(',', Cyaneus::config('site')->tags);
+        try {
+            $info  = [];
+            $_tags = explode(',', Cyaneus::config('site')->tags);
 
-        $yaml  = new Parser();
-        $value = $yaml->parse($string);
+            $yaml  = new Parser();
+            $value = $yaml->parse($string);
 
-        foreach ($_tags as $tag) {
+            foreach ($_tags as $tag) {
 
-            if(!isset($value[$tag])) {
-                $value[$tag] = '';
+                if(!isset($value[$tag])) {
+                    $value[$tag] = '';
+                }
+                continue;
             }
-            continue;
-        }
 
-        if(empty($value['url'])) {
-            $value['url'] = self::url($value['title']);
-        }
+            if(empty($value['url'])) {
+                $value['url'] = self::url($value['title']);
+            }
 
-        unset($yaml);
-        return $value;
+            unset($yaml);
+            return $value;
+
+        } catch (ParseException $e) {
+            Log::error($e->getMessage());
+            return [];
+        }
     }
 }

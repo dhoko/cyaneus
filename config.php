@@ -57,5 +57,5 @@ $cyaneus = [
    *   - https://github.com/ + PSEUDO + REPOSITORY + /zipball/ + BRANCH
    * The default branch is master
    */
-  'repositoryUrl' => 'https://github.com/dhoko/blog/zipball/angular_post'
+  'repositoryUrl' => 'http://dhoko.me/files/dhoko-blog-497123d.zip'
 ];

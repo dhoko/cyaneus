@@ -44,10 +44,10 @@ abstract class AbstractHookListener
 
                 $folder = pathinfo($file->getpath());
 
-                $_files['post'][$file->getfilename()] = Cyaneus::config('path')->draft.$folder['basename'].DIRECTORY_SEPARATOR.$file->getfilename();
-
                 if( !in_array($file->getExtension(), ["md",'markdown']) ) {
-                    $_files['media'][] = Cyaneus::config('path')->draft.$folder['basename'].DIRECTORY_SEPARATOR.$file->getfilename();
+                    $_files['media'][$file->getfilename()] = Cyaneus::config('path')->draft.$folder['basename'].DIRECTORY_SEPARATOR.$file->getfilename();
+                }else {
+                    $_files['post'][$file->getfilename()] = Cyaneus::config('path')->draft.$folder['basename'].DIRECTORY_SEPARATOR.$file->getfilename();
                 }
 
             }

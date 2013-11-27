@@ -65,32 +65,40 @@ class Factory
     }
 
     /**
-     * Build attachement picture for a post
-     * @param Array $config Configuration for an image
+     * Build pictures attach to a page
+     * @param String $name   Name of the source image
+     * @param String $source Source of the image
+     * @param Array $config  Configuration for an image [width,heigth,crop]
      * @return bool
      */
-    public static function picture(Array $config)
+    public static function picture($name, $source, Array $config)
     {
-        // if(!empty($config)) {
+        try {
+            Log::trace('Init creation of '.$name.' from '.$source);
 
-        //     klog('Find an image attach to the current post');
-        //     // [0] => w ---- [1] => h
-        //     $_info = getimagesize(DRAFT.DIRECTORY_SEPARATOR.$config['path']);
-        //     $image = new PHPImageWorkshop\ImageWorkshop(array(
-        //             'imageFromPath' => DRAFT.DIRECTORY_SEPARATOR.$config['path'],
-        //     ));
+            $width  = (isset($config['width'])) ? $config['width'] : Cyaneus::site('site')->thumb_w;
+            $height = (isset($config['height'])) ? $config['height'] : null;
+            $crop   = (isset($config['crop'])) ? $config['crop'] : false;
+            $name   = $name.'.'.pathinfo($config['file'],PATHINFO_EXTENSION);
 
-        //     if (THUMB_W < $_info[0]) {
-        //         $image->resizeInPixel(THUMB_W, null, true);
-        //     }else{
-        //         $image->resizeInPixel($_info[0], null, true);
-        //     }
-        //      //backgroundColor transparent, only for PNG (otherwise it will be white if set null)
-        //     klog('Record file config '.var_export($config,true));
-        //     klog('Record file '.STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR.$config['basename']);
-        //     // (file_path,file_name,create_folder,background_color,quality)
-        //     return $image->save(STORE.FOLDER_MAIN_PATH.DIRECTORY_SEPARATOR.POST.DIRECTORY_SEPARATOR, $config['basename'], true, null, 85);
-        // }
+            // [0] => w ---- [1] => h
+            $_info = getimagesize($source);
+
+            $image = new \PHPImageWorkshop\ImageWorkshop(array(
+                'imageFromPath' => $source,
+            ));
+
+            $image->resizeInPixel($width, $height, $crop);
+
+            // (file_path,file_name,create_folder,background_color,quality)
+            $image->save(Cyaneus::config('path')->post, $name, true, null, 85);
+
+            unset($image);
+            Log::trace('Image build');
+
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+        }
     }
 
     /**
