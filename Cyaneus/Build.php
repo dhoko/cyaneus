@@ -89,7 +89,7 @@ class Build
             }
 
             $this->content = $data;
-            $this->medias = $_media;
+            $this->medias  = $_media;
 
             unset($data);
             unset($_media);
@@ -105,8 +105,8 @@ class Build
     /**
      * Build each medias associate to a page
      */
-    private function media() {
-
+    private function media()
+    {
         foreach ($this->medias as $name => $params) {
 
             if( isset($this->files['media'][$params['file']]) ) {
@@ -114,6 +114,27 @@ class Build
             }
             continue;
         }
+    }
+
+    /**
+     * Attach images to a post and build the HTML syntaxe
+     * @param  Array  $pictures List of picture
+     * @return Array
+     */
+    private function attachPictures(Array $pictures)
+    {
+        $_pict = [];
+
+        if( !empty($pictures) ) {
+
+            foreach ($pictures as $name => $params) {
+
+                $picture_name = $name.'.'.pathinfo($params['file'],PATHINFO_EXTENSION);
+                $description  = (isset($params['description'])) ? $params['description'] : '';
+                $_pict['picture_'.$name] = String::convert(String::pict2Markdown($picture_name, $description));
+            }
+        }
+        return $_pict;
     }
 
     /**
@@ -127,6 +148,8 @@ class Build
             $template = new Template((array) Cyaneus::config('site'));
 
             foreach ($this->content as $post) {
+
+                $post['config']['picture'] = $this->attachPictures($post['config']['picture']);
                 $posts[] = [
                     'config' => $post['config'],
                     'text'   => String::convert($post['raw']),

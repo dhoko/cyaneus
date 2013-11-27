@@ -127,6 +127,9 @@ abstract class AbstractTemplateModel
         if(!isset($config['last_update'])) {
             $config['last_update'] = $config['added_time'];
         }
+
+        $content = String::replace($config['picture'], $content);
+
         return [
             'post_url'             => Cyaneus::postUrl($config['url']),
             'post_title'           => $config['title'],

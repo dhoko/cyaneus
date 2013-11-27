@@ -81,6 +81,11 @@ class Factory
             $crop   = (isset($config['crop'])) ? $config['crop'] : false;
             $name   = $name.'.'.pathinfo($config['file'],PATHINFO_EXTENSION);
 
+            if( file_exists(Cyaneus::config('path')->post.$name) ) {
+                Log::trace('Image already exist :'.Cyaneus::config('path')->post.$name);
+                return false;
+            }
+
             // [0] => w ---- [1] => h
             $_info = getimagesize($source);
 

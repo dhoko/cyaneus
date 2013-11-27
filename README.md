@@ -28,14 +28,27 @@ title: The Hitchhiker's Guide to the Galaxy
 tags: 42,h2g2,Science fiction
 author: Douglas Adams
 description: The Hitchhiker's Guide to the Galaxy is a comic science fiction series created by Douglas Adams.
-language: en
+plang: en
+picture: 
+  trollidee:
+   file: IMG_20130630_235316.jpg
+   width: 150
+   height: 150
+   crop: true
+   description: Une image de test
+  image2:
+   file: IMG_20130630_235316.jpg
+   width: 500
+
 
 ==POST==
 
 
-Put here your post content
-
+Put here your post content and add your image with {{picture_trollidee}} or the second picture with 
+{{picture_image2}}
 ```
+
+- **plang** : Language of your post (if one day you write a french post and your blog not in french.)
 
 > The minimal setup for a post is `title: One Ring to rule them all, One Ring to find them`. 
 

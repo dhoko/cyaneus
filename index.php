@@ -4,6 +4,7 @@
 require 'vendor/Php-Markdown-Extended/markdown.php';
 require 'vendor/Php-Markdown-Extended/markdown_extended.php';
 require 'vendor/ip_in_range/ip_in_range.php';
+require 'vendor/PhpImageWorkshop/ImageWorkshop.php';
 
 require 'vendor/autoload.php';
 // Define Cyaneus main path

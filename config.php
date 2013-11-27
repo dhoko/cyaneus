@@ -5,9 +5,9 @@ $cyaneus = [
    */
 
   // Site name
-  'name' => 'Le Colibri libre',
+  'name' => '',
   // Site main url, must be end with /
-  'url' => 'http://localhost:8000/',
+  'url' => '',
   // Language of your site
   'language' => 'fr-FR',
   // Webmaster
@@ -28,9 +28,9 @@ $cyaneus = [
    */
 
   // Tags you want to edit in your posts
-  'tags' => 'title,url,date,tags,description,author,plang',
+  'tags' => 'title,url,date,tags,description,author,plang,picture',
   // The generator
-  'generator' => 'Cyaneus 1.0 RC2s',
+  'generator' => 'Cyaneus 1.0 RC2',
   // Put your drafts in this folder
   'draft' => 'draft',
   // Your posts builds will be store in this folder
@@ -57,5 +57,5 @@ $cyaneus = [
    *   - https://github.com/ + PSEUDO + REPOSITORY + /zipball/ + BRANCH
    * The default branch is master
    */
-  'repositoryUrl' => 'http://dhoko.me/files/dhoko-blog-497123d.zip'
+  'repositoryUrl' => ''
 ];

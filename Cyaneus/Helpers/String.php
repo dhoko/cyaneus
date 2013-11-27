@@ -90,4 +90,9 @@ class String
             return [];
         }
     }
+
+    public static function pict2Markdown($picture_path, $description = '')
+    {
+        return '!['.$description.']('.$picture_path.' "'.$description.'")';
+    }
 }
