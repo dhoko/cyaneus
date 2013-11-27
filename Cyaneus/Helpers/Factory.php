@@ -57,7 +57,7 @@ class Factory
 
             Log::trace('Get content for '.$file);
             return [
-                'config' => String::getTags($config),
+                'config' => String::parseConfig($config),
                 'raw' => $article
             ];
         }

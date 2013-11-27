@@ -78,7 +78,6 @@ class Build
             $this->content = $data;
             unset($data);
 
-            dd($this->files);
             return $this;
 
         } catch (Exception $e) {

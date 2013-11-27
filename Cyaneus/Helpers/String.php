@@ -37,41 +37,6 @@ class String
     }
 
     /**
-     * Loop on each TAGS in order to build an array [tag:value]
-     * @param string Header from a post
-     * @return Array [tag:value]
-     */
-    public static function getTags($post)
-    {
-        $info = [];
-        $_tags = explode(',', Cyaneus::config('site')->tags);
-
-        foreach ($_tags as $tag) {
-            $info[$tag] = self::findTag($post,$tag);
-        }
-
-        // Rebuild some informations
-        if(empty($info['url'])) {
-            $info['url'] = self::url($info['title']);
-        }
-
-        return $info;
-    }
-
-    /**
-     * Find tags from a post from its header.
-     * info('author="dhoko"','author') => dhoko
-     * @param string Header of a post
-     * @param string Tag tag to find cf TAGS
-     * @return string tag value
-     */
-    private static function findTag($data,$tag)
-    {
-        preg_match('/"([^"]+)"/',strstr($data,$tag),$match);
-        return (isset($match[1])) ? $match[1] : '';
-    }
-
-    /**
      * Replace var in a template from an array [key=>value]
      * @param Array $opt Options of data to bind
      * @param String $string Template string
@@ -98,8 +63,24 @@ class String
      */
     public static function parseConfig($string)
     {
+        $info  = [];
+        $_tags = explode(',', Cyaneus::config('site')->tags);
+
         $yaml  = new Parser();
         $value = $yaml->parse($string);
+
+        foreach ($_tags as $tag) {
+
+            if(!isset($value[$tag])) {
+                $value[$tag] = '';
+            }
+            continue;
+        }
+
+        if(empty($value['url'])) {
+            $value['url'] = self::url($value['title']);
+        }
+
         unset($yaml);
         return $value;
     }
