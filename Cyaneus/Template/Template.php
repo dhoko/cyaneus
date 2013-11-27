@@ -118,6 +118,20 @@ class Template
     }
 
     /**
+     * Build the sitemap and the RSS
+     * @param  Array  $posts List of posts
+     * @param  Array  $pages List of page to build (array of string)
+     * @return Array  [sitemap,rss]
+     */
+    public function xmlPages(Array $posts, Array $pages = array('index','archives'))
+    {
+        return [
+            'rss'     => $template->rss($posts, $pages),
+            'sitemap' => $template->sitemap($posts, $pages),
+            ];
+    }
+
+    /**
      * Build all the posts
      * @param  Array  $posts List of posts
      * @return Array [post=>HTML]

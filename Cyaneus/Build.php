@@ -77,6 +77,8 @@ class Build
 
             $this->content = $data;
             unset($data);
+
+            dd($this->files);
             return $this;
 
         } catch (Exception $e) {
@@ -92,9 +94,7 @@ class Build
     public function run()
     {
         try {
-
-            $posts = [];
-            $pages = [];
+            $posts    = [];
             $template = new Template((array) Cyaneus::config('site'));
 
             foreach ($this->content as $post) {
@@ -105,13 +105,12 @@ class Build
             }
 
             $template->moveCustom();
+
             Factory::make($template->pages($posts,['index','archives']));
             Factory::make($template->posts($posts),true);
-            Factory::make([
-                'rss'     => $template->rss($posts, ['index','archives']),
-                'sitemap' => $template->sitemap($posts, ['index','archives']),
-            ],false, 'xml');
+            Factory::make($template->xmlPages($posts),false, 'xml');
 
+            unset($posts);
             unset($template);
             die('Build done');
 
