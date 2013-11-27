@@ -99,12 +99,8 @@ class Build
             // dd($this->content);
             foreach ($this->content as $post) {
                 $posts[] = [
-                    // 'html' => $template->post([
-                    //     'config' => $post['config'],
-                    //     'html'   => String::convert($post['raw'])
-                    // ]),
                     'config' => $post['config'],
-                    'text' => String::convert($post['raw']),
+                    'text'   => String::convert($post['raw']),
                 ];
             }
 
@@ -115,7 +111,12 @@ class Build
             // Factory::make(['sitemap'=>$template->sitemap($posts)]);
 
 
-            $template->posts($posts);
+            // $template->pages($posts,['index','archives']);
+            dd($template->pages($posts,['index','archives']));
+
+
+
+            // $template->posts($posts)
             // $template->rss($posts, ['index','archives']);
             // $template->sitemap($posts, ['index','archives']);
             die('Build done');

@@ -80,7 +80,7 @@ class String
     public static function replace(Array $opt, $string)
     {
         if(empty($string)) {
-            throw new \InvalidArgumentsException("Cannot fill an empty string");
+            throw new \InvalidArgumentException("Cannot fill an empty string");
         }
 
         $_data = array();
