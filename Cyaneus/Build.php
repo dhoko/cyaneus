@@ -96,24 +96,24 @@ class Build
             $posts = [];
             $pages = [];
             $template = new Template((array) Cyaneus::config('site'));
-
+            // dd($this->content);
             foreach ($this->content as $post) {
                 $posts[] = [
                     // 'html' => $template->post([
                     //     'config' => $post['config'],
                     //     'html'   => String::convert($post['raw'])
                     // ]),
-                    'config' => $post['config']
+                    'config' => $post['config'],
+                    'text' => String::convert($post['raw']),
                 ];
             }
 
             // $pages = $template->pages($posts);
             $template->moveCustom();
-
             // Factory::make($pages);
             // Factory::make($posts);
             // Factory::make(['sitemap'=>$template->sitemap($posts)]);
-            $template->sitemap($posts);
+            $template->sitemap($posts, ['index','archives']);
             die('Build done');
 
         } catch (Exception $e) {

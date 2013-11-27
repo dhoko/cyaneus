@@ -30,6 +30,17 @@ class CDate
     }
 
     /**
+     * Format a date to ATOM format
+     * @param  String $date
+     * @return String
+     */
+    public static function atom($date)
+    {
+        $datetime = new DateTime($date, new DateTimeZone(Cyaneus::config('site')->timezone));
+        return $datetime->format(DateTime::ATOM);
+    }
+
+    /**
      * Get a timestamp from a date
      * @param  String $date
      * @return String

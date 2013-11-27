@@ -3,7 +3,6 @@ namespace Cyaneus\Template\Models;
 use Cyaneus\Template\Models\AbstractTemplateModel;
 use Cyaneus\Cyaneus;
 use Cyaneus\Helpers\CDate;
-use Cyaneus\Helpers\Factory;
 
 /**
  * Model for a Sitemap
@@ -11,19 +10,68 @@ use Cyaneus\Helpers\Factory;
 class Sitemap extends AbstractTemplateModel
 {
 
+    const PAGE_FREQUENCY = 'daily';
+    const POST_FREQUENCY = 'monthly';
+
     public function build()
     {
-        $tags = $this->getTags([
-                    'sitemap_url'       => '',
-                    'sitemap_date'      => CYANEUS_DATETIME,
-                    'sitemap_frequency' => '',
-                    'sitemap_priority'  => '',
-                ]);
-
-        foreach ($this->pages as $key => $value) {
-            dd($value);
-        }
+        $tags = $this->getTags(['content' => $this->makePages() . $this->makePosts()]);
+        return $this->bindParams($this->template['main'],$tags));
     }
+
+    /**
+     * Build the content for a post
+     * @return String HTML template
+     */
+    private function makePosts()
+    {
+        $content = '';
+        $_tags = [
+            'sitemap_url'       => '',
+            'sitemap_date'      => '',
+            'sitemap_frequency' => '',
+            'sitemap_priority'  => '',
+        ];
+
+        foreach ($this->posts as $post) {
+
+            $_tags['sitemap_url']       = $this->computeUrl(Cyaneus::postUrl($post['config']['url']));
+            $_tags['sitemap_date']      = CDate::atom($post['config']['added_time']);
+            $_tags['sitemap_frequency'] = self::POST_FREQUENCY;
+            $_tags['sitemap_priority']  = $this->computePriority('post', $post['config']['url']);
+
+            $content .= $this->bindParams($this->template['content'],$this->getTags($_tags));
+        }
+
+        return $content;
+    }
+
+    /**
+     * Build the content for a post
+     * @param  String String to bind as {{content}}
+     * @return String HTML template
+     */
+    private function makePages()
+    {
+        $_content = '';
+        $_tags = [
+            'sitemap_url'       => '',
+            'sitemap_date'      => CYANEUS_DATETIME,
+            'sitemap_frequency' => self::PAGE_FREQUENCY,
+            'sitemap_priority'  => '',
+        ];
+
+        foreach ($this->pages as $page) {
+
+            $_tags['sitemap_url']      = $this->computeUrl(Cyaneus::pageUrl($page));
+            $_tags['sitemap_priority'] = $this->computePriority('page', $page.'.html');
+
+            $_content .= $this->bindParams($this->template['content'],$this->getTags($_tags));
+        }
+
+        return $_content;
+    }
+
 
     /**
      * Compute the priority for a page
@@ -40,60 +88,14 @@ class Sitemap extends AbstractTemplateModel
         return ($type === 'page') ? '0.6' : '0.2';
     }
 
-    /**
-     * Compute the frequency of update for a page
-     * It will be
-     *     - daily
-     *     - monthly
-     * @param  String $type Type of content
-     * @return String
-     */
-    private function computeFrequency($type)
-    {
-        return ($type === 'page') ? 'daily' : 'monthly';
-    }
 
     /**
      * Compure the URl for your page
      * @param  String $url Current url
      * @return String
      */
-    private function computeUrl($url) {
-
-        return ( !strstr('index.html', $url) ) ? $url : Cyaneus::config('path')->url;
-    }
-
-
-    private function get()
+    private function computeUrl($url)
     {
-        $header = '<?xml version="1.0" encoding="UTF-8"?><!-- generator="'.Cyaneus::config('site')->generator.'" -->';
-        $header .= '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-
-        $url = function ($data) {
-            // var_dump(date('c',$data['timestamp_upRaw'])); exit();
-            $path = $data['post_url'];
-            $update = CDate::format($data['post_timestamp']);
-            $freq = (isset($data['type']) && $data['type'] === 'page') ? 'daily' : 'monthly';
-            $priority = (isset($data['type']) && $data['type'] === 'page') ? '0.6' : '0.2';
-            if($data['post_url'] === 'index.html') {
-                $priority = '1.0';
-                $path = Cyaneus::config('path')->url;
-            }
-            $url = '<url>'."\n";
-            $url .= "\t".'<loc>%s</loc>'."\n";
-            $url .= "\t".'<lastmod>%s</lastmod>'."\n";
-            $url .= "\t".'<changefreq>%s</changefreq>'."\n";
-            $url .= "\t".'<priority>%.1f</priority>'."\n";
-            $url .= '</url>';
-            return sprintf($url,$path,$update,$freq,$priority);
-        };
-        foreach ($data as $element) {
-            $header .= "\n".$url(array_merge($this->config, $this->buildKeyTemplate($element['config'], $element['html'])));
-        }
-
-        $header .= "\n".'</urlset>';
-        return $header;
+        return ( !strstr($url,'index.html') ) ? $url : Cyaneus::config('path')->url;
     }
-
-
 }

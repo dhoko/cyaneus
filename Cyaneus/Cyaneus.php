@@ -89,6 +89,14 @@ class Cyaneus
         return $path.'.'.$ext;
     }
 
+    public static function postUrl($post) {
+        return self::config('path')->postUrl.$post.'.html';
+    }
+
+    public static function pageUrl($page) {
+        return self::config('path')->url.$page.'.html';
+    }
+
     /**
      * Determine if an IP is within a specific range.
      * @param  String  $ip     Current request IP

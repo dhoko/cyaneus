@@ -2,6 +2,7 @@
 namespace Cyaneus\Template\Models;
 use Cyaneus\Cyaneus;
 use Cyaneus\Helpers\CDate;
+use Cyaneus\Helpers\String;
 
 /**
  * Abstract class for a model
@@ -26,6 +27,12 @@ abstract class AbstractTemplateModel
      * @var Array
      */
     protected $pages;
+
+    /**
+     * List all the posts you have to parse
+     * @var Array
+     */
+    protected $posts;
 
     /**
      * Build a model for a page
@@ -56,10 +63,31 @@ abstract class AbstractTemplateModel
     }
 
     /**
+     * Add posts to the model
+     * @param Array $pages
+     */
+    public function setposts(Array $posts)
+    {
+        $this->posts = $posts;
+    }
+
+    /**
      * Build the template
      * @return String The HTML for a template
      */
     abstract public function build();
+
+
+    /**
+     * Bind each params to a template
+     * @param  String $template Raw template
+     * @param  Array  $tags     Associative array
+     * @return String           HTML
+     */
+    protected function bindParams($template, Array $tags)
+    {
+        return String::replace($tags, $template);
+    }
 
     /**
      * Merge the tags you build for a page with the default tags for the site

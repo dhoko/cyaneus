@@ -156,7 +156,7 @@ class Template
 
 
 
-    public function sitemap(Array $data)
+    public function sitemap(Array $post, Array $pages)
     {
         $sitemap = new Models\Sitemap([
             'tags'      => $this->config(),
@@ -166,7 +166,8 @@ class Template
             ]
         ]);
 
-        $sitemap->setPages($data);
+        $sitemap->setPosts($post);
+        $sitemap->setPages($pages);
         return $sitemap->build();
     }
 
