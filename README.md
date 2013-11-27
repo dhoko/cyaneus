@@ -38,6 +38,7 @@ Put here your post content
 ```
 
 > The minimal setup for a post is `title: One Ring to rule them all, One Ring to find them`. 
+
 > You must specify **==POST==**, Cyaneus will extract informations before it and the post after.
 
 ## Templating
