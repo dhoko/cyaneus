@@ -1,6 +1,7 @@
 <?php
 namespace Cyaneus\Helpers;
 use Cyaneus\Cyaneus;
+use Symfony\Component\Yaml\Parser;
 
 /**
  * Some helpers for strings
@@ -88,5 +89,18 @@ class String
             $_data['{{'.$key.'}}'] = $value;
         }
         return strtr($string,$_data);
+    }
+
+    /**
+     * Parse a YAML string and build a config
+     * @param  String $string  Post Configuration
+     * @return Array
+     */
+    public static function parseConfig($string)
+    {
+        $yaml  = new Parser();
+        $value = $yaml->parse($string);
+        unset($yaml);
+        return $value;
     }
 }
