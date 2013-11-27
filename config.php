@@ -28,7 +28,7 @@ $cyaneus = [
    */
 
   // Tags you want to edit in your posts
-  'tags' => 'title,url,date,tags,description,author,plang',
+  'tags' => 'title,url,date,tags,description,author,plang,picture',
   // The generator
   'generator' => 'Cyaneus 1.0 RC2',
   // Put your drafts in this folder

@@ -6,7 +6,8 @@
     "keywords": ["markdown","static","github","hook"],
     "license": "MIT",
     "require": {
-        "php": ">=5.4"
+        "php": ">=5.4",
+        "symfony/yaml": "2.5.*@dev"
     },
     "autoload": {
         "psr-0" : {"Cyaneus\\" : ''}

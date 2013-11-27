@@ -27,6 +27,12 @@ class Build
     private $files;
 
     /**
+     * Store the configuration of medias found
+     * @var Array
+     */
+    private $medias;
+
+    /**
      * Init the build process, and set a datetime
      * @return Build   Build instance
      */
@@ -51,6 +57,7 @@ class Build
 
             $hook->get();
             $this->files = $hook->files();
+
             return $this;
 
         } catch (Exception $e) {
@@ -66,17 +73,27 @@ class Build
     public function init()
     {
         try {
-            $data = [];
+            $data   = [];
+            $_media = [];
             foreach ($this->files['post'] as $file => $fullPath) {
 
                 $config = Factory::getContent($fullPath);
                 $config['config']['added_time'] = substr($file, 0,10);
                 $data[] = $config;
+
+                if( !empty($config['config']['picture']) ) {
+                    $_media = $_media + $config['config']['picture'];
+                }
+
                 $config = [];
             }
 
             $this->content = $data;
+            $this->medias  = $_media;
+
             unset($data);
+            unset($_media);
+
             return $this;
 
         } catch (Exception $e) {
@@ -86,18 +103,53 @@ class Build
     }
 
     /**
+     * Build each medias associate to a page
+     */
+    private function media()
+    {
+        foreach ($this->medias as $name => $params) {
+
+            if( isset($this->files['media'][$params['file']]) ) {
+                Factory::picture($name, $this->files['media'][$params['file']], $params);
+            }
+            continue;
+        }
+    }
+
+    /**
+     * Attach images to a post and build the HTML syntaxe
+     * @param  Array  $pictures List of picture
+     * @return Array
+     */
+    private function attachPictures(Array $pictures)
+    {
+        $_pict = [];
+
+        if( !empty($pictures) ) {
+
+            foreach ($pictures as $name => $params) {
+
+                $picture_name = $name.'.'.pathinfo($params['file'],PATHINFO_EXTENSION);
+                $description  = (isset($params['description'])) ? $params['description'] : '';
+                $_pict['picture_'.$name] = String::convert(String::pict2Markdown($picture_name, $description));
+            }
+        }
+        return $_pict;
+    }
+
+    /**
      * Build Them all
      * @return Build   Build instance
      */
     public function run()
     {
         try {
-
-            $posts = [];
-            $pages = [];
+            $posts    = [];
             $template = new Template((array) Cyaneus::config('site'));
 
             foreach ($this->content as $post) {
+
+                $post['config']['picture'] = $this->attachPictures($post['config']['picture']);
                 $posts[] = [
                     'config' => $post['config'],
                     'text'   => String::convert($post['raw']),
@@ -105,13 +157,14 @@ class Build
             }
 
             $template->moveCustom();
+
             Factory::make($template->pages($posts,['index','archives']));
             Factory::make($template->posts($posts),true);
-            Factory::make([
-                'rss'     => $template->rss($posts, ['index','archives']),
-                'sitemap' => $template->sitemap($posts, ['index','archives']),
-            ],false, 'xml');
+            Factory::make($template->xmlPages($posts),false, 'xml');
 
+            $this->media();
+
+            unset($posts);
             unset($template);
             die('Build done');
 
