@@ -54,6 +54,30 @@ Put here your post content and add your image with {{picture_trollidee}} or the 
 
 > You must specify **==POST==**, Cyaneus will extract informations before it and the post after.
 
+### Name of the file
+
+The filename have to be like : `2013-11-27-blablabla.md` (replace blablabla :) )
+
+#### Insert an image in your post
+
+You can add picture in your post, you have to declare them in your markdown file.
+
+```yaml
+picture: 
+  trollidee:
+   file: IMG_20130630_235316.jpg
+   width: 150
+   height: 150
+   crop: true
+   description: Une image de test
+  image2:
+   file: IMG_20130630_235316.jpg
+   width: 500
+```
+
+With this code you have configure 2 picture. You can call them in your markdown with `{{picture_NAME}}`, the *NAME* is trollidee or image2 in this exemple.
+
+
 ## Templating
 
 To build a new template, you just have to duplicate *base*.
