@@ -6,9 +6,10 @@ A static PHP blog generator
 
 1. Download Cyaneus : [zipfile](https://github.com/dhoko/cyaneus/zipball/master)
 2. Change the default configuration in **config.php**
-3. Upload Cyaneus
-4. Create a repository on Github and attach a webhook to `yousite.me/upload-folder/?github`
-5. Done
+3. Add your repository Zipball URL in the config at the key **repositoryURL** : ex `https://github.com/dhoko/cyaneus/zipball/master`. The last param (master here), is the name of a branch
+4. Upload Cyaneus
+5. Create a repository on Github and attach a webhook to `yousite.me/upload-folder/?github`
+6. Done
 
 > You must use this script if you have : 
 - Wget on your system, yup it does not work on a Windows Server yet.
