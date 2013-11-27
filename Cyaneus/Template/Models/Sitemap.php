@@ -16,7 +16,7 @@ class Sitemap extends AbstractTemplateModel
     public function build()
     {
         $tags = $this->getTags(['content' => $this->makePages() . $this->makePosts()]);
-        return $this->bindParams($this->template['main'],$tags));
+        return $this->bindParams($this->template['main'],$tags);
     }
 
     /**

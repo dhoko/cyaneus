@@ -5,7 +5,7 @@ $cyaneus = [
    */
 
   // Site name
-  'name' => '',
+  'name' => 'Le Colibri libre',
   // Site main url, must be end with /
   'url' => 'http://localhost:8000/',
   // Language of your site
@@ -13,7 +13,7 @@ $cyaneus = [
   // Webmaster
   'author' => '',
   // SIte description
-  'description' => '',
+  'description' => 'le troll volant',
   // Template Name
   'template_name' => 'base',
   // Thumbnail width

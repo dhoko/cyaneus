@@ -154,6 +154,20 @@ class Template
     }
 
 
+    public function rss(Array $post, Array $pages)
+    {
+        $rss = new Models\Rss([
+            'tags'      => $this->config(),
+            'templates' => [
+                'main'    => file_get_contents(Cyaneus::config('path')->ctemplate.'rss.xml'),
+                'content' => file_get_contents(Cyaneus::config('path')->ctemplate.'rss-content.xml')
+            ]
+        ]);
+
+        $rss->setPosts($post);
+        $rss->setPages($pages);
+        return $rss->build();
+    }
 
 
     public function sitemap(Array $post, Array $pages)
