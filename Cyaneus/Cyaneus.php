@@ -47,9 +47,10 @@ class Cyaneus
     private static function buildPathConfig(Array $config)
     {
         $base     = CYANEUS_PATH.$config['folder_main_path'];
-        $url      = $config['url'];
-        $site     = $base.DIRECTORY_SEPARATOR;
-        $postPath = $site.$config['articles'];
+        $url       = $config['url'];
+        $site      = $base.DIRECTORY_SEPARATOR;
+        $postPath  = $site.$config['articles'];
+        $pagesPath = $site.$config['pages'];
         // Some paths for custom Cyaneus Resources
         $resources = __DIR__.DIRECTORY_SEPARATOR.'Resources'.DIRECTORY_SEPARATOR;
 
@@ -60,8 +61,10 @@ class Cyaneus
             'template'      => CYANEUS_PATH.$config['template'].DIRECTORY_SEPARATOR.$config['template_name'].DIRECTORY_SEPARATOR,
             'repositoryUrl' => $config['repositoryUrl'],
             'post'          => $postPath.DIRECTORY_SEPARATOR,
+            'pages'          => $pagesPath.DIRECTORY_SEPARATOR,
             'url'           => $url,
             'postUrl'       => $url.$config['articles'].DIRECTORY_SEPARATOR,
+            'pageUrl'       => $url.$config['pages'].DIRECTORY_SEPARATOR,
             'site'          => $site,
             'css'           => $url.'style.css',
             'rss'           => $url.'rss.xml',

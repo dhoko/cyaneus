@@ -84,12 +84,12 @@ class Build
                 // Define a custom page format if your file name begin with Page
                 if( strtolower(substr($file, 0,4)) === 'page' ) {
                     $config['type'] = 'page';
-                    $config['config']['added_time'] = substr($file, 5,15);
+                    $config['config']['added_time'] = substr($file, 5,10);
                 }else {
                     $config['config']['added_time'] = substr($file, 0,10);
                 }
 
-                $config = array_merge($config, Factory::getContent($fullPath));
+                $config = array_merge_recursive($config, Factory::getContent($fullPath));
 
                 $data[] = $config;
 
@@ -98,7 +98,7 @@ class Build
                     $_media = $_media + $config['config']['picture'];
                 }
             }
-
+            // dd($data);
             $this->content = $data;
             $this->medias  = $_media;
 
@@ -163,14 +163,14 @@ class Build
 
                 $post['config']['picture'] = $this->attachPictures($post['config']['picture']);
 
-                if( !isset($post['type']) && $post['type'] !== 'page' ) {
-
-                    $posts[] = [
+                if( isset($post['type']) && $post['type'] === 'page' ) {
+                    $pages[] = [
                         'config' => $post['config'],
                         'text'   => String::convert($post['raw']),
                     ];
+
                 }else {
-                    $pages[] = [
+                    $posts[] = [
                         'config' => $post['config'],
                         'text'   => String::convert($post['raw']),
                     ];
@@ -179,7 +179,7 @@ class Build
             }
 
             $template->moveCustom();
-
+            // dd($pages);
             Factory::make($template->singlePages($pages));
             Factory::make($template->pages($posts,['index','archives']));
             Factory::make($template->posts($posts),true);

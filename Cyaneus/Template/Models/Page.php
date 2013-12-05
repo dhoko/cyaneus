@@ -39,7 +39,6 @@ class Page extends AbstractTemplateModel
         $_tags   = [];
 
         foreach ($this->posts as $post) {
-
             $_tags[$post['config']['added_time']] = $this->getTags($this->buildCustomtags($post['config'],$post['text']));
         }
 

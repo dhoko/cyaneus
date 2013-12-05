@@ -76,6 +76,10 @@ class Template
      */
     public function singlePages(Array $pages) {
 
+        if( empty($pages) ) {
+            return [];
+        }
+
         $render = [];
         $template = file_get_contents(Cyaneus::config('path')->template.'single-page.html');
 
