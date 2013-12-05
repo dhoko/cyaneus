@@ -70,6 +70,38 @@ class Template
     }
 
     /**
+     * Build the HTML a single page
+     * @param  Array  $pages
+     * @return Array        [page => HTML]
+     */
+    public function singlePages(Array $pages) {
+
+        if( empty($pages) ) {
+            return [];
+        }
+
+        $render = [];
+        $template = file_get_contents(Cyaneus::config('path')->template.'single-page.html');
+
+        foreach ($pages as $page) {
+
+            $_page = new Models\SinglePage([
+                'tags'      => $this->config(),
+                'templates' => [
+                    'main'    => $template,
+                ]
+            ]);
+
+            $_page->setNavigation($this->nav);
+            $_page->setSinglePages($page);
+            $render[Cyaneus::config('site')->pages.DIRECTORY_SEPARATOR.$page['config']['url']] = $_page->build();
+            unset($_page);
+        }
+
+        return $render;
+    }
+
+    /**
      * Build the RSS
      * @param  Array  $posts List of posts
      * @param  Array  $pages List of page to build (array of string)
