@@ -20,6 +20,13 @@ class Cyaneus
         self::$config['site'] = $cyaneus;
         self::$config['path'] = self::buildPathConfig($cyaneus);
 
+    }
+
+    /**
+     * Run Cyaneus
+     */
+    public static function run()
+    {
         Factory::buildPath();
     }
 
