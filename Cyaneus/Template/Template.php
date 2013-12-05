@@ -33,7 +33,7 @@ class Template
         $nav = new Models\Navigation([
                 'tags'      => $this->config(),
                 'templates' => [
-                    'main'    => file_get_contents(Cyaneus::config('path')->template.'navigation.html'),
+                    'main'    => file_get_contents(Cyaneus::path()->template.'navigation.html'),
                 ]
             ]);
         $render = $nav->build();
@@ -56,8 +56,8 @@ class Template
             $_page = new Models\Page([
                 'tags'      => $this->config(),
                 'templates' => [
-                    'main'    => file_get_contents(Cyaneus::config('path')->template.$page.'.html'),
-                    'content' => file_get_contents(Cyaneus::config('path')->template.'content-'.$page.'.html')
+                    'main'    => file_get_contents(Cyaneus::path()->template.$page.'.html'),
+                    'content' => file_get_contents(Cyaneus::path()->template.'content-'.$page.'.html')
                 ]
             ]);
             $_page->setNavigation($this->nav);
@@ -75,14 +75,14 @@ class Template
      * @param  Array  $pages
      * @return Array        [page => HTML]
      */
-    public function singlePages(Array $pages) {
-
+    public function singlePages(Array $pages)
+    {
         if( empty($pages) ) {
             return [];
         }
 
         $render = [];
-        $template = file_get_contents(Cyaneus::config('path')->template.'single-page.html');
+        $template = file_get_contents(Cyaneus::path()->template.'single-page.html');
 
         foreach ($pages as $page) {
 
@@ -95,7 +95,7 @@ class Template
 
             $_page->setNavigation($this->nav);
             $_page->setSinglePages($page);
-            $render[Cyaneus::config('site')->pages.DIRECTORY_SEPARATOR.$page['config']['url']] = $_page->build();
+            $render[Cyaneus::app()->pages.$page['config']['url']] = $_page->build();
             unset($_page);
         }
 
@@ -113,8 +113,8 @@ class Template
         $rss = new Models\Rss([
             'tags'      => $this->config(),
             'templates' => [
-                'main'    => file_get_contents(Cyaneus::config('path')->ctemplate.'rss.xml'),
-                'content' => file_get_contents(Cyaneus::config('path')->ctemplate.'rss-content.xml')
+                'main'    => file_get_contents(Cyaneus::path()->ctemplate.'rss.xml'),
+                'content' => file_get_contents(Cyaneus::path()->ctemplate.'rss-content.xml')
             ]
         ]);
 
@@ -137,8 +137,8 @@ class Template
         $sitemap = new Models\Sitemap([
             'tags'      => $this->config(),
             'templates' => [
-                'main'    => file_get_contents(Cyaneus::config('path')->ctemplate.'sitemap.xml'),
-                'content' => file_get_contents(Cyaneus::config('path')->ctemplate.'sitemap-content.xml')
+                'main'    => file_get_contents(Cyaneus::path()->ctemplate.'sitemap.xml'),
+                'content' => file_get_contents(Cyaneus::path()->ctemplate.'sitemap-content.xml')
             ]
         ]);
 
@@ -174,7 +174,7 @@ class Template
         $_posts = new Models\Post([
             'tags'      => $this->config(),
             'templates' => [
-                'main' => file_get_contents(Cyaneus::config('path')->template.'post.html'),
+                'main' => file_get_contents(Cyaneus::path()->template.'post.html'),
             ]
         ]);
 
@@ -201,8 +201,8 @@ class Template
             'site_generator'   => $this->config['generator'],
             'site_author'      => $this->config['author'],
             'site_template'    => $this->config['template_name'],
-            'site_rss_url'     => Cyaneus::config('path')->rss,
-            'site_css_url'     => Cyaneus::config('path')->css,
+            'site_rss_url'     => Cyaneus::path()->rss,
+            'site_css_url'     => Cyaneus::path()->css,
             ),$data);
         return $merge;
     }
@@ -215,7 +215,7 @@ class Template
     public function attachPictures(Array $pictures)
     {
         $_pict    = [];
-        $template = file_get_contents(Cyaneus::config('path')->ctemplate.'picture.html');
+        $template = file_get_contents(Cyaneus::path()->ctemplate.'picture.html');
 
         foreach ($pictures as $name => $params) {
 

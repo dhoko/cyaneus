@@ -13,9 +13,9 @@ class Cyaneus
     * - Post destination folder
     * - Move your CSS template to your site folder
     */
-    public static function init()
+    public static function init($env = '')
     {
-        require __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'config.php';
+        require __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'config'.$env.'.php';
 
         self::$config['site'] = $cyaneus;
         self::$config['path'] = self::buildPathConfig($cyaneus);
@@ -25,17 +25,20 @@ class Cyaneus
 
     /**
      * Tu use your site's configuration
-     * @param  string $about What do you want
-     * @return Array
-     * @throws RuntimeException If your configuration is empty
+     * @return StdClass
      */
-    public static function config($about)
+    public static function app()
     {
-        if( !isset(self::$config[$about]) ) {
-            throw new \RuntimeException('Cannot find your configuration : '.$about);
-        }
+        return (object) self::$config['site'];
+    }
 
-        return (object) self::$config[$about];
+    /**
+     * Path's configuration
+     * @return StdClass
+     */
+    public static function path()
+    {
+        return (object) self::$config['path'];
     }
 
     /**
@@ -84,20 +87,22 @@ class Cyaneus
     public static function pages($path, $post = false, $ext = 'html')
     {
         if($post) {
-            $path = self::config('path')->post.$path;
+            $path = self::path()->post.$path;
         }else{
-            $path = self::config('path')->site.$path;
+            $path = self::path()->site.$path;
         }
 
         return $path.'.'.$ext;
     }
 
-    public static function postUrl($post) {
-        return self::config('path')->postUrl.$post.'.html';
+    public static function postUrl($post)
+    {
+        return self::path()->postUrl.$post.'.html';
     }
 
-    public static function pageUrl($page) {
-        return self::config('path')->url.$page.'.html';
+    public static function pageUrl($page)
+    {
+        return self::path()->url.$page.'.html';
     }
 
     /**
@@ -106,8 +111,8 @@ class Cyaneus
      * @param  Array   $ranges Array of ranges or IP
      * @return boolean
      */
-    public function ipValidator($ip, Array $ranges) {
-
+    public function ipValidator($ip, Array $ranges)
+    {
         foreach ($ranges as $range) {
             if(ip_in_range($ip, $range)) return true;
             continue;

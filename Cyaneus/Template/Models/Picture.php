@@ -29,7 +29,7 @@ class Picture extends AbstractTemplateModel
     {
         $alt         = (isset($this->tags['alt'])) ? : '';
         $description = (isset($this->tags['description'])) ? : $alt;
-        $className   = Cyaneus::config('site')->picture_class;
+        $className   = Cyaneus::app()->picture_class;
 
         if(isset($this->tags['class'])) {
             $className .= $this->tags['class'];
@@ -37,7 +37,7 @@ class Picture extends AbstractTemplateModel
 
         return [
             'picture_class'       => $className,
-            'picture_src'         => Cyaneus::config('path')->postUrl.$this->tags['name'].'.'.$this->tags['ext'],
+            'picture_src'         => Cyaneus::path()->postUrl.$this->tags['name'].'.'.$this->tags['ext'],
             'picture_alt'         => $alt,
             'picture_description' => $description,
         ];
