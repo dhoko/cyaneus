@@ -96,6 +96,6 @@ class Sitemap extends AbstractTemplateModel
      */
     private function computeUrl($url)
     {
-        return ( !strstr($url,'index.html') ) ? $url : Cyaneus::config('path')->url;
+        return ( !strstr($url,'index.html') ) ? $url : Cyaneus::path()->url;
     }
 }

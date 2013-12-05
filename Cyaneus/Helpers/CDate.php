@@ -14,8 +14,8 @@ class CDate
      */
     public static function formated($date)
     {
-        $datetime = new DateTime($date, new DateTimeZone(Cyaneus::config('site')->timezone));
-        return $datetime->format(Cyaneus::config('site')->date_format);
+        $datetime = new DateTime($date, new DateTimeZone(Cyaneus::app()->timezone));
+        return $datetime->format(Cyaneus::app()->date_format);
     }
 
     /**
@@ -25,7 +25,7 @@ class CDate
      */
     public static function rss($date)
     {
-        $datetime = new DateTime($date, new DateTimeZone(Cyaneus::config('site')->timezone));
+        $datetime = new DateTime($date, new DateTimeZone(Cyaneus::app()->timezone));
         return $datetime->format('D, j M Y H:i:s \G\M\T');
     }
 
@@ -36,7 +36,7 @@ class CDate
      */
     public static function atom($date)
     {
-        $datetime = new DateTime($date, new DateTimeZone(Cyaneus::config('site')->timezone));
+        $datetime = new DateTime($date, new DateTimeZone(Cyaneus::app()->timezone));
         return $datetime->format(DateTime::ATOM);
     }
 
@@ -47,7 +47,7 @@ class CDate
      */
     public static function timestamp($date)
     {
-        $datetime = new DateTime($date, new DateTimeZone(Cyaneus::config('site')->timezone));
+        $datetime = new DateTime($date, new DateTimeZone(Cyaneus::app()->timezone));
         return $datetime->format('U');
     }
 
@@ -57,7 +57,7 @@ class CDate
      */
     public static function datetime()
     {
-        return (new DateTime("now",new DateTimeZone(Cyaneus::config('site')->timezone)))->format('Y-m-d H:i:s');
+        return (new DateTime("now",new DateTimeZone(Cyaneus::app()->timezone)))->format('Y-m-d H:i:s');
     }
 
     /**
@@ -66,6 +66,6 @@ class CDate
      */
     public static function format($date, $format = 'c')
     {
-        return (new DateTime($date,new DateTimeZone(Cyaneus::config('site')->timezone)))->format($format);
+        return (new DateTime($date,new DateTimeZone(Cyaneus::app()->timezone)))->format($format);
     }
 }

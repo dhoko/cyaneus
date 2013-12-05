@@ -100,7 +100,7 @@ class Log
         $log = '['.CDate::datetime().']['.$level.']['.$class.'::'.$function.']: '.$msg."\n";
         $name = ($type === "server") ? 'log_server' : 'log';
 
-        return file_put_contents(Cyaneus::config('path')->logs.$name.'.txt',$log,FILE_APPEND);
+        return file_put_contents(Cyaneus::path()->logs.$name.'.txt',$log,FILE_APPEND);
     }
 
 }

@@ -51,7 +51,7 @@ class Build
     {
         try {
             $name = 'Cyaneus\Hooks\\'.ucfirst($name).'Listener';
-            $hook = new $name(Cyaneus::config('path')->draft);
+            $hook = new $name(Cyaneus::path()->draft);
 
             Log::trace('Init a new Hook '.$name);
 
@@ -136,7 +136,7 @@ class Build
         try {
             $posts    = [];
             $pages    = [];
-            $template = new Template((array) Cyaneus::config('site'));
+            $template = new Template((array) Cyaneus::app());
 
             foreach ($this->content as $post) {
 

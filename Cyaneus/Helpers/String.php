@@ -65,7 +65,7 @@ class String
     {
         try {
             $info  = [];
-            $_tags = explode(',', Cyaneus::config('site')->tags);
+            $_tags = explode(',', Cyaneus::app()->tags);
 
             $yaml  = new Parser();
             $value = $yaml->parse($string);
@@ -93,10 +93,5 @@ class String
             Log::error($e->getMessage());
             return [];
         }
-    }
-
-    public static function pict2Markdown($picture_path, $description = '')
-    {
-        return '!['.$description.']('.$picture_path.' "'.$description.'")';
     }
 }

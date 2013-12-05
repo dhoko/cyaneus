@@ -16,10 +16,10 @@ class Factory
      * @param  string  $ext    File extension
      * @throws RuntimeException If we cannot write the page
      */
-    public static function make(Array $pages, $isPost = false, $ext = 'html' )
+    public static function make(Array $pages, $isPost = false, $ext = 'html')
     {
-        if( !file_exists(Cyaneus::config('path')->site) ) {
-            mkdir(Cyaneus::config('path')->site);
+        if( !file_exists(Cyaneus::path()->site) ) {
+            mkdir(Cyaneus::path()->site);
         }
 
         foreach ($pages as $pageName => $content) {
@@ -82,8 +82,8 @@ class Factory
             $crop   = (isset($config['crop'])) ? $config['crop'] : false;
             $name   = $name.'.'.pathinfo($config['file'],PATHINFO_EXTENSION);
 
-            if( file_exists(Cyaneus::config('path')->post.$name) ) {
-                Log::trace('Image already exist :'.Cyaneus::config('path')->post.$name);
+            if( file_exists(Cyaneus::path()->post.$name) ) {
+                Log::trace('Image already exist :'.Cyaneus::path()->post.$name);
                 return false;
             }
 
@@ -97,7 +97,7 @@ class Factory
             $image->resizeInPixel($width, $height, $crop);
 
             // (file_path,file_name,create_folder,background_color,quality)
-            $image->save(Cyaneus::config('path')->post, $name, true, null, 85);
+            $image->save(Cyaneus::path()->post, $name, true, null, 85);
 
             unset($image);
             Log::trace('Image build');
@@ -118,8 +118,8 @@ class Factory
 
         foreach ($paths as $path) {
 
-            if(!file_exists(Cyaneus::config('path')->$path)) {
-                mkdir(Cyaneus::config('path')->$path);
+            if(!file_exists(Cyaneus::path()->$path)) {
+                mkdir(Cyaneus::path()->$path);
             }
         }
 
@@ -136,22 +136,22 @@ class Factory
         Log::trace('Move some files to the site. '.var_export($files,true));
         foreach ($files as $file) {
 
-            if( !file_exists(Cyaneus::config('path')->template.$file) ) {
+            if( !file_exists(Cyaneus::path()->template.$file) ) {
                 continue;
             }
 
             // Build a folder, to prevent error during move
             if( pathinfo($file, PATHINFO_EXTENSION) === '' ) {
 
-                if( !file_exists(Cyaneus::config('path')->site.$file) ) {
-                    mkdir(Cyaneus::config('path')->site.$file);
+                if( !file_exists(Cyaneus::path()->site.$file) ) {
+                    mkdir(Cyaneus::path()->site.$file);
                 }
 
-                $origin      = Cyaneus::config('path')->template.$file.DIRECTORY_SEPARATOR;
-                $destination = Cyaneus::config('path')->site;
+                $origin      = Cyaneus::path()->template.$file.DIRECTORY_SEPARATOR;
+                $destination = Cyaneus::path()->site;
             }else {
-                $origin      = Cyaneus::config('path')->template.$file;
-                $destination = Cyaneus::config('path')->site.$file;
+                $origin      = Cyaneus::path()->template.$file;
+                $destination = Cyaneus::path()->site.$file;
             }
 
             exec(escapeshellcmd('cp -r '.$origin.' '.$destination).' 2>&1', $cp_output, $cp_error);
