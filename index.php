@@ -10,12 +10,16 @@ require 'vendor/autoload.php';
 // Define Cyaneus main path
 define('CYANEUS_PATH',__DIR__.DIRECTORY_SEPARATOR);
 
-/**
- * Github Hook page. url?github
- */
-if(isset($_GET['github'])) {
+// Init your application
+Cyaneus\Cyaneus::init();
 
-    Cyaneus\Cyaneus::init();
+/**
+ * Github Hook page. url?github=password
+ */
+if(isset($_GET['github']) && trim($_GET['github']) === Cyaneus\Cyaneus::app()->hook_password) {
+
+    // Run your application
+    Cyaneus\Cyaneus::run();
 
     try {
 
@@ -31,4 +35,6 @@ if(isset($_GET['github'])) {
         die('You shall not pass !!!'); // GG Gandalf
     }
 
+}else{
+    die('You shall not pass !!!');
 }

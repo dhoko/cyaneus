@@ -46,10 +46,10 @@ $cyaneus = [
 
 
   /**
-   * Rebuild Key
-   * You can rebuild your site online but to prevent other to do it you must set a password here.
+   * Password
+   * Another security to prevent someone to regenerate your site each time he try to contact the URL (if you do not customize the url)
    */
-  'rebuild_key' => 'test',
+  'hook_password' => 'test',
 
   /**
    * Git Hook Mechanism
