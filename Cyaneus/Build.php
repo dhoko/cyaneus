@@ -117,27 +117,6 @@ class Build
     }
 
     /**
-     * Attach images to a post and build the HTML syntaxe
-     * @param  Array  $pictures List of picture
-     * @return Array
-     */
-    private function attachPictures(Array $pictures)
-    {
-        $_pict = [];
-
-        if( !empty($pictures) ) {
-
-            foreach ($pictures as $name => $params) {
-
-                $picture_name = $name.'.'.pathinfo($params['file'],PATHINFO_EXTENSION);
-                $description  = (isset($params['description'])) ? $params['description'] : '';
-                $_pict['picture_'.$name] = String::convert(String::pict2Markdown($picture_name, $description));
-            }
-        }
-        return $_pict;
-    }
-
-    /**
      * Build Them all
      * @return Build   Build instance
      */
@@ -149,7 +128,7 @@ class Build
 
             foreach ($this->content as $post) {
 
-                $post['config']['picture'] = $this->attachPictures($post['config']['picture']);
+                $post['config']['picture'] = $template->attachPictures($post['config']['picture']);
                 $posts[] = [
                     'config' => $post['config'],
                     'text'   => String::convert($post['raw']),

@@ -39,6 +39,8 @@ $cyaneus = [
   'template' => 'template',
   // To change the destination of your site.
   'folder_main_path' => 'cyaneus',
+  // Default class for a picture in a post
+  'picture_class' => 'post-img'
 
 
   /**
