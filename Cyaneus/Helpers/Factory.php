@@ -1,6 +1,7 @@
 <?php
 
 namespace Cyaneus\Helpers;
+use PHPImageWorkshop\ImageWorkshop;
 use Cyaneus\Cyaneus;
 use Cyaneus\Helpers\Log;
 use Cyaneus\Helpers\String;
@@ -89,7 +90,7 @@ class Factory
             // [0] => w ---- [1] => h
             $_info = getimagesize($source);
 
-            $image = new \PHPImageWorkshop\ImageWorkshop(array(
+            $image = new ImageWorkshop(array(
                 'imageFromPath' => $source,
             ));
 

@@ -57,7 +57,7 @@ class Cyaneus
         return [
             'base'          => $base,
             'logs'          => CYANEUS_PATH.'data'.DIRECTORY_SEPARATOR,
-            'draft'         => CYANEUS_PATH.$config['draft'].DIRECTORY_SEPARATOR,
+            'draft'         => CYANEUS_PATH.'data'.DIRECTORY_SEPARATOR.$config['draft'].DIRECTORY_SEPARATOR,
             'template'      => CYANEUS_PATH.$config['template'].DIRECTORY_SEPARATOR.$config['template_name'].DIRECTORY_SEPARATOR,
             'repositoryUrl' => $config['repositoryUrl'],
             'post'          => $postPath.DIRECTORY_SEPARATOR,
