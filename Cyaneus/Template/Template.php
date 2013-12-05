@@ -95,7 +95,7 @@ class Template
 
             $_page->setNavigation($this->nav);
             $_page->setSinglePages($page);
-            $render[Cyaneus::path()->pages.$page['config']['url']] = $_page->build();
+            $render[Cyaneus::app()->pages.$page['config']['url']] = $_page->build();
             unset($_page);
         }
 
