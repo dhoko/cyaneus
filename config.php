@@ -30,17 +30,19 @@ $cyaneus = [
   // Tags you want to edit in your posts
   'tags' => 'title,url,date,tags,description,author,plang,picture',
   // The generator
-  'generator' => 'Cyaneus 1.0 RC2',
+  'generator' => 'Cyaneus 1.0 RC3',
   // Put your drafts in this folder
   'draft' => 'draft',
   // Your posts builds will be store in this folder
   'articles' => 'articles',
+  // You pages will be build in this folder
+  'pages' => 'pages',
   // Template folder
   'template' => 'template',
   // To change the destination of your site.
   'folder_main_path' => 'cyaneus',
   // Default class for a picture in a post
-  'picture_class' => 'post-img'
+  'picture_class' => 'post-img',
 
 
   /**

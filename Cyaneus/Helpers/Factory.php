@@ -1,6 +1,7 @@
 <?php
 
 namespace Cyaneus\Helpers;
+use PHPImageWorkshop\ImageWorkshop;
 use Cyaneus\Cyaneus;
 use Cyaneus\Helpers\Log;
 use Cyaneus\Helpers\String;
@@ -89,7 +90,7 @@ class Factory
             // [0] => w ---- [1] => h
             $_info = getimagesize($source);
 
-            $image = new \PHPImageWorkshop\ImageWorkshop(array(
+            $image = new ImageWorkshop(array(
                 'imageFromPath' => $source,
             ));
 
@@ -112,21 +113,16 @@ class Factory
      */
     public static function buildPath()
     {
-        if(!file_exists(Cyaneus::config('path')->base)) {
-            mkdir(Cyaneus::config('path')->base);
+
+        $paths = ['base','logs','draft','site','post','pages'];
+
+        foreach ($paths as $path) {
+
+            if(!file_exists(Cyaneus::config('path')->$path)) {
+                mkdir(Cyaneus::config('path')->$path);
+            }
         }
-        if(!file_exists(Cyaneus::config('path')->logs)) {
-            mkdir(Cyaneus::config('path')->logs);
-        }
-        if(!file_exists(Cyaneus::config('path')->draft)) {
-            mkdir(Cyaneus::config('path')->draft);
-        }
-        if(!file_exists(Cyaneus::config('path')->site)) {
-            mkdir(Cyaneus::config('path')->site);
-        }
-        if(!file_exists(Cyaneus::config('path')->post)) {
-            mkdir(Cyaneus::config('path')->post);
-        }
+
         Log::trace('All the Cyaneus folders are built');
     }
 

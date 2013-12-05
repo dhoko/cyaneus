@@ -74,6 +74,10 @@ class String
 
                 if(!isset($value[$tag])) {
                     $value[$tag] = '';
+
+                    if( 'picture' === $tag) {
+                        $value[$tag] = [];
+                    }
                 }
                 continue;
             }
