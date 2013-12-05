@@ -1,0 +1,28 @@
+<div id="commentcontainer" class="comment-list"></div>
+
+<form action="comments.php" type="POST" id="cya_comments" name="cya_comments">
+
+    <label for="name">Your name : </label>
+    <input type="text" placeholder="James Bond" />
+
+    <label for="mail">Your mail :</label>
+    <input type="mail" placeholder="jamesbond@mi6.co.uk" />
+
+    <label for="content">Your comment :</label>
+    <textarea name="content" id="cya_comments_content" cols="30" rows="10" placeholder="My name is... Bond, James Bond."></textarea>
+
+    <input type="text" name="about" style="display:none" />
+    <input type="hidden" name="info" />
+    <input type="hidden" name="url" />
+
+    <button type="button" name="send">Send</button>
+    <button type="reset">Reset</button>
+</form>
+
+<script id="cyaTplComment" type="text/template">
+    <div class="comment">
+        <img src="{{url}}" alt="{{name}}'s avatar" class="comment-avatar" />
+        <h6>{{name}} says :</h6>
+        <div class="comment-content">{{content}}</div>
+    </div>
+</script>
