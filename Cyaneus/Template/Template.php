@@ -182,28 +182,28 @@ class Template
     */
     public function attachPictures(Array $pictures)
     {
-     $_pict    = [];
-     $template = file_get_contents(Cyaneus::config('path')->ctemplate.'picture.html');
+        $_pict    = [];
+        $template = file_get_contents(Cyaneus::config('path')->ctemplate.'picture.html');
 
-     foreach ($pictures as $name => $params) {
+        foreach ($pictures as $name => $params) {
 
-         $params['name'] = $name;
-         $params['ext'] = pathinfo($params['file'],PATHINFO_EXTENSION);
+            $params['name'] = $name;
+            $params['ext'] = pathinfo($params['file'],PATHINFO_EXTENSION);
 
-         $pict = new Models\Picture([
-             'tags'      => $params,
-             'templates' => [
-                 'main' => $template,
-             ]
-         ]);
+            $pict = new Models\Picture([
+                'tags'      => $params,
+                'templates' => [
+                    'main' => $template,
+                ]
+            ]);
 
-         $render = $pict->build();
-         unset($pict);
-         $picture_name = $name.'.'.pathinfo($params['file'],PATHINFO_EXTENSION);
-         $_pict['picture_'.$name] = $render;
-     }
+            $render = $pict->build();
+            unset($pict);
+            $picture_name = $name.'.'.pathinfo($params['file'],PATHINFO_EXTENSION);
+            $_pict['picture_'.$name] = $render;
+        }
 
-     return $_pict;
+        return $_pict;
     }
 
 
