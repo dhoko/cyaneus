@@ -6,6 +6,7 @@ use Cyaneus\Template\Models as Models;
 
 /**
 * Main class to build generate pages from templates
+* @todo Load each template file with the construct to prevent too many file request
 */
 class Template
 {
@@ -205,6 +206,38 @@ class Template
             ),$data);
         return $merge;
     }
+
+    /**
+    * Attach images to a post and build the HTML syntaxe
+    * @param  Array  $pictures List of picture
+    * @return Array
+    */
+    public function attachPictures(Array $pictures)
+    {
+        $_pict    = [];
+        $template = file_get_contents(Cyaneus::config('path')->ctemplate.'picture.html');
+
+        foreach ($pictures as $name => $params) {
+
+            $params['name'] = $name;
+            $params['ext'] = pathinfo($params['file'],PATHINFO_EXTENSION);
+
+            $pict = new Models\Picture([
+                'tags'      => $params,
+                'templates' => [
+                    'main' => $template,
+                ]
+            ]);
+
+            $render = $pict->build();
+            unset($pict);
+            $picture_name = $name.'.'.pathinfo($params['file'],PATHINFO_EXTENSION);
+            $_pict['picture_'.$name] = $render;
+        }
+
+        return $_pict;
+    }
+
 
     /**
      * Move custom elements from the template
