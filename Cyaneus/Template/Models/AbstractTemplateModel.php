@@ -41,6 +41,12 @@ abstract class AbstractTemplateModel
     protected $navigation;
 
     /**
+     * A single Page configuration
+     * @var Array
+     */
+    protected $singlePage;
+
+    /**
      * Build a model for a page
      * @param Array $config [tags=>[],pages=>[],template=>[]]
      * @throws InvalidArgumentException If a key is missing
@@ -84,6 +90,11 @@ abstract class AbstractTemplateModel
     public function setposts(Array $posts)
     {
         $this->posts = $posts;
+    }
+
+    public function setSinglePages($page)
+    {
+        $this->singlePage = $page;
     }
 
     /**

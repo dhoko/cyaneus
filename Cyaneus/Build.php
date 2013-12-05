@@ -75,17 +75,28 @@ class Build
         try {
             $data   = [];
             $_media = [];
+
             foreach ($this->files['post'] as $file => $fullPath) {
 
-                $config = Factory::getContent($fullPath);
-                $config['config']['added_time'] = substr($file, 0,10);
+                $config = [];
+                $config['config'] = [];
+
+                // Define a custom page format if your file name begin with Page
+                if( strtolower(substr($file, 0,4)) === 'page' ) {
+                    $config['type'] = 'page';
+                    $config['config']['added_time'] = substr($file, 5,15);
+                }else {
+                    $config['config']['added_time'] = substr($file, 0,10);
+                }
+
+                $config = array_merge($config, Factory::getContent($fullPath));
+
                 $data[] = $config;
 
+                // Find all the medias you can
                 if( !empty($config['config']['picture']) ) {
                     $_media = $_media + $config['config']['picture'];
                 }
-
-                $config = [];
             }
 
             $this->content = $data;
@@ -145,25 +156,38 @@ class Build
     {
         try {
             $posts    = [];
+            $pages    = [];
             $template = new Template((array) Cyaneus::config('site'));
 
             foreach ($this->content as $post) {
 
                 $post['config']['picture'] = $this->attachPictures($post['config']['picture']);
-                $posts[] = [
-                    'config' => $post['config'],
-                    'text'   => String::convert($post['raw']),
-                ];
+
+                if( !isset($post['type']) && $post['type'] !== 'page' ) {
+
+                    $posts[] = [
+                        'config' => $post['config'],
+                        'text'   => String::convert($post['raw']),
+                    ];
+                }else {
+                    $pages[] = [
+                        'config' => $post['config'],
+                        'text'   => String::convert($post['raw']),
+                    ];
+                }
+
             }
 
             $template->moveCustom();
 
+            Factory::make($template->singlePages($pages));
             Factory::make($template->pages($posts,['index','archives']));
             Factory::make($template->posts($posts),true);
             Factory::make($template->xmlPages($posts),false, 'xml');
 
             $this->media();
 
+            unset($pages);
             unset($posts);
             unset($template);
             die('Build done');
