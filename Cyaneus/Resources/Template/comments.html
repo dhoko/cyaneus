@@ -2,28 +2,39 @@
 
 <form action="/comments.php" method="post" id="cya_comments" name="cya_comments">
 
-    <label for="name">Your name : </label>
-    <input type="text" name="name" placeholder="James Bond" />
+    <div class="fields">
+        <label for="name">Your name : </label>
+        <input type="text" name="name" placeholder="James Bond" required />
+    </div>
 
-    <label for="mail">Your mail :</label>
-    <input type="mail" name="mail" placeholder="jamesbond@mi6.co.uk" />
+    <div class="fields">
+        <label for="url">Twitter/Website etc. : </label>
+        <input type="url" name="url" placeholder="http://" />
+    </div>
 
-    <label for="content">Your comment :</label>
-    <textarea name="content" id="cya_comments_content" cols="30" rows="10" placeholder="My name is... Bond, James Bond."></textarea>
+    <div class="fields">
+        <label for="mail">Your mail :</label>
+        <input type="mail" name="mail" placeholder="jamesbond@mi6.co.uk" required />
+    </div>
+
+    <div class="fields">
+        <label for="content">Your comment :</label>
+        <textarea name="content" id="cya_comments_content" cols="30" rows="10" placeholder="My name is... Bond, James Bond." required></textarea>
+    </div>
 
     <input type="text" name="about" style="display:none" />
     <input type="hidden" name="info" />
-    <input type="hidden" name="url" />
+    <input type="hidden" name="pathurl" />
 
-    <button type="button" name="send">Send</button>
+    <button type="submit" name="send">Send</button>
     <button type="reset">Reset</button>
 </form>
 
 <script id="cyaTplComment" type="text/template">
     <div class="comment">
         <img src="http://www.gravatar.com/avatar/{{hash}}" alt="{{name}}'s avatar" class="comment-avatar" />
-        <h6>{{name}} says :</h6>
-        <div class="comment-content">{{content}}</div>
+        <h6><a href="{{url}}">{{name}}</a> says :</h6>
+        <p class="comment-content">{{content}}</p>
     </div>
 </script>
 

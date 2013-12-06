@@ -238,7 +238,6 @@ class Template
         return $_pict;
     }
 
-
     /**
      * Move custom elements from the template
      * Default :
@@ -251,7 +250,7 @@ class Template
 
         if(Cyaneus::app()->comments) {
             Factory::moveFromCore([
-                'script' => ['qwest-0.4.2.min.js', 'cyaneus-comments.js']
+                'script' => ['qwest-0.4.2.min.js', 'cyaneus-comments.js','comments.php']
             ]);
         }
     }

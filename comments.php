@@ -1,33 +1,35 @@
 <?php
-// require 'vendor/autoload.php';
+require 'vendor/autoload.php';
 // Define Cyaneus main path
 define('CYANEUS_PATH',__DIR__.DIRECTORY_SEPARATOR);
 
 // Init your application
-Cyaneus\Cyaneus::init();
+Cyaneus\Cyaneus::init('-test');
 Cyaneus\Cyaneus::run();
-
 if( !empty($_POST) && empty($_POST['about'])  && empty($_POST['info']) ) {
 
     $urlSource = $_SERVER['HTTP_REFERER'];
     $urlSource = parse_url($urlSource);
-    $urlSource = trim(str_replace('/', '', $urlSource['path']));
+    $urlSource = trim($urlSource['path']);
     $post = array_map(function($value) {
         return htmlentities(trim($value));
     }, $_POST);
 
-    if($urlSource !== $post['url']) {
+    if(base64_encode($urlSource) !== $post['pathurl']) {
         die('You cannot post this comment');
     }
     try {
 
         Cyaneus\Helpers\Log::trace('Try to record a new comment : '.var_export($post,true));
 
-        $record = new Cyaneus\Storage\Csv\Comment($post['url']);
+        $record = new Cyaneus\Storage\Csv\Comment($post['pathurl']);
         $record->fill($post);
         $record->write();
 
-        die(json_encode(['status' => 'success']));
+        echo json_encode([
+            'status' => 'success',
+            'hashmail' => md5($post['mail'])
+        ]);
 
     } catch (Exception $e) {
         Cyaneus\Helpers\Log::error($e->getMessage());
@@ -38,5 +40,4 @@ if( !empty($_POST) && empty($_POST['about'])  && empty($_POST['info']) ) {
 
 if ( !empty($_GET['url']) ) {
     echo json_encode(Cyaneus\Storage\Csv\Comment::find(trim($_GET['url'])));
-    die();
 }

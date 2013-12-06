@@ -44,6 +44,7 @@ class Comment
         $this->previous[] = [
             'name'       => $attributes['name'],
             'mail'       => $attributes['mail'],
+            'url'        => $attributes['url'],
             'content'    => $attributes['content'],
             'created_at' => $this->created_at,
             ];
@@ -91,11 +92,12 @@ class Comment
                 continue;
             }
 
-            list($name,$mail,$content,$datetime) = $comment;
+            list($name,$mail,$url,$content,$datetime) = $comment;
             if(!empty($name)) {
                 $_data[] = [
                     'name'       => $name,
                     'mail'       => $mail,
+                    'url'        => $url,
                     'content'    => $content,
                     'hash'       => md5($mail),
                     'created_at' => $datetime,

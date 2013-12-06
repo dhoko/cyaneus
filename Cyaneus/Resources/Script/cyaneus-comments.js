@@ -22,12 +22,15 @@
             coms.insertAdjacentHTML('beforeEnd',str);
         });
 
-    form.url.value = btoa(window.location.pathname);
+    form.pathurl.value = btoa(window.location.pathname);
 
-    form.send.addEventListener('click', function(){
+    form.addEventListener('submit', function(e){
+
+        e.preventDefault();
         var data = {
             "about"   : form.about.value,
             "info"    : form.info.value,
+            "pathurl" : form.pathurl.value,
             "url"     : form.url.value,
             "name"    : form.name.value,
             "mail"    : form.mail.value,
