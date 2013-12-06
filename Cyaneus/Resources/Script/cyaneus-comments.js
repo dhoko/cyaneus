@@ -27,6 +27,7 @@
     form.addEventListener('submit', function(e){
 
         e.preventDefault();
+        e.stopPropagation();
         var data = {
             "about"   : form.about.value,
             "info"    : form.info.value,
