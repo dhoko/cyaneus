@@ -1,0 +1,63 @@
+<div id="commentcontainer" class="comment-list">
+    <h3>Comments for this post</h3>
+</div>
+
+<form action="/comments.php" method="post" id="cya_comments" name="cya_comments">
+
+    <div class="fields">
+        <label for="name">Your name : </label>
+        <input type="text" name="name" placeholder="James Bond" required />
+    </div>
+
+    <div class="fields">
+        <label for="url">Twitter/Website etc. : </label>
+        <input type="url" name="url" placeholder="http://" />
+    </div>
+
+    <div class="fields">
+        <label for="mail">Your mail :</label>
+        <input type="email" name="mail" placeholder="jamesbond@mi6.co.uk" required />
+    </div>
+
+    <div class="fields">
+        <label for="content">Your comment :</label>
+        <textarea name="content" id="cya_comments_content" placeholder="My name is... Bond, James Bond." required></textarea>
+    </div>
+
+    <input type="text" name="about" style="display:none" />
+    <input type="hidden" name="info" />
+    <input type="hidden" name="pathurl" />
+
+    <button type="submit" name="send">Send</button>
+    <button type="reset">Reset</button>
+</form>
+
+<script id="cyaTplComment" type="text/template">
+    <div class="comment">
+        <img src="http://www.gravatar.com/avatar/{{hash}}" alt="{{name}}'s avatar" class="comment-avatar" />
+        <h6><a href="{{url}}">{{name}}</a> says :</h6>
+        <p class="comment-content">{{content}}</p>
+    </div>
+</script>
+
+<script>
+    var qScritp = document.createElement("script");
+        qScritp.src = "/qwest-0.4.2.min.js";
+
+    document.body.appendChild(qScritp);
+
+        //Activate Cyaneus comments...
+        qScritp.onload = function() {
+            console.log('Qwest loaded');
+
+            var cScritp = document.createElement("script");
+                cScritp.src = "/cyaneus-comments.js";
+
+            document.body.appendChild(cScritp);
+
+                cScritp.onload = function() {
+                    console.log('Cyaneus comments loaded');
+                };
+        };
+
+</script>

@@ -95,7 +95,7 @@ class Template
 
             $_page->setNavigation($this->nav);
             $_page->setSinglePages($page);
-            $render[Cyaneus::app()->pages.$page['config']['url']] = $_page->build();
+            $render[Cyaneus::app()->pages.DIRECTORY_SEPARATOR.$page['config']['url']] = $_page->build();
             unset($_page);
         }
 
@@ -238,7 +238,6 @@ class Template
         return $_pict;
     }
 
-
     /**
      * Move custom elements from the template
      * Default :
@@ -247,6 +246,12 @@ class Template
      */
     public function moveCustom()
     {
-        Factory::move(['style.css','images', 'scripts']);
+        Factory::moveFromTemplate(['style.css','images', 'scripts']);
+
+        if(Cyaneus::app()->comments) {
+            Factory::moveFromCore([
+                'script' => ['qwest-0.4.2.min.js', 'cyaneus-comments.js','comments.php']
+            ]);
+        }
     }
 }

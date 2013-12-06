@@ -22,7 +22,8 @@ $cyaneus = [
   'date_format' => 'd/m/Y',
   // Your timezone
   'timezone' => "Europe/Paris",
-
+  // Use comments
+  'comments' => true,
   /**
    * Cyaneus Confiuration
    */
