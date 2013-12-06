@@ -4,7 +4,7 @@ require 'vendor/autoload.php';
 define('CYANEUS_PATH',__DIR__.DIRECTORY_SEPARATOR);
 
 // Init your application
-Cyaneus\Cyaneus::init('-test');
+Cyaneus\Cyaneus::init();
 Cyaneus\Cyaneus::run();
 if( !empty($_POST) && empty($_POST['about'])  && empty($_POST['info']) ) {
 

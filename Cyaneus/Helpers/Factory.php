@@ -174,7 +174,6 @@ class Factory
 
             $_path = Cyaneus::path()->{'c'.$type.'s'};
 
-
            foreach ($_file as $file) {
 
                 if( !file_exists($_path.$file) ) {
