@@ -40,15 +40,37 @@ class Comment
      */
     public function fill(Array $attributes)
     {
-        // $this->validate($attributes);
         $this->previous[] = [
-            'name'       => $attributes['name'],
+            'name'       => htmlentities($attributes['name']),
             'mail'       => $attributes['mail'],
             'url'        => $attributes['url'],
-            'content'    => $attributes['content'],
+            'content'    => htmlentities($attributes['content']),
             'created_at' => $this->created_at,
             ];
         $this->attributes = $this->previous;
+
+    }
+
+    /**
+     * Validate the URL and the mail from a comment
+     * @param  Array  $attributes
+     * @throws UnexpectedValueException If the validation is not valid
+     */
+    public static function validate(Array $attributes) {
+
+        try {
+            if( !filter_var($attributes['mail'], FILTER_VALIDATE_EMAIL) ) {
+                throw new \UnexpectedValueException('Invalid email format');
+            }
+
+            if( !empty($attributes['url']) && !filter_var($attributes['url'], FILTER_VALIDATE_URL) ) {
+                throw new \UnexpectedValueException('Invalid url format');
+            }
+            return true;
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -62,7 +84,7 @@ class Comment
                 $this->file->fputcsv($comment);
             }
             return true;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Log::error($e->getMessage());
             return false;
         }
@@ -95,10 +117,10 @@ class Comment
             list($name,$mail,$url,$content,$datetime) = $comment;
             if(!empty($name)) {
                 $_data[] = [
-                    'name'       => $name,
+                    'name'       => html_entity_decode($name),
                     'mail'       => $mail,
                     'url'        => $url,
-                    'content'    => $content,
+                    'content'    => html_entity_decode($content),
                     'hash'       => md5($mail),
                     'created_at' => $datetime,
                 ];

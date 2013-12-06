@@ -1,4 +1,6 @@
-<div id="commentcontainer" class="comment-list"></div>
+<div id="commentcontainer" class="comment-list">
+    <h3>Comments for this post</h3>
+</div>
 
 <form action="/comments.php" method="post" id="cya_comments" name="cya_comments">
 
@@ -14,12 +16,12 @@
 
     <div class="fields">
         <label for="mail">Your mail :</label>
-        <input type="mail" name="mail" placeholder="jamesbond@mi6.co.uk" required />
+        <input type="email" name="mail" placeholder="jamesbond@mi6.co.uk" required />
     </div>
 
     <div class="fields">
         <label for="content">Your comment :</label>
-        <textarea name="content" id="cya_comments_content" cols="30" rows="10" placeholder="My name is... Bond, James Bond." required></textarea>
+        <textarea name="content" id="cya_comments_content" placeholder="My name is... Bond, James Bond." required></textarea>
     </div>
 
     <input type="text" name="about" style="display:none" />

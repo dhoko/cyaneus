@@ -22,16 +22,22 @@ if( !empty($_POST) && empty($_POST['about'])  && empty($_POST['info']) ) {
 
         Cyaneus\Helpers\Log::trace('Try to record a new comment : '.var_export($post,true));
 
-        $record = new Cyaneus\Storage\Csv\Comment($post['pathurl']);
-        $record->fill($post);
-        $record->write();
 
-        echo json_encode([
-            'status' => 'success',
-            'hashmail' => md5($post['mail'])
-        ]);
+        if( Cyaneus\Storage\Csv\Comment::validate($post) ) {
 
-    } catch (Exception $e) {
+            $record = new Cyaneus\Storage\Csv\Comment($post['pathurl']);
+            $record->fill($post);
+            $record->write();
+
+            echo json_encode([
+                'status' => 'success',
+                'hashmail' => md5($post['mail'])
+            ]);
+        }else {
+            die(json_encode(['status' => 'error', 'msg' => 'Some of your inputs are invalid']));
+        }
+
+    } catch (\Exception $e) {
         Cyaneus\Helpers\Log::error($e->getMessage());
         die(json_encode(['status' => 'error']));
     }
