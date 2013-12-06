@@ -1,12 +1,12 @@
 <div id="commentcontainer" class="comment-list"></div>
 
-<form action="comments.php" type="POST" id="cya_comments" name="cya_comments">
+<form action="/comments.php" method="post" id="cya_comments" name="cya_comments">
 
     <label for="name">Your name : </label>
-    <input type="text" placeholder="James Bond" />
+    <input type="text" name="name" placeholder="James Bond" />
 
     <label for="mail">Your mail :</label>
-    <input type="mail" placeholder="jamesbond@mi6.co.uk" />
+    <input type="mail" name="mail" placeholder="jamesbond@mi6.co.uk" />
 
     <label for="content">Your comment :</label>
     <textarea name="content" id="cya_comments_content" cols="30" rows="10" placeholder="My name is... Bond, James Bond."></textarea>
@@ -21,8 +21,30 @@
 
 <script id="cyaTplComment" type="text/template">
     <div class="comment">
-        <img src="{{url}}" alt="{{name}}'s avatar" class="comment-avatar" />
+        <img src="http://www.gravatar.com/avatar/{{hash}}" alt="{{name}}'s avatar" class="comment-avatar" />
         <h6>{{name}} says :</h6>
         <div class="comment-content">{{content}}</div>
     </div>
+</script>
+
+<script>
+    var qScritp = document.createElement("script");
+        qScritp.src = "/qwest-0.4.2.min.js";
+
+    document.body.appendChild(qScritp);
+
+        //Activate Cyaneus comments...
+        qScritp.onload = function() {
+            console.log('Qwest loaded');
+
+            var cScritp = document.createElement("script");
+                cScritp.src = "/cyaneus-comments.js";
+
+            document.body.appendChild(cScritp);
+
+                cScritp.onload = function() {
+                    console.log('Cyaneus comments loaded');
+                };
+        };
+
 </script>

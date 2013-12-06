@@ -82,6 +82,7 @@ class Cyaneus
             'rss'           => $url.'rss.xml',
             'sitemap'       => $url.'sitemap.xml',
             'resources'     => $resources,
+            'cscripts'      => $resources.DIRECTORY_SEPARATOR.'Script'.DIRECTORY_SEPARATOR,
             'ctemplate'     => $resources.DIRECTORY_SEPARATOR.'Template'.DIRECTORY_SEPARATOR,
 
         ];

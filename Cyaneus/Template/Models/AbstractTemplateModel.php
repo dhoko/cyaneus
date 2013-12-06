@@ -135,11 +135,16 @@ abstract class AbstractTemplateModel
     */
     protected function buildCustomtags($config, $content)
     {
+        $comments = '';
         if(!isset($config['last_update'])) {
             $config['last_update'] = $config['added_time'];
         }
 
         $content = String::replace($config['picture'], $content);
+
+        if(Cyaneus::app()->comments) {
+            $comments = file_get_contents(Cyaneus::path()->ctemplate.'comments.html');
+        }
 
         return [
             'post_url'             => Cyaneus::postUrl($config['url']),
@@ -156,6 +161,7 @@ abstract class AbstractTemplateModel
             'post_timestamp_up'    => $config['last_update'],
             'post_timestamp_upRaw' => CDate::timestamp($config['last_update']),
             'navigation'       => (isset($config['navigation'])) ? $config['navigation'] : '',
+            'post_comments'       => $comments,
         ];
     }
 }

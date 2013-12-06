@@ -1,5 +1,5 @@
 <?php
-require 'vendor/autoload.php';
+// require 'vendor/autoload.php';
 // Define Cyaneus main path
 define('CYANEUS_PATH',__DIR__.DIRECTORY_SEPARATOR);
 

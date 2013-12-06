@@ -247,6 +247,12 @@ class Template
      */
     public function moveCustom()
     {
-        Factory::move(['style.css','images', 'scripts']);
+        Factory::moveFromTemplate(['style.css','images', 'scripts']);
+
+        if(Cyaneus::app()->comments) {
+            Factory::moveFromCore([
+                'script' => ['qwest-0.4.2.min.js', 'cyaneus-comments.js']
+            ]);
+        }
     }
 }

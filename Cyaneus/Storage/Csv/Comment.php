@@ -97,6 +97,7 @@ class Comment
                     'name'       => $name,
                     'mail'       => $mail,
                     'content'    => $content,
+                    'hash'       => md5($mail),
                     'created_at' => $datetime,
                 ];
             }

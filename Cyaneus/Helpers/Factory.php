@@ -131,7 +131,7 @@ class Factory
      * @param  Array  $files List of files and folder
      * @throws RuntimeException If Cannot move files
      */
-    public static function move(Array $files)
+    public static function moveFromTemplate(Array $files)
     {
         Log::trace('Move some files to the site. '.var_export($files,true));
         foreach ($files as $file) {
@@ -160,7 +160,49 @@ class Factory
                 throw new \RuntimeException('An error has occurred with cp: '.var_export($cp_output, true));
             }
         }
+    }
 
+    /**
+     * Move custom elements to another directory
+     * @param  Array  $files List of files and folder
+     * @throws RuntimeException If Cannot move files
+     */
+    public static function moveFromCore(Array $files)
+    {
+        Log::trace('Move some files to the site. '.var_export($files,true));
+        foreach ($files as $type => $_file) {
+
+            $_path = Cyaneus::path()->{'c'.$type.'s'};
+
+
+           foreach ($_file as $file) {
+
+                if( !file_exists($_path.$file) ) {
+                    continue;
+                }
+
+                // Build a folder, to prevent error during move
+                if( pathinfo($file, PATHINFO_EXTENSION) === '' ) {
+
+                    if( !file_exists(Cyaneus::path()->site.$file) ) {
+                        mkdir(Cyaneus::path()->site.$file);
+                    }
+
+                    $origin      = $_path.$file.DIRECTORY_SEPARATOR;
+                    $destination = Cyaneus::path()->site;
+                }else {
+                    $origin      = $_path.$file;
+                    $destination = Cyaneus::path()->site.$file;
+                }
+
+                exec(escapeshellcmd('cp -r '.$origin.' '.$destination).' 2>&1', $cp_output, $cp_error);
+
+                 if($cp_output) {
+                    throw new \RuntimeException('An error has occurred with cp: '.var_export($cp_output, true));
+            }
+
+           }
+        }
     }
 
 }

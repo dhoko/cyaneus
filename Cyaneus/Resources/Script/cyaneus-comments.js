@@ -3,51 +3,55 @@
 
     var form = document.forms.cya_comments,
         coms = document.getElementById('commentcontainer'),
-        tpl = document.getElementById('cyaTplComment');
+        tpl  = document.getElementById('cyaTplComment');
 
-    qwest.get(form.action+'?url')
+    qwest.get(form.action+'?url='+btoa(window.location.pathname))
         .success(function (rep){
-            console.log(rep);
+            console.log('Get your comments');
 
             var str = '';
 
             for (var i = 0; i< rep.length; i++) {
                 var t = tpl.innerHTML;
                 for(var key in rep[i]) {
-                    t.replace(/{{key}}/g,rep[i][key]);
-                }
+
+                    t = t.replace(new RegExp('{{'+key+'}}','g'),rep[i][key]);
+                  }
                 str += t;
             };
-            coms.insertAdjacentHTML('beforeEnd',t);
+            coms.insertAdjacentHTML('beforeEnd',str);
         });
 
-    form.url.value = window.location.pathname.replace('/','');
+    form.url.value = btoa(window.location.pathname);
 
-    form.send.onClick = function(){
+    form.send.addEventListener('click', function(){
         var data = {
-            "about" : form.about.value,
-            "info" : form.info.value,
-            "url" : form.url.value,
-            "name" : form.name.value,
-            "mail" : form.mail.value,
+            "about"   : form.about.value,
+            "info"    : form.info.value,
+            "url"     : form.url.value,
+            "name"    : form.name.value,
+            "mail"    : form.mail.value,
             "content" : form.content.value,
         };
 
         qwest.post(form.action,data)
             .success(function (rep){
-                console.log(rep);
+                console.log('Post your comment');
 
-                var t = tpl.innerHtml;
+                var t = tpl.innerHTML;
+                data.hash = rep.hashmail;
+
 
                 for(var key in data) {
-                    t.replace(/{{key}}/g,data[key]);
+                    t = t.replace(new RegExp('{{'+key+'}}','g'),data[key]);
                 }
 
                 coms.insertAdjacentHTML('beforeEnd',t);
-
+                form.reset();
             })
             .error(function (rep){
+                console.error('Cannot post your comment')
                 alert('Cannot post your comment :/');
             });
-    };
+    });
 })(qwest);
