@@ -121,7 +121,7 @@ class Cyaneus
      * @param  Array   $ranges Array of ranges or IP
      * @return boolean
      */
-    public function ipValidator($ip, Array $ranges)
+    public static function ipValidator($ip, Array $ranges)
     {
         foreach ($ranges as $range) {
             if(ip_in_range($ip, $range)) return true;
