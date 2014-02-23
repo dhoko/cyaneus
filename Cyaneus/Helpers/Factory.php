@@ -77,7 +77,7 @@ class Factory
         try {
             Log::trace('Init creation of '.$name.' from '.$source);
 
-            $width  = (isset($config['width'])) ? $config['width'] : Cyaneus::site('site')->thumb_w;
+            $width  = (isset($config['width'])) ? $config['width'] : Cyaneus::app()->thumb_w;
             $height = (isset($config['height'])) ? $config['height'] : null;
             $crop   = (isset($config['crop'])) ? $config['crop'] : false;
             $name   = $name.'.'.pathinfo($config['file'],PATHINFO_EXTENSION);
