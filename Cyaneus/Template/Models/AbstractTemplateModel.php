@@ -143,7 +143,7 @@ abstract class AbstractTemplateModel
         $content = String::replace($config['picture'], $content);
 
         if(Cyaneus::app()->comments) {
-            $comments = String::replace(['site_url' => $config['url']], file_get_contents(Cyaneus::path()->ctemplate.'comments.html'));
+            $comments = String::replace(['site_url' => $this->tags['site_url']], file_get_contents(Cyaneus::path()->ctemplate.'comments.html'));
         }
 
         return [
