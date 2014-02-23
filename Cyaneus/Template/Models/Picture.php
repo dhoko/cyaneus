@@ -28,7 +28,7 @@ class Picture extends AbstractTemplateModel
     private function customTags()
     {
         $alt         = (isset($this->tags['alt'])) ? : '';
-        $description = (isset($this->tags['description'])) ? : $alt;
+        $description = (isset($this->tags['description'])) ? $this->tags['description'] : $alt;
         $className   = Cyaneus::app()->picture_class;
 
         if(isset($this->tags['class'])) {
